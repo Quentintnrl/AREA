@@ -1,8 +1,5 @@
 name: area_ci
 
-env:
-  MIRROR_URL: git@github.com:EpitechPromo2027/B-DEV-500-NAN-5-2-area-loup.thomas.git
-
 on:
   push:
     branches:
@@ -24,6 +21,13 @@ jobs:
               if [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
                 if [[ "${{ github.event.pull_request.head.ref }}" != "dev" ]]; then
                   exit 1
+                fi
+              elif [[ "${{ github.event.pull_request.base.ref }}" == "dev" ]]; then
+                if [[ "${{ github.event.pull_request.head.ref }}" != "main" &&
+                      "${{ github.event.pull_request.head.ref }}" != "web_app" &&
+                      "${{ github.event.pull_request.head.ref }}" != "mobile_app" &&
+                      "${{ github.event.pull_request.head.ref }}" != "back_end" ]]; then
+                    exit 1
                 fi
               fi
             fi
