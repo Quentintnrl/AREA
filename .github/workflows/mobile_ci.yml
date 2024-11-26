@@ -9,13 +9,15 @@ on:
       - main
       - dev
     paths:
-      - './Androïd/**'
+      - 'Androïd/**'
+      - '.github/workflows/mobile_ci.yml'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
-      - './Androïd/**'
+      - 'Androïd/**'
+      - '.github/workflows/mobile_ci.yml'
 
 jobs:
 
