@@ -8,10 +8,14 @@ on:
     branches-ignore:
       - main
       - dev
+    paths:
+      - './Androïd/**'
   pull_request:
     branches-ignore:
       - main
       - dev
+    paths:
+      - './Androïd/**'
 
 jobs:
 
