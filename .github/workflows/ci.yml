@@ -19,7 +19,7 @@ jobs:
       - name: Check repository name
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          if [ "$REPO_NAME" != "AREA" ]; then
+          if [ "$REPO_NAME" == "AREA" ]; then
             echo "This workflow is not meant for this repository. Exiting..."
             exit 1
           fi
