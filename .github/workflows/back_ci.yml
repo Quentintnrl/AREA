@@ -9,13 +9,13 @@ on:
       - main
       - dev
     paths:
-      - './server/**'
+      - 'server/**'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
-      - './server/**'
+      - 'server/**'
 
 jobs:
 
