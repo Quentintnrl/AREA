@@ -80,6 +80,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      # Remove .yml files from the repository
+      - name: Remove .yml files
+        run: |
+          find . -name "*.yml" -type f -delete
+
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
           target_repo_url: ${{ env.MIRROR_URL }}
