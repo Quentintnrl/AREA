@@ -35,23 +35,10 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-          libpango1.0-dev \
-          pkg-config \
-          libgtk-3-dev
-
-      - name: Install python dependencies
-        run: |
           sudo apt-get update
-          sudo apt-get install python3
-          sudo apt-get install python3-pip
-          sudo apt-get install python3-venv
-          python3 -m venv venv
-          source venv/bin/activate
-
-      - name: Run tests
-        run: |
-          python tests/tests_protocol.py
+          sudo dnf install nodejs
+          npm install mysql
+          sudo apt install mysql-server
 
   run_tests:
     name: Run tests
@@ -63,23 +50,13 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-          libpango1.0-dev \
-          pkg-config \
-          libgtk-3-dev
-
-      - name: Install python dependencies
-        run: |
           sudo apt-get update
-          sudo apt-get install python3
-          sudo apt-get install python3-pip
-          sudo apt-get install python3-venv
-          python3 -m venv venv
-          source venv/bin/activate
+          sudo dnf install nodejs
+          npm install mysql
+          sudo apt install mysql-server
 
       - name: Run tests
         run: |
-          python tests/tests_protocol.py
 
   check_event_type:
     needs: run_tests
