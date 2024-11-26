@@ -1,0 +1,109 @@
+name: ci
+
+env:
+  MIRROR_URL: git@github.com:Quentintnrl/AREA.git
+
+on:
+  push:
+    branches-ignore:
+      - ga-ignore-**
+  pull_request:
+    branches-ignore:
+      - ga-ignore-**
+
+jobs:
+
+  check_mirror_conditions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check repository name
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          if [ "$REPO_NAME" != "AREA" ]; then
+            echo "This workflow is not meant for this repository. Exiting..."
+            exit 1
+          fi
+        shell: bash
+
+  install_dependencies:
+    name: Install Dependencies
+    needs: check_mirror_conditions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+          libpango1.0-dev \
+          pkg-config \
+          libgtk-3-dev
+
+      - name: Install python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3
+          sudo apt-get install python3-pip
+          sudo apt-get install python3-venv
+          python3 -m venv venv
+          source venv/bin/activate
+
+      - name: Run tests
+        run: |
+          python tests/tests_protocol.py
+
+  run_tests:
+    name: Run tests
+    needs: install_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+          libpango1.0-dev \
+          pkg-config \
+          libgtk-3-dev
+
+      - name: Install python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3
+          sudo apt-get install python3-pip
+          sudo apt-get install python3-venv
+          python3 -m venv venv
+          source venv/bin/activate
+
+      - name: Run tests
+        run: |
+          python tests/tests_protocol.py
+
+  check_event_type:
+    needs: run_tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if it's a push or pull request
+        run: |
+          BRANCH_NAME=${{ github.ref }} && BRANCH_NAME=${BRANCH_NAME#refs/heads/}
+          if [ "$BRANCH_NAME" != "main" ]; then
+            echo "This is not the main branch. Exiting..."
+            exit 1
+          fi
+        shell: bash
+
+  push_to_mirror:
+    name: Push to mirror
+    needs: check_event_type
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
+          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
