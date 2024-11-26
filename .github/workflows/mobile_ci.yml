@@ -1,0 +1,46 @@
+name: ci
+
+env:
+  MIRROR_URL: git@github.com:EpitechPromo2027/B-DEV-500-NAN-5-2-area-loup.thomas.git
+
+on:
+  push:
+    branches-ignore:
+      - ga-ignore-**
+  pull_request:
+    branches-ignore:
+      - ga-ignore-**
+
+jobs:
+
+  install_dependencies:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install nodejs
+          npm install mysql
+          sudo apt install mysql-server
+
+  run_tests:
+    name: Run tests
+    needs: install_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install nodejs
+          npm install mysql
+          sudo apt install mysql-server
+
+      - name: Run tests
+        run: |
