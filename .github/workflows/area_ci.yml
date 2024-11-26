@@ -15,8 +15,22 @@ on:
 
 jobs:
 
+  get_pr_info:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check if it's a pull request
+          run: |
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              if [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+                if [[ "${{ github.event.pull_request.head.ref }}" != "dev" ]]; then
+                  exit 1
+                fi
+              fi
+            fi
+
   install_dependencies:
     name: Install Dependencies
+    needs: get_pr_info
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
