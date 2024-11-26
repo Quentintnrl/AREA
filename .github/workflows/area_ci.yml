@@ -1,6 +1,7 @@
 name: area_ci
 
 on:
+
   push:
     branches:
       - main
