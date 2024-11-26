@@ -9,13 +9,15 @@ on:
       - main
       - dev
     paths:
-      - './web/**'
+      - 'web/**'
+      - '.github/workflows/front_ci.yml'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
-      - './web/**'
+      - 'web/**'
+      - '.github/workflows/front_ci.yml'
 
 jobs:
 
