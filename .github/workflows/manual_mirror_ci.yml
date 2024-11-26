@@ -1,0 +1,56 @@
+name: CI
+
+env:
+  MIRROR_URL: git@github.com:EpitechPromo2027/B-DEV-500-NAN-5-2-area-loup.thomas.git
+
+on:
+  workflow_dispatch:  # Only allows manual triggering from GitHub UI
+
+jobs:
+
+  install_dependencies:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install nodejs
+          npm install mysql
+          sudo apt install mysql-server
+
+  run_tests:
+    name: Run tests
+    needs: install_dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install nodejs
+          npm install mysql
+          sudo apt install mysql-server
+
+      - name: Run tests
+        run: |
+
+  push_to_mirror:
+    name: Push to mirror
+    needs: run_tests
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
+          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}

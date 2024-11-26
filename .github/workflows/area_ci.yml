@@ -46,23 +46,3 @@ jobs:
 
       - name: Run tests
         run: |
-
-  push_to_mirror:
-    name: Push to mirror
-    needs: run_tests
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      # Remove .yml files from the repository
-      - name: Remove .yml files
-        run: |
-          find . -name "*.yml" -type f -delete
-
-      - uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: ${{ env.MIRROR_URL }}
-          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
