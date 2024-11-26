@@ -10,12 +10,14 @@ on:
       - dev
     paths:
       - 'server/**'
+      - '.github/workflows/back_ci.yml'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
       - 'server/**'
+      - '.github/workflows/back_ci.yml'
 
 jobs:
 
