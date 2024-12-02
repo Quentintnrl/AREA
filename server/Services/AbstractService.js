@@ -71,4 +71,4 @@ class AbstractService {
     }
 }
 
-module.exports = AbstractService, Task;
+module.exports = { AbstractService, Task };
