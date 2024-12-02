@@ -4,38 +4,27 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import Axios from "axios";
 import React, { useState } from "react";
-import * as Network from "expo-network";
 
 
 export default function HomeScreen() {
-  const [users, setUsers] = useState();
-  const [ip, setIp] = useState<any | null>();
-  const ipAlert = async () => {
-    const ip = await Network.getIpAddressAsync();
-    setIp(ip);
-    //alert(ip);
-  };
+  const [users, setUsers] = useState<any | null>();
 
   const getUsers = async () => {
     try {
+      var data = [];
       const config = {
         headers: {
             "Accept": 'application/json',
-            //"Content-Type" : "application/json",
-            "Content-Type": 'multipart/form-data',
+            "Content-Type" : "application/json",
+            //"Content-Type": 'multipart/form-data',
         }
       }
-      const response = await fetch(
-        'http://10.84.106.223:3000/users/');
+      const response = await fetch('http://10.84.106.223:3000/users/', config);
       const json = await response.json();
-      console.log(json)
-      //ipAlert();
-      //console.log(ip)
-      // const response = await Axios.get(`http://localhost:3000/users/`, config);
-      // console.log("response is :", response)
-      setUsers(json);
+      data.push(json);
+      //console.log(json)
+      setUsers(data);
     } catch (error) {
       console.log(error)
       //return []
@@ -53,9 +42,12 @@ export default function HomeScreen() {
       }>
       <ThemedView style={styles.stepContainer}>
         <Button onPress={getUsers} title="Press me"></Button>
-        {users != undefined && (
-          <FlatList data={users} renderItem={({ item }) => <ThemedText>{item.username}</ThemedText>}></FlatList>
-        )}
+        <FlatList
+          scrollEnabled={false}
+          data={users}
+          renderItem={({ item } ) => <ThemedText>{item.username} {item.email} {item.password}</ThemedText>}
+          keyExtractor={(item) => item.id}>
+        </FlatList>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
           Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
