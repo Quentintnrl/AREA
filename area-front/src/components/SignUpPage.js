@@ -4,8 +4,10 @@
 ** File description:
 ** login.page
 */
+
 import React from "react";
 import "./SignUpPage.css";
+import { FaGoogle, FaApple, FaFacebookF } from 'react-icons/fa';
 
 const SignUpPage = () => {
   return (
@@ -29,9 +31,18 @@ const SignUpPage = () => {
       </form>
       <p className="signup-divider">or</p>
       <div className="social-buttons">
-        <button className="signup-button google">Continuer avec Google</button>
-        <button className="signup-button apple">Continue with Apple</button>
-        <button className="signup-button facebook">Continue with Facebook</button>
+        <button className="signup-button google">
+          <FaGoogle className="mr-2" />
+          Continue with Google
+        </button>
+        <button className="signup-button apple">
+          <FaApple className="mr-2" />
+          Continue with Apple
+        </button>
+        <button className="signup-button facebook">
+          <FaFacebookF className="mr-2" />
+          Continue with Facebook
+        </button>
       </div>
       <p className="signup-footer">
         Already on IFTTT? <a href="/login">Log in here.</a>
