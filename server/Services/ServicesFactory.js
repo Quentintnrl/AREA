@@ -4,11 +4,14 @@ class ServicesFactory {
     constructor() {
     }
 
-    createService(serviceName, serviceId) {
-        if (typeof serviceName !== 'string' || typeof serviceId !== 'number') {
+    createService(name, id) {
+        if (typeof name !== 'string' || typeof id !== 'number') {
             throw new Error("Invalid service data");
         }
-        throw new Error("Unknown service type");
+        switch (name) {
+            default:
+                throw new Error("Unknown service type");
+        }
     }
 }
 
