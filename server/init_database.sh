@@ -37,6 +37,48 @@ CREATE TABLE IF NOT EXISTS users (
     client_password VARCHAR(100)
 );
 
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS users_services_login (
+    user_id INT,
+    service_id INT,
+    connect_token VARCHAR(100)
+);
+
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS actions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT,
+    name VARCHAR(50),
+    params JSON
+);
+
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS reactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT,
+    name VARCHAR(50),
+    params JSON
+);
+
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS action_reaction (
+    user_id INT,
+    action JSON,
+    reaction JSON
+);
+
+-- Create the table (if it does not exist)
+CREATE TABLE IF NOT EXISTS templates (
+    action_id INT,
+    reaction_id INT
+);
+
 -- Grant specific table permissions to the user
 GRANT SELECT, INSERT, UPDATE, DELETE ON $MYSQL_DATABASE.users TO '$MYSQL_USER';
 EOF
