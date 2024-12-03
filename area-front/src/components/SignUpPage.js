@@ -12,7 +12,7 @@ import { FaGoogle, FaApple, FaFacebookF } from 'react-icons/fa';
 const SignUpPage = () => {
   return (
     <div className="signup-container">
-      <h1 className="signup-title">IFTTT</h1>
+      <h1 className="signup-title">AREA</h1>
       <h2 className="signup-subtitle">Sign up</h2>
       <form className="signup-form">
         <input
@@ -45,7 +45,7 @@ const SignUpPage = () => {
         </button>
       </div>
       <p className="signup-footer">
-        Already on IFTTT? <a href="/login">Log in here.</a>
+        Already on AREA? <a href="/login">Log in here.</a>
       </p>
     </div>
   );

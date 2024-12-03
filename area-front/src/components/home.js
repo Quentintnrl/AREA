@@ -8,8 +8,7 @@ import React from "react";
 import "./home.css";
 import { useNavigate } from "react-router-dom";
 import { FaGoogle, FaCloudSun, FaAndroid, FaInstagram } from "react-icons/fa"; 
-import NavBar from "./navbar";
-
+import ifttlogo from "../assets/logoiftt.png";
 const HomePage = () => {
   const navigate = useNavigate();
 
@@ -98,7 +97,7 @@ const HomePage = () => {
 
       <div className="new-section">
         <div className="ifttt-section">
-          <img src="ifttt-logo.svg" alt="IFTTT" />
+          <img src={ifttlogo} alt="IFTTT" />
           <div>
             <h3>IFTTT Pro and Pro+</h3>
             <p>Make your automations more powerful</p>
