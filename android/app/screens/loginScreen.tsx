@@ -1,0 +1,91 @@
+import {View, Text, TextInput, TouchableOpacity} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useState } from 'react'
+import { rgbaColor } from 'react-native-reanimated/lib/typescript/Colors';
+
+export default function LoginScreen() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const login = async () => {
+        try {
+            let formData = new FormData();
+            formData.append("email", email);
+            formData.append("password", password);
+
+            const config = {
+                headers: {
+                    "Accept": 'application/json',
+                    "Content-Type" : "application/json",
+                    //"Content-Type": 'multipart/form-data',
+                }
+            }
+            const response = await fetch('http://10.84.106.223:3000/login/',
+                {
+                    body: formData,
+                    method: 'post'
+                });
+            const json = await response.json();
+            //console.log(json)
+        } catch (error) {
+            console.log(error)
+            //return []
+        }
+    };
+
+    return (
+        <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{paddingHorizontal: 25}}/>
+            <View>
+                <Text
+                    style={{
+                        fontFamily: 'SpaceMono-Regular',
+                        fontSize: 30,
+                        fontWeight: 600,
+                        color: '333',
+                        marginBottom: 30,
+                        textAlign: 'center',
+                    }}>
+                    Login
+                </Text>
+                <TextInput
+                    placeholder='Email'
+                    style={{
+                        fontFamily: 'SpaceMono-Regular',
+                        fontSize: 20,
+                        marginBottom: 30,
+                        textAlign: 'center',
+                    }}
+                    onChangeText={(email) => setEmail(email)}
+                />
+                <TextInput
+                    placeholder='Password'
+                    style={{
+                        fontFamily: 'SpaceMono-Regular',
+                        fontSize: 20,
+                        marginBottom: 30,
+                        textAlign: 'center',
+                    }}
+                    secureTextEntry={true}
+                    onChangeText={(password) => setPassword(password)}
+                />
+                <TouchableOpacity
+                    onPress={login}
+                    style={{
+                        backgroundColor: '#7B9DD2',
+                        padding: 20,
+                        borderRadius: 10,
+                        marginBottom: 30,
+                        width: 200,
+                    }}>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                        }}>
+                        Login
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
+    )
+}
