@@ -1,7 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const pool = require('./db');
 
-async function register(email, username, password, pool) {
+async function register(email, username, password) {
+
+    if (!email || !username || !password) {
+        throw new Error('All fields are required');
+    }
+
     const [existingEmailUsers] = await pool.execute(
         'SELECT * FROM users WHERE email = ?',
         [email]
@@ -40,7 +46,7 @@ async function register(email, username, password, pool) {
     };
 }
 
-async function login(userId, password, pool) {
+async function login(userId, password) {
     let [users] = await pool.execute(
         'SELECT * FROM users WHERE username = ?',
         [userId]
