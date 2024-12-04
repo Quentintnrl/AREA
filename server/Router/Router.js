@@ -16,8 +16,8 @@ module.exports = function() {
 
         req.on('end', async () => {
             try {
-                const { userId, password } = JSON.parse(body);
-                const loginResult = await login(userId, password);
+                const { userName, password } = JSON.parse(body);
+                const loginResult = await login(userName, password);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     token: loginResult.token,
