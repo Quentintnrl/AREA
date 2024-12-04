@@ -41,7 +41,7 @@ export default function LoginScreen() {
                     style={{
                         fontFamily: 'SpaceMono-Regular',
                         fontSize: 30,
-                        fontWeight: 600,
+                        fontWeight: 700,
                         color: '333',
                         marginBottom: 30,
                         textAlign: 'center',
@@ -55,6 +55,8 @@ export default function LoginScreen() {
                         fontSize: 20,
                         marginBottom: 30,
                         textAlign: 'center',
+                        borderWidth: 5,
+                        width: 300,
                     }}
                     onChangeText={(email) => setEmail(email)}
                 />
@@ -65,6 +67,7 @@ export default function LoginScreen() {
                         fontSize: 20,
                         marginBottom: 30,
                         textAlign: 'center',
+                        borderWidth: 5,
                     }}
                     secureTextEntry={true}
                     onChangeText={(password) => setPassword(password)}
@@ -76,11 +79,13 @@ export default function LoginScreen() {
                         padding: 20,
                         borderRadius: 10,
                         marginBottom: 30,
-                        width: 200,
+                        width: 300,
                     }}>
                     <Text
                         style={{
                             textAlign: 'center',
+                            fontSize: 20,
+                            fontWeight: 600,
                         }}>
                         Login
                     </Text>
