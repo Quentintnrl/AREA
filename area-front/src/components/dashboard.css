@@ -1,0 +1,104 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .dashboard-header .logo {
+    height: 40px;
+  }
+  
+  .dashboard-header nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .dashboard-header nav a:hover {
+    color: #2196f3;
+  }
+  
+  .dashboard-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+  }
+  
+  .applet-stats-section, 
+  .connected-services-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+  }
+  
+  .applet-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .applet-stat {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 15px;
+  }
+  
+  .applet-stat h3 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+  
+  .applet-stat p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .connected-services-list {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+  }
+  
+  .connected-services-list li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .connected-services-list img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+  
+  .connected-services-list h3 {
+    font-size: 14px;
+    color: #333;
+  }

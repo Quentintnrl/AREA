@@ -24,7 +24,7 @@ const HomePage = () => {
             <li><button className="nav-btn" onClick={() => navigate("/explore")}>Explore</button></li>
             <li><button className="nav-btn" onClick={() => navigate("/solutions")}>Solutions</button></li>
             <li><button className="nav-btn" onClick={() => navigate("/plans")}>Plans</button></li>
-            <li><button className="nav-btn" onClick={() => navigate("/signup")}>Log in</button></li>
+            <li><button className="nav-btn" onClick={() => navigate("/login")}>Log in</button></li>
             <li><button className="btn-get-started">Get Started</button></li>
           </ul>
         </nav>
