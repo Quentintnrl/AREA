@@ -1,11 +1,12 @@
 import {View, Text, TextInput, TouchableOpacity} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState } from 'react'
-import { rgbaColor } from 'react-native-reanimated/lib/typescript/Colors';
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigation = useNavigation();
 
     const login = async () => {
         try {
@@ -26,6 +27,7 @@ export default function LoginScreen() {
                     method: 'post'
                 });
             const json = await response.json();
+            navigation.navigate("App" as never)
             //console.log(json)
         } catch (error) {
             console.log(error)
