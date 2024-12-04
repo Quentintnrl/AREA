@@ -10,28 +10,23 @@ export default function LoginScreen() {
 
     const login = async () => {
         try {
-            let formData = new FormData();
-            formData.append("email", email);
-            formData.append("password", password);
-
-            const config = {
-                headers: {
-                    "Accept": 'application/json',
-                    "Content-Type" : "application/json",
-                    //"Content-Type": 'multipart/form-data',
-                }
-            }
-            const response = await fetch('http://10.84.106.223:3000/login/',
+            let formData = JSON.stringify({
+                    userName: email,
+                    password: password,
+                });
+            const response = await fetch('http://10.84.106.223:8080/login/',
                 {
                     body: formData,
                     method: 'post'
                 });
             const json = await response.json();
-            navigation.navigate("App" as never)
-            //console.log(json)
+
+            if (response.status == 201)
+                navigation.navigate("App" as never)
+            else
+                alert(json.error)
         } catch (error) {
             console.log(error)
-            //return []
         }
     };
 
