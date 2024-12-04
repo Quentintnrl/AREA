@@ -1,16 +1,14 @@
-const express = require('express');
-const {login, register} = require('../login.js');
-// var router = express.Router();
-
-function createRouter(pool) {
+module.exports = function() {
+    const { login, register } = require('../login.js');
+    const express = require('express');
     const router = express.Router();
 
     router.get("/", (req, res) => {
         res.set('Content-Type', 'text/html');
         res.json("Hello world!! Welcome to the AREA");
-    })
+    });
 
-    .post("/login", async (req, res) => {
+    router.post("/login", async (req, res) => {
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -19,7 +17,7 @@ function createRouter(pool) {
         req.on('end', async () => {
             try {
                 const { userId, password } = JSON.parse(body);
-                const loginResult = await login(userId, password, pool);
+                const loginResult = await login(userId, password);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     token: loginResult.token,
@@ -31,9 +29,9 @@ function createRouter(pool) {
                 res.end(JSON.stringify({ error: error.message }));
             }
         });
-    })
+    });
 
-    .post("/register", async (req, res) => {
+    router.post("/register", async (req, res) => {
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -42,21 +40,19 @@ function createRouter(pool) {
         req.on('end', async () => {
             try {
                 const {userEmail, userName, password } = JSON.parse(body);
-                const registerResult = await register(userEmail, userName, password, pool);
-                res.writeHead(201, { 'Content-Type': 'application/json'});
+                const registerResult = await register(userEmail, userName, password);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     token: registerResult.token,
-                    Id: registerResult.Id,
-                    userName: registerResult.userName
+                    userName: registerResult.userName,
+                    Id: registerResult.Id
                 }));
             } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json'});
+                res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: error.message }));
             }
         });
     });
 
     return router;
-}
-
-module.exports = createRouter;
+};
