@@ -64,4 +64,10 @@ yarn-error.*
 app-example
 
 package-lock.json
+node_modules
+package-lock.json
+
+# server
 server/.env
+server/node_modules
+server/package-lock.json
