@@ -33,47 +33,6 @@ class ServiceManager {
             throw error;
         }
     }
-
-    // async startService(serviceId) {
-    //     try {
-    //         const service = this.services.find(s => s.id === serviceId);
-    //         if (!service) {
-    //             throw new Error(`Service with id ${serviceId} not found`);
-    //         }
-
-    //         const serviceInstance = ServicesFactory.createService(service.name);
-    //         if (!serviceInstance) {
-    //             throw new Error(`Service ${service.name} not found`);
-    //         }
-
-    //         await serviceInstance.init();
-    //         await serviceInstance.start();
-    //         console.log(`Service ${service.name} started`);
-    //     } catch (error) {
-    //         console.error('Error starting service:', error);
-    //         throw error;
-    //     }
-    // }
-
-    // async stopService(serviceId) {
-    //     try {
-    //         const service = this.services.find(s => s.id === serviceId);
-    //         if (!service) {
-    //             throw new Error(`Service with id ${serviceId} not found`);
-    //         }
-
-    //         const serviceInstance = ServicesFactory.createService(service.name);
-    //         if (!serviceInstance) {
-    //             throw new Error(`Service ${service.name} not found`);
-    //         }
-
-    //         await serviceInstance.stop();
-    //         console.log(`Service ${service.name} stopped`);
-    //     } catch (error) {
-    //         console.error('Error stopping service:', error);
-    //         throw error;
-    //     }
-    // }
 }
 
 module.exports = { ServiceManager };
