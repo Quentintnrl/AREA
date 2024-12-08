@@ -22,10 +22,10 @@ describe('ActionChecker', () => {
 
     let tmp;
 
-    // beforeAll(async () => {
-    //     tmp = new ServiceManager();
-    //     await tmp.init(); // Ensure init is completed before the tests
-    // });
+    beforeAll(async () => {
+        tmp = new ServiceManager();
+        // await tmp.init(); // Ensure init is completed before the tests
+    });
 
     it('should create an action checker', async () => {
         new ActionChecker(tmp);
