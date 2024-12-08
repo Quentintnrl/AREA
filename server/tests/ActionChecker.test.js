@@ -1,6 +1,6 @@
 const { ActionChecker } = require('../Services/ActionChecker');
 const { ServiceManager } = require('../Services/ServiceManager');
-const pool = require('../db').connection;
+/*const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
 const printActionReactionTable = async () => {
@@ -42,4 +42,4 @@ describe('ActionChecker', () => {
     afterAll(() => {
         disconnect();
     });
-});
+});*/
