@@ -1,6 +1,6 @@
 const { ActionChecker } = require('../Services/ActionChecker');
 const { ServiceManager } = require('../Services/ServiceManager');
-/*const pool = require('../db').connection;
+const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
 const printActionReactionTable = async () => {
@@ -22,24 +22,24 @@ describe('ActionChecker', () => {
 
     let tmp;
 
-    beforeAll(async () => {
-        tmp = new ServiceManager();
-        await tmp.init(); // Ensure init is completed before the tests
-    });
+    // beforeAll(async () => {
+    //     tmp = new ServiceManager();
+    //     await tmp.init(); // Ensure init is completed before the tests
+    // });
 
     it('should create an action checker', async () => {
         new ActionChecker(tmp);
     });
 
-    it('should start and stop an action checker', async () => {
-        let actionChecker = new ActionChecker(tmp);
-        // await printActionReactionTable();
-        //sleep 5 seconds
-        await actionChecker.start();
-        await actionChecker.stop();
-    });
+    // it('should start and stop an action checker', async () => {
+    //     let actionChecker = new ActionChecker(tmp);
+    //     // await printActionReactionTable();
+    //     //sleep 5 seconds
+    //     await actionChecker.start();
+    //     await actionChecker.stop();
+    // });
 
-    afterAll(() => {
-        disconnect();
-    });
-});*/
+    // afterAll(() => {
+    //     disconnect();
+    // });
+});

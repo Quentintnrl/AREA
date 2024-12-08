@@ -7,7 +7,7 @@ describe('ServiceManager', () => {
         // expect(() => new ServiceManager()).toThrowError("Unknown service type");
         let tmp = new ServiceManager();
         //await tmp.init();
-        disconnect();
+        // disconnect();
     });
 
 });
