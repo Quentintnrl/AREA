@@ -30,9 +30,14 @@ class ServiceManager {
     async init() {
         try {
             this.services = await query();
+            for (const service of this.services) {
+                const serviceInstance = this.servicesFactory.createService(service.name, service.id);
+                // this.servicesMap.set(service.name, serviceInstance);
+            }
             console.log('ServiceManager initialized');
         } catch (error) {
             console.error('Error initializing ServiceManager:', error);
+            disconnect();
             throw error;
         }
         disconnect();

@@ -35,7 +35,7 @@ class AbstractService {
         if (typeof name !== 'string') {
             throw new Error("Name must be a string");
         }
-        if (this.constructor === AbstractClass) {
+        if (this.target === AbstractService) {
             throw new Error("Cannot instantiate abstract class");
         }
         this._id = id;

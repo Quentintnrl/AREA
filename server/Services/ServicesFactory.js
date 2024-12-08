@@ -1,4 +1,5 @@
 const { AbstractService } = require('./AbstractService');
+const { Spotify } = require('./Spotify');
 
 class ServicesFactory {
     constructor() {
@@ -9,6 +10,8 @@ class ServicesFactory {
             throw new Error("Invalid service data");
         }
         switch (name) {
+            case 'Spotify':
+                return new Spotify(id, name);
             default:
                 throw new Error("Unknown service type");
         }
