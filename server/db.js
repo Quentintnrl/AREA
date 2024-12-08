@@ -11,4 +11,7 @@ const connection = mysql.createConnection({
     queueLimit: 0
   });
 
-  module.exports = connection.promise();
+module.exports = {
+  connection: connection.promise(),
+  close: () => connection.end(),
+};

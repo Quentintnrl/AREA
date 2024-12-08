@@ -1,6 +1,7 @@
 const { AbstractService, Task } = require('./AbstractService');
 const { ServicesFactory } = require('./ServicesFactory');
-const pool = require('../db')
+const pool = require('../db').connection;
+const disconnect = require('../db').close;
 
 const query = async () => {
     try {
@@ -22,6 +23,8 @@ const query = async () => {
 class ServiceManager {
     constructor() {
         this.services = [];
+        this.servicesFactory = new ServicesFactory();
+        this.servicesMap = new Map();
     }
 
     async init() {
@@ -32,6 +35,7 @@ class ServiceManager {
             console.error('Error initializing ServiceManager:', error);
             throw error;
         }
+        disconnect();
     }
 }
 
