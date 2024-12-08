@@ -1,7 +1,22 @@
 const { AbstractService, Task } = require('./AbstractService');
 const { ServicesFactory } = require('./ServicesFactory');
+const { Spotify } = require('./Spotify');
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
+
+const getAllActions = async () => {
+    try {
+        // Query to get all rows from the 'actions' table
+        const [rows] = await pool.query('SELECT * FROM actions');
+
+        // Return the rows (the result of the query)
+        return rows;
+    } catch (error) {
+        // Handle any errors that occur during the query
+        console.error('Error fetching data from actions table:', error);
+        throw new Error('Could not fetch actions data.');
+    }
+};
 
 const query = async () => {
     try {
@@ -24,7 +39,7 @@ class ServiceManager {
     constructor() {
         this.services = [];
         this.servicesFactory = new ServicesFactory();
-        this.servicesMap = new Map();
+        this.servicesList = [];
     }
 
     async init() {
@@ -32,13 +47,35 @@ class ServiceManager {
             this.services = await query();
             for (const service of this.services) {
                 const serviceInstance = this.servicesFactory.createService(service.name, service.id);
-                // this.servicesMap.set(service.name, serviceInstance);
+                this.servicesList.push(serviceInstance);
             }
             console.log('ServiceManager initialized');
         } catch (error) {
             console.error('Error initializing ServiceManager:', error);
             throw error;
         }
+    }
+
+    async checkAction(id, params) {
+        if (typeof id !== 'number') {
+            console.error('Invalid action id');
+            return;
+        }
+        if (typeof actionParams === 'object' && actionParams !== null) {
+            console.error('Invalid action params');
+            return;
+        }
+        const actions = await getAllActions();
+        for (const action of actions) {
+            for (const service of this.servicesList) {
+                if (action.service_id === service.id) {
+                    const task = new Task(id, action.name, params);
+                    service.do_task(task);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

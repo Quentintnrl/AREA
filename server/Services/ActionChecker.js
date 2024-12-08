@@ -52,6 +52,14 @@ class ActionChecker {
                 while (this.run) {
                     // await printActionReactionTable();
                     const rows = await getActionReactionTable();
+                    for (const row of rows) {
+                        // Check if the action is valid
+                        const actionId = JSON.parse(row.action).id;
+                        console.log(`Checking action ${actionId}...`);
+                        const actionParams = JSON.parse(row.action).params;
+                        console.log(`Action params: ${JSON.stringify(actionParams)}`);
+                        await this.ServiceManager.checkAction(actionId, actionParams);
+                    }
                     await new Promise(r => setTimeout(r, 1000)); // Simulate wait
                 }
             } catch (error) {

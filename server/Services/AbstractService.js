@@ -40,6 +40,7 @@ class AbstractService {
         }
         this._id = id;
         this._name = name;
+        this._tasks = [];
     }
 
     get name() {
@@ -62,9 +63,15 @@ class AbstractService {
         console.log(`Service: ${this._name}, ID: ${this._id}`);
     }
 
-    // Abstract method
     add_task(task) {
-        throw new Error("Method 'add_task()' must be implemented.");
+        if (typeof task !== Task) {
+            throw new Error("Task must be an instance of Task");
+        }
+        this._tasks.push(task);
+    }
+
+    do_task(task) {
+        throw new Error("Method 'do_task()' must be implemented.");
         if (typeof task !== Task) {
             throw new Error("Task must be an instance of Task");
         }

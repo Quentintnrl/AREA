@@ -11,6 +11,7 @@ class ServicesFactory {
         }
         switch (name) {
             case 'Spotify':
+                console.log('Creating Spotify service');
                 return new Spotify(id, name);
             default:
                 throw new Error("Unknown service type");
