@@ -1,4 +1,5 @@
 const { ServiceManager } = require('../Services/ServiceManager');
+const disconnect = require('../db').close;
 
 describe('ServiceManager', () => {
 
@@ -6,11 +7,7 @@ describe('ServiceManager', () => {
         // expect(() => new ServiceManager()).toThrowError("Unknown service type");
         let tmp = new ServiceManager();
         await tmp.init();
-        expect(() => true);
+        disconnect();
     });
-
-    // it ('Should try to create a ServiceManager witout array of string', () => {
-    //     expect(() => new ServiceManager()).toThrowError("Invalid service data");
-    // });
 
 });

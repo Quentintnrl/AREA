@@ -37,10 +37,8 @@ class ServiceManager {
             console.log('ServiceManager initialized');
         } catch (error) {
             console.error('Error initializing ServiceManager:', error);
-            disconnect();
             throw error;
         }
-        disconnect();
     }
 }
 
