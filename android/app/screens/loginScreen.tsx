@@ -2,6 +2,7 @@ import {View, Text, TextInput, TouchableOpacity} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
+import config from "../../config"
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ export default function LoginScreen() {
                     userName: email,
                     password: password,
                 });
-            const response = await fetch('http://10.84.106.223:8080/login/',
+            const response = await fetch('http://' + config.IP + ':8080/login/',
                 {
                     body: formData,
                     method: 'post'
