@@ -1,11 +1,48 @@
 module.exports = function() {
     const { login, register } = require('../login.js');
     const express = require('express');
+    const getAllServices = require('../getService.js')
     const router = express.Router();
 
     router.get("/", (req, res) => {
         res.set('Content-Type', 'text/html');
         res.json("Hello world!! Welcome to the AREA");
+    });
+
+    router.get("/getServices", (req, res) => {
+        console.log("getServices");
+        res.set('Content-Type', 'text/html');
+        getAllServices.getAllServices()
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getActions", (req, res) => {
+        console.log("getActions");
+        res.set('Content-Type', 'text/html');
+        getAllServices.getAllActions()
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getReactions", (req, res) => {
+        console.log("getReactions");
+        res.set('Content-Type', 'text/html');
+        getAllServices.getAllReactions()
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
     });
 
     router.post("/login", async (req, res) => {
