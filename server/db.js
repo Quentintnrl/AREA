@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mysql = require('mysql2');
 
 const connection = mysql.createConnection({
@@ -10,4 +11,7 @@ const connection = mysql.createConnection({
     queueLimit: 0
   });
 
-  module.exports = connection.promise();
+module.exports = {
+  connection: connection.promise(),
+  close: () => connection.end(),
+};
