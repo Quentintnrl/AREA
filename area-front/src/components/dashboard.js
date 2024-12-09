@@ -10,14 +10,14 @@ function Dashboard() {
       id: i + 1,
       color:
         i % 5 === 0
-          ? '#F4F0E3'
-          : i % 5 === 1
           ? '#DAD4DE'
-          : i % 5 === 2
+          : i % 5 === 1
           ? '#BBB4DE'
-          : i % 5 === 3
+          : i % 5 === 2
           ? '#7B9DD2'
-          : '#70C7C6',
+          : i % 5 === 3
+          ? '#70C7C6' 
+          : '#F2B880',
       title: `Card Title ${i + 1}`,
       subtitle: `Subtitle for card ${i + 1}`,
       details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
