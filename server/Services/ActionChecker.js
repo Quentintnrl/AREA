@@ -58,7 +58,11 @@ class ActionChecker {
                         console.log(`Checking action ${actionId}...`);
                         const actionParams = JSON.parse(row.action).params;
                         console.log(`Action params: ${JSON.stringify(actionParams)}`);
-                        await this.ServiceManager.checkAction(actionId, actionParams);
+                        if (await this.ServiceManager.checkAction(actionId, actionParams)) {
+                            const reactionId = JSON.parse(row.reaction).id;
+                            const reactionParams = JSON.parse(row.reaction).params;
+                            this.ServiceManager.executeReaction(reactionId, reactionParams);
+                        }
                     }
                     await new Promise(r => setTimeout(r, 1000)); // Simulate wait
                 }
