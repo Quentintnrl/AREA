@@ -87,6 +87,12 @@ export default function LoginScreen() {
                         Login
                     </Text>
                 </TouchableOpacity>
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <Text>New on the app?</Text>
+                    <TouchableOpacity onPress={() => {navigation.navigate("Register" as never)}}>
+                        <Text style={{color: '#7B9DD2', fontWeight: 700}}> Register</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </SafeAreaView>
     )
