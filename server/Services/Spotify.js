@@ -12,6 +12,7 @@ class Spotify extends AbstractService {
         } else {
             throw new Error('Task must be an instance of Task');
         }
+        return true;
     }
 }
 
