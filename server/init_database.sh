@@ -24,10 +24,8 @@ CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;
 USE $MYSQL_DATABASE;
 
 -- Check if the user exists, and create it if it does not
-CREATE USER IF NOT EXISTS '$MYSQL_USER' IDENTIFIED BY '$MYSQL_USER_PASSWORD';
-
--- Grant privileges to the new user on the new database
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER';
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_USER_PASSWORD';
+GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'localhost';
 
 -- Create the table (if it does not exist)
 CREATE TABLE IF NOT EXISTS users (
@@ -90,6 +88,6 @@ CREATE TABLE IF NOT EXISTS templates (
 );
 
 -- Grant specific table permissions to the user
-GRANT SELECT, INSERT, UPDATE, DELETE ON $MYSQL_DATABASE.users TO '$MYSQL_USER';
+GRANT SELECT, INSERT, UPDATE, DELETE ON $MYSQL_DATABASE.users TO '$MYSQL_USER'@'localhost';
 EOF
 
