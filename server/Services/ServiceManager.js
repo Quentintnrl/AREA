@@ -18,6 +18,20 @@ const getAllActions = async () => {
     }
 };
 
+const getAllReactions = async () => {
+    try {
+        // Query to get all rows from the 'actions' table
+        const [rows] = await pool.query('SELECT * FROM reactions');
+
+        // Return the rows (the result of the query)
+        return rows;
+    } catch (error) {
+        // Handle any errors that occur during the query
+        console.error('Error fetching data from actions table:', error);
+        throw new Error('Could not fetch actions data.');
+    }
+};
+
 const query = async () => {
     try {
       // Execute the query to get all rows from the 'services' table
@@ -59,11 +73,11 @@ class ServiceManager {
     async checkAction(id, params) {
         if (typeof id !== 'number') {
             console.error('Invalid action id');
-            return;
+            return false;
         }
         if (typeof actionParams === 'object' && actionParams !== null) {
             console.error('Invalid action params');
-            return;
+            return false;
         }
         const actions = await getAllActions();
         for (const action of actions) {
@@ -76,6 +90,26 @@ class ServiceManager {
             }
         }
         return false;
+    }
+
+    async executeReaction(id, params) {
+        if (typeof id !== 'number') {
+            console.error('Invalid action id');
+            return false;
+        }
+        if (typeof actionParams === 'object' && actionParams !== null) {
+            console.error('Invalid action params');
+            return false;
+        }
+        const reactions = await getAllReactions();
+        for (const reaction of reactions) {
+            for (const service of this.servicesList) {
+                if (reaction.service_id === service.id) {
+                    const task = new Task(id, reaction.name, params);
+                    service.do_task(task);
+                }
+            }
+        }
     }
 }
 
