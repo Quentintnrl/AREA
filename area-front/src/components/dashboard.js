@@ -1,77 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './dashboard.css';
 
-const Dashboard = () => {
-  const [appletStats, setAppletStats] = useState(null);
-  const [connectedServices, setConnectedServices] = useState([]);
+function Dashboard() {
+  const navigate = useNavigate();
+  const cards = Array(20)
+    .fill(0)
+    .map((_, i) => ({
+      id: i + 1,
+      color:
+        i % 5 === 0
+          ? '#F4F0E3'
+          : i % 5 === 1
+          ? '#DAD4DE'
+          : i % 5 === 2
+          ? '#BBB4DE'
+          : i % 5 === 3
+          ? '#7B9DD2'
+          : '#70C7C6',
+      title: `Card Title ${i + 1}`,
+      subtitle: `Subtitle for card ${i + 1}`,
+      details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
+    }));
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await axios.get('/api/dashboard');
-        setAppletStats(response.data.appletStats);
-        setConnectedServices(response.data.connectedServices);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
+  const handleCardClick = (card) => {
+    navigate(`/details/${card.id}`, { state: { card } });
+  };
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <img src="ifttt-logo.svg" alt="IFTTT" className="logo" />
-        <nav>
-          <a href="#">Explore</a>
-          <a href="#">My Applets</a>
-          <a href="#">Connections</a>
-          <a href="#">Settings</a>
-        </nav>
+    <div className="App">
+      <header className="header">
+        <div className="logo">IFTTT</div>
+        <button className="cta-button">Google Calendar automations</button>
       </header>
-
-      <main className="dashboard-content">
-        <section className="applet-stats-section">
-          <h2>Applet Stats</h2>
-          {appletStats ? (
-            <div className="applet-stats-grid">
-              <div className="applet-stat">
-                <h3>Total Applets</h3>
-                <p>{appletStats.totalApplets}</p>
-              </div>
-              <div className="applet-stat">
-                <h3>Successful Runs</h3>
-                <p>{appletStats.successfulRuns}</p>
-              </div>
-              <div className="applet-stat">
-                <h3>Failed Runs</h3>
-                <p>{appletStats.failedRuns}</p>
-              </div>
+      <nav className="nav">
+        <ul>
+          <li>Explore</li>
+          <li>Solutions</li>
+          <li>My Applets</li>
+          <li>
+            <button className="create-button">Create</button>
+          </li>
+          <li>
+            <button className="pro-button">Try Pro free</button>
+          </li>
+        </ul>
+      </nav>
+      <main className="main">
+        <h1>Explore</h1>
+        <div className="filters">
+          <button>All</button>
+          <button>Applets</button>
+          <button>Services</button>
+          <button>Stories</button>
+        </div>
+        <input className="search-bar" type="text" placeholder="Search Applets or services" />
+        <div className="card-container">
+          {cards.map((card) => (
+            <div
+              className="card"
+              style={{ backgroundColor: card.color }}
+              key={card.id}
+              onClick={() => handleCardClick(card)}
+            >
+              <h2>{card.title}</h2>
+              <p>{card.subtitle}</p>
             </div>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </section>
-
-        <section className="connected-services-section">
-          <h2>Connected Services</h2>
-          {connectedServices.length > 0 ? (
-            <ul className="connected-services-list">
-              {connectedServices.map((service, index) => (
-                <li key={index}>
-                  <img src={service.logo} alt={service.name} />
-                  <h3>{service.name}</h3>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No connected services yet.</p>
-          )}
-        </section>
+          ))}
+        </div>
       </main>
     </div>
   );
-};
+}
 
 export default Dashboard;
