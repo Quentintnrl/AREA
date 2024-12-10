@@ -1,27 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import axios from 'axios';
 import './dashboard.css';
 
-// Services data
-const SERVICES = {
-  spotify: {
-    actions: ['Play a playlist', 'Add to playlist', 'Save current track'],
-    reactions: ['Create playlist', 'Add to library', 'Share track']
-  },
-  // You can expand this with more services
-  gmail: {
-    actions: ['Receive email', 'New email from', 'Email contains'],
-    reactions: ['Send email', 'Forward email', 'Create draft']
-  }
-};
 
-// CreateAppletModal Component
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
+  const [services, setServices] = useState([]);
   const [selectedService1, setSelectedService1] = useState('');
   const [selectedService2, setSelectedService2] = useState('');
   const [selectedAction, setSelectedAction] = useState('');
   const [selectedReaction, setSelectedReaction] = useState('');
+  const [actions, setActions] = useState([]);
+  const [reactions, setReactions] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchServices();
+    }
+  }, [isOpen]);
+
+  const fetchServices = async () => {
+    try {
+      const response = await axios.get('/getServices');
+      setServices(response.data);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
+  const fetchServiceActions = async (serviceId) => {
+    try {
+      const response = await axios.get('/getServiceActions', {
+        method: 'get',
+        data: JSON.stringify({ serviceId })
+      });
+      setActions(response.data);
+    } catch (error) {
+      console.error('Error fetching actions:', error);
+    }
+  };
+
+  const fetchServiceReactions = async (serviceId) => {
+    try {
+      const response = await axios.get('/getServiceReactions', {
+        method: 'get',
+        data: JSON.stringify({ serviceId })
+      });
+      setReactions(response.data);
+    } catch (error) {
+      console.error('Error fetching reactions:', error);
+    }
+  };
+
+  const handleService1Change = (e) => {
+    const serviceId = e.target.value;
+    setSelectedService1(serviceId);
+    setSelectedAction('');
+    fetchServiceActions(serviceId);
+  };
+
+  const handleService2Change = (e) => {
+    const serviceId = e.target.value;
+    setSelectedService2(serviceId);
+    setSelectedReaction('');
+    fetchServiceReactions(serviceId);
+  };
 
   if (!isOpen) return null;
 
@@ -52,12 +96,12 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             <h3>When This</h3>
             <select 
               value={selectedService1} 
-              onChange={(e) => setSelectedService1(e.target.value)}
+              onChange={handleService1Change}
             >
               <option value="">Select Service</option>
-              {Object.keys(SERVICES).map(service => (
-                <option key={service} value={service}>
-                  {service.charAt(0).toUpperCase() + service.slice(1)}
+              {services.map(service => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
                 </option>
               ))}
             </select>
@@ -68,8 +112,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 onChange={(e) => setSelectedAction(e.target.value)}
               >
                 <option value="">Select Action</option>
-                {SERVICES[selectedService1].actions.map(action => (
-                  <option key={action} value={action}>{action}</option>
+                {actions.map(action => (
+                  <option key={action.id} value={action.id}>{action.name}</option>
                 ))}
               </select>
             )}
@@ -79,12 +123,12 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             <h3>Do This</h3>
             <select 
               value={selectedService2} 
-              onChange={(e) => setSelectedService2(e.target.value)}
+              onChange={handleService2Change}
             >
               <option value="">Select Service</option>
-              {Object.keys(SERVICES).map(service => (
-                <option key={service} value={service}>
-                  {service.charAt(0).toUpperCase() + service.slice(1)}
+              {services.map(service => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
                 </option>
               ))}
             </select>
@@ -95,8 +139,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 onChange={(e) => setSelectedReaction(e.target.value)}
               >
                 <option value="">Select Reaction</option>
-                {SERVICES[selectedService2].reactions.map(reaction => (
-                  <option key={reaction} value={reaction}>{reaction}</option>
+                {reactions.map(reaction => (
+                  <option key={reaction.id} value={reaction.id}>{reaction.name}</option>
                 ))}
               </select>
             )}
@@ -138,7 +182,7 @@ function Dashboard() {
   const handleCreateApplet = (newApplet) => {
     const newCard = {
       id: cards.length + 1,
-      color: '#F4F0E3', // New card color as specified
+      color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
       details: `Automated workflow between ${newApplet.service1} and ${newApplet.service2}`
