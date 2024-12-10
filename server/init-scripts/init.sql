@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create the `services` table
 CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
+    name VARCHAR(50)
 );
 
 -- Create the `users_services_login` table
