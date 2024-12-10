@@ -4,7 +4,6 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
 
-
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
   const [selectedService1, setSelectedService1] = useState('');
@@ -13,6 +12,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [selectedReaction, setSelectedReaction] = useState('');
   const [actions, setActions] = useState([]);
   const [reactions, setReactions] = useState([]);
+  const [actionDescription, setActionDescription] = useState(''); // New state variable for action text area
+  const [reactionDescription, setReactionDescription] = useState(''); // New state variable for reaction text area
 
   useEffect(() => {
     if (isOpen) {
@@ -77,7 +78,9 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         service1: selectedService1,
         service2: selectedService2,
         action: selectedAction,
-        reaction: selectedReaction
+        reaction: selectedReaction,
+        actionDescription: actionDescription, // Include action description in new applet data
+        reactionDescription: reactionDescription // Include reaction description in new applet data
       });
       onClose();
     } else {
@@ -118,6 +121,12 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
+            <textarea 
+              className="description-textarea" 
+              placeholder="Enter action description" 
+              value={actionDescription} 
+              onChange={(e) => setActionDescription(e.target.value)}
+            />
           </div>
           
           <div className="modal-column">
@@ -145,6 +154,12 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
+            <textarea 
+              className="description-textarea" 
+              placeholder="Enter reaction description" 
+              value={reactionDescription} 
+              onChange={(e) => setReactionDescription(e.target.value)}
+            />
           </div>
         </div>
         <button 
@@ -186,7 +201,7 @@ function Dashboard() {
       color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Automated workflow between ${newApplet.service1} and ${newApplet.service2}`
+      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
     };
 
     setCards([...cards, newCard]);

@@ -187,6 +187,30 @@ module.exports = function() {
         }
     });
 
+    router.put("/CreateActionReaction", async (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => { // Mark this function as async
+            // Now the body is fully collected, you can log it
+            const userId = JSON.parse(body).user_id;
+            const actionJson = JSON.parse(body).action;
+            const reactionJson = JSON.parse(body).reaction;
+
+            console.log("userId: ", userId);
+            console.log("actionJson: ", actionJson);
+            console.log("reactionJson: ", reactionJson);
+
+            await createActionReaction(userId, actionJson, reactionJson);
+
+            // Send a response after handling the request
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: "Request received" }));
+        });
+    });
+
     router.get('/spotifyCallback', async (req, res) => {
         console.log('Spotify callback');
         const code = req.query.code || null;
@@ -225,7 +249,30 @@ module.exports = function() {
             console.error('Error exchanging token:', error.response?.data || error.message);
             res.status(500).send('Authentication failed');
         }
+
     });
+
+    router.get("/isUserLogin/:serviceId/:id", async (req, res) => {
+        console.log("isUserLogin");
+        try {
+            const serviceId = req.params.serviceId; 
+            const userId = req.params.id;
+            console.log("store.get('id'): ", userId);
+            const [token] = await pool.query('SELECT connect_token FROM users_services_login WHERE user_id = ? and service_id = ?', [userId, serviceId]);
+            console.log("serviceId: ", serviceId); 
+
+            if (token.length !== 0) {
+                console.log("isUserLogin");
+                return res.status(200).json({login: true});
+            } else {
+                return res.status(200).json({login: false});
+            }
+        } catch (error) {
+            res.set('Content-Type', 'text/html');
+            res.status(500).send('Error fetching data from users_services_login table');
+        }
+        }
+    );
 
     return router;
 };

@@ -10,6 +10,101 @@ const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
 /**
+ * Check if the params for the action that is triggered when a track is added to a playlist
+ *
+ * @param {JSON} params - The parameters of the action
+ * @returns {boolean} - Return true if the params are good for this actions
+ */
+async function checkTrackAddedToAPlaylist(params, user_id, service_id) {
+    try {
+        console.log('params: ', params["Playlist Uri"]);
+        console.log('service id: ', service_id);
+        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        console.log('tokens: ', user_tokens[0].connect_token);
+        const access_token = user_tokens[0].connect_token["access token"];
+        console.log('access token: ', access_token);
+        if (!await isAccessTokenValid(access_token)) {
+            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+            user_tokens[0].connect_token["access token"] = access_token;
+            console.log(user_tokens[0].connect_token);
+            await pool.query(
+                `UPDATE users_services_login
+                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 WHERE user_id = ? AND service_id = ?`,
+                [access_token, refresh_token, user_id, service_id]
+            );
+        }
+        if (!await doesPlaylistExist(access_token, params["Playlist Uri"])) {
+            console.error('Playlist doesn\'t exist');
+            return false
+        }
+    } catch (error) {
+        console.error(error);
+        console.error('Bad parameters for the action \"A track is added to a playlist\"');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Check if a the track that want to be target exist
+ *
+ * @param {JSON} params - The parameters of this reaction
+ * @param {string} user_id - The id of the user
+ * @param {string} servide_id - The id of the spotify service
+ * @returns {boolean} - Return a boolean if the track exist
+ */
+async function checkPlayATrack(params, user_id, service_id) {
+    try {
+        console.log('params: ', params["Track Uri"]);
+        console.log('service id: ', service_id);
+        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        console.log('tokens: ', user_tokens[0].connect_token);
+        const access_token = user_tokens[0].connect_token["access token"];
+        console.log('access token: ', access_token);
+        if (!await isAccessTokenValid(access_token)) {
+            console.log('Access token need to be refresh');
+        }
+        if (!await doesTrackExist(access_token, params["Track Uri"])) {
+            console.error('Track doesn\'t exist');
+            return false
+        }
+    } catch (error) {
+        console.error(error);
+        console.error('Bad parameters for the action \"A track is added to a playlist\"');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Check the different actions and reactions that can be done with Spotify.
+ *
+ * @param {JSON} params - The parameters of the action or reaction.
+ * @param {string} name - The name of the action or reaction.
+ * @returns {boolean} - Returns true if the action or reaction is valid; otherwise, false.
+ */
+async function checkSpotifyActionReaction(params, name, user_id, service_id) {
+    console.log('name: ', name);
+    console.log('service id: ', service_id);
+    console.log('params', params);
+    try {
+        switch (name) {
+            case 'A track is added to a playlist':
+                return await checkTrackAddedToAPlaylist(params, user_id, service_id);
+            case 'play a track':
+                return await checkPlayATrack(params, user_id, service_id);
+            default:
+                throw new Error('Action or reaction not supported');
+        }
+    } catch (error) {
+        console.error('Error checking Spotify action or reaction:', error);
+        throw new Error('Failed to check Spotify action or reaction.');
+    }
+}
+
+/**
  * Return the login link for Spotify.
  *
  * @returns {string} - The login link.
@@ -93,6 +188,7 @@ async function doesPlaylistExist(userToken, playlistId) {
         });
 
         // If the playlist is successfully fetched, it exists.
+        console.log('Playlist exist');
         return true;
     } catch (error) {
         // If the error is a 404, the playlist does not exist.
@@ -121,6 +217,7 @@ async function doesTrackExist(userToken, trackId) {
         });
 
         // If the track is successfully fetched, it exists.
+        console.log('Track exist');
         return true;
     } catch (error) {
         // If the error is a 404, the track does not exist.
@@ -283,4 +380,4 @@ class Spotify extends AbstractService {
     }
 }
 
-module.exports = { Spotify, getLoginLink, addSpotifyTokens };
+module.exports = { Spotify, getLoginLink, addSpotifyTokens, checkSpotifyActionReaction };

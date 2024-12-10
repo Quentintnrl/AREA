@@ -11,6 +11,20 @@ function Details() {
   const card = location.state?.card;
 
   useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:8080/isUserLogin/${1}/${userId}`);
+        setIsConnected(response.data.login);
+      } catch (error) {
+        console.error('Error checking login status', error.response?.data);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  useEffect(() => {
     if (isConnected) {
       const interval = setInterval(() => {
         setAnimationProgress((prev) => {
@@ -26,37 +40,38 @@ function Details() {
     }
   }, [isConnected]);
 
-  const handleConnect = () => {
-    setIsConnected(true);
-  };
-
   const loginspotify = async () => {
     try {
       const userId = localStorage.getItem('userId');
-      const response = await axios.get(`http://localhost:8080/getServiceLoginURL/${userId}/${1}`)
+      const response = await axios.get(`http://localhost:8080/getServiceLoginURL/${userId}/${1}`);
       const url = response.data.url;
       console.log('Login URL:', url);
-      // window.location(url)
-      window.location.replace(url)
-      return url;
+      window.location.replace(url);
     } catch (error) {
       console.error('Login failed', error.response?.data);
     }
-  }
+  };
 
   return (
     <div className="details">
       <h1>{card?.title || `Details for Card ${id}`}</h1>
       <p>{card?.details || "No additional details available."}</p>
-      <div
-        className={`toggle-button ${isConnected ? "connected" : ""}`}
-        onClick={loginspotify}
-        style={{
-          background: `linear-gradient(to right, green ${animationProgress}%, #555 ${animationProgress}%)`,
-        }}
-      >
-        <div className={`toggle-circle ${isConnected ? "active" : ""}`}></div>
-      </div>
+      {!isConnected ? (
+        <div
+          className={`toggle-button ${isConnected ? "connected" : ""}`}
+          onClick={loginspotify}
+          style={{
+            background: `linear-gradient(to right, green ${animationProgress}%, #555 ${animationProgress}%)`,
+          }}
+        >
+          <div className={`toggle-circle ${isConnected ? "active" : ""}`}></div>
+        </div>
+      ) : (
+        <div>
+          <input type="text" placeholder="Enter your action" />
+          <input type="text" placeholder="Enter your reaction" />
+        </div>
+      )}
     </div>
   );
 }
