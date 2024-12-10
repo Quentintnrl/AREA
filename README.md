@@ -82,19 +82,6 @@ git commit -m "📝 Update API documentation"
 - Project Management: Notion
 - Team Communication: Microsoft Teams
 - Code Collaboration: GitHub
-## 📅 Project Milestones
-1. **First Defense (27/11/2024)**: 
-   - Technology stack selection
-   - Proof of Concept (PoC)
-   - Initial project planning
-2. **Second Defense (11/12/2024)**: 
-   - Core architecture implementation
-   - Basic service interactions
-   - Minimum Viable Product (MVP)
-3. **Final Defense (22/01/2025)**: 
-   - Complete implementation
-   - Maximum feature coverage
-   - Comprehensive documentation
 ## 🎯 Project Goals
 - Minimum 5 services
 - 12+ total Action/Reaction components
@@ -105,7 +92,5 @@ git commit -m "📝 Update API documentation"
 - [Technical Guide](docs/TECHNICAL.md)
 - [User Manual](docs/USER_MANUAL.md)
 -[Comparative Guide](docs/COMP.md)
-## 📝 License
-[Insert License Type - e.g., MIT]
 ## 🤔 Support
-For questions or issues, please open a GitHub issue or contact the maintainers.
+For questions or issues, please open a GitHub issue or contact us via.
