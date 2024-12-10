@@ -11,17 +11,12 @@ module.exports = function() {
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
 
-    router.get("/", (req, res) => {
-        res.set('Content-Type', 'text/html');
-        res.json("Hello world!! Welcome to the AREA");
-    });
-
     router.get("/getServices", (req, res) => {
         console.log("getServices");
         res.set('Content-Type', 'text/html');
         getAllServices.getAllServices()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -33,7 +28,7 @@ module.exports = function() {
         res.set('Content-Type', 'text/html');
         getAllServices.getAllActions()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -45,7 +40,7 @@ module.exports = function() {
         res.set('Content-Type', 'text/html');
         getAllServices.getAllReactions()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -98,7 +93,24 @@ module.exports = function() {
         });
     });
 
-    router.get("/get_service_login_url", async (req, res) => {
+    router.get("/about.json", (req, res) => {
+        const ip = req.headers['x-forwarded-for']
+                    ? req.headers['x-forwarded-for'].split(',')[0]
+                    : req.socket.remoteAddress;
+
+        const ipv4 = ip.startsWith('::ffff:') ? ip.substr(7) : ip;
+
+        res.set('Content-Type', 'application/json');
+        getAllServices.getaboutroutes(ipv4)
+        .then(services => {
+            res.status(200).json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getServiceLoginURL", async (req, res) => {
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -109,15 +121,15 @@ module.exports = function() {
             service_login_user_id = userId;
             service_login_service_id = serviceId;
             const url = get_login_url(serviceId);
-             res.writeHead(201, { 'Content-Type': 'application/json' });
-             res.end(JSON.stringify({ url: url }));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ url: url }));
         } catch (error) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: error.message }));
         }
     });
 
-    router.get('/spotify_callback', async (req, res) => {
+    router.get('/spotifyCallback', async (req, res) => {
         const code = req.query.code || null;
 
         try {
@@ -140,7 +152,7 @@ module.exports = function() {
             // Save tokens in session
             add_user_tokens(service_login_user_id, service_login_service_id, response.data);
 
-            res.send('Logged in! Tokens are saved in session.');
+            res.status(200).send('Logged in! Tokens are saved in session.');
         } catch (error) {
             console.error('Error exchanging token:', error.response?.data || error.message);
             res.status(500).send('Authentication failed');
