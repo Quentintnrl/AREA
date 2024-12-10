@@ -1,16 +1,15 @@
-let service_login_user_id = null;
-let service_login_service_id = null;
-const axios = require('axios');
-const querystring = require('querystring');
-const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
 
 module.exports = function() {
     const { login, register } = require('../login.js');
     const express = require('express');
-    const getAllServices = require('../getService.js')
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
     const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions } = require('../getService.js');
+    let service_login_user_id = null;
+    let service_login_service_id = null;
+    const axios = require('axios');
+    const querystring = require('querystring');
+    const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
 
     router.get("/", (req, res) => {
         res.set('Content-Type', 'text/html');
