@@ -1,45 +1,31 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import SignUpPage from "./components/SignUpPage";
 import HomePage from "./components/home";
+import LoginPage from "./components/LoginPage";
+import Dashboard from "./components/dashboard";
+import Card from "./components/cards";
+import Details from "./components/details";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        {/* Navigation */}
         <nav>
           <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-            </li>
           </ul>
         </nav>
 
-        {/* Définition des routes */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/details/:id" element={<Details />} />
         </Routes>
       </div>
     </Router>
-  );
-}
-
-function LogInButton() {
-  const navigate = useNavigate();
-
-  return (
-    <button
-      className="nav-btn"
-      onClick={() => {
-        navigate("/signup");
-      }}
-    >
-      Log in
-    </button>
   );
 }
 
