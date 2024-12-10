@@ -11,17 +11,12 @@ module.exports = function() {
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
 
-    router.get("/", (req, res) => {
-        res.set('Content-Type', 'text/html');
-        res.json("Hello world!! Welcome to the AREA");
-    });
-
     router.get("/getServices", (req, res) => {
         console.log("getServices");
         res.set('Content-Type', 'text/html');
         getAllServices.getAllServices()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -33,7 +28,7 @@ module.exports = function() {
         res.set('Content-Type', 'text/html');
         getAllServices.getAllActions()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -45,7 +40,7 @@ module.exports = function() {
         res.set('Content-Type', 'text/html');
         getAllServices.getAllReactions()
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -108,7 +103,7 @@ module.exports = function() {
         res.set('Content-Type', 'application/json');
         getAllServices.getaboutroutes(ipv4)
         .then(services => {
-            res.json(services);
+            res.status(200).json(services);
         })
         .catch(error => {
             res.status(500).json({ error: error.message });
@@ -126,8 +121,8 @@ module.exports = function() {
             service_login_user_id = userId;
             service_login_service_id = serviceId;
             const url = get_login_url(serviceId);
-             res.writeHead(201, { 'Content-Type': 'application/json' });
-             res.end(JSON.stringify({ url: url }));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ url: url }));
         } catch (error) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: error.message }));
