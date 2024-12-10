@@ -1,4 +1,6 @@
 const { AbstractService, Task } = require('./AbstractService');
+const pool = require('../db').connection;
+const disconnect = require('../db').close;
 
 // Spotify API Credentials
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -26,6 +28,17 @@ function getLoginLink() {
         redirect_uri: REDIRECT_URI,
     })}`;
     return authUrl;
+}
+
+async function addSpotifyTokens(user_id, service_id, tokens) {
+    try {
+        const { access_token, refresh_token} = tokens;
+        const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+        console.log('Spotify tokens added:', rows);
+    } catch (error) {
+        console.error('Error adding Spotify tokens:', error);
+        throw new Error('Failed to add Spotify tokens.');
+    }
 }
 
 /**
@@ -260,4 +273,4 @@ class Spotify extends AbstractService {
     }
 }
 
-module.exports = { Spotify, getLoginLink };
+module.exports = { Spotify, getLoginLink, addSpotifyTokens };
