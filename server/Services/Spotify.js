@@ -1,6 +1,8 @@
 const { AbstractService, Task } = require('./AbstractService');
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
+const axios = require('axios');
+const querystring = require('querystring');
 
 // Spotify API Credentials
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
