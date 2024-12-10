@@ -1,3 +1,4 @@
+const { createGzip } = require('zlib');
 
 module.exports = function() {
     const { login, register } = require('../login.js');
@@ -19,7 +20,7 @@ module.exports = function() {
     router.get("/getServices", (req, res) => {
         console.log("getServices");
         res.set('Content-Type', 'text/html');
-        getAllServices.getAllServices()
+        getAllServices()
         .then(services => {
             res.json(services);
         })
@@ -31,7 +32,7 @@ module.exports = function() {
     router.get("/getActions", (req, res) => {
         console.log("getActions");
         res.set('Content-Type', 'text/html');
-        getAllServices.getAllActions()
+        getAllActions()
         .then(services => {
             res.json(services);
         })
@@ -43,7 +44,7 @@ module.exports = function() {
     router.get("/getReactions", (req, res) => {
         console.log("getReactions");
         res.set('Content-Type', 'text/html');
-        getAllServices.getAllReactions()
+        getAllReactions()
         .then(services => {
             res.json(services);
         })
@@ -57,15 +58,24 @@ module.exports = function() {
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        console.log("getServiceReactions");
-        const { serviceId } = JSON.parse(body);
-        res.set('Content-Type', 'text/html');
-        getAllServices.getServiceReactions(serviceId)
-        .then(services => {
-            res.json(services);
-        })
-        .catch(error => {
-            res.status(500).json({ error: error.message });
+        req.on('end', () => {
+            try {
+                console.log("getServiceReactions");
+                const { serviceId } = JSON.parse(body);
+                console.log(serviceId);
+                res.set('Content-Type', 'text/html');
+                getServiceReactions(serviceId)
+                .then(services => {
+                    res.json(services);
+                })
+                .catch(error => {
+                    res.status(500).json({ error: error.message });
+                });
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: error.message }));
+            }
+
         });
     });
 
@@ -74,16 +84,24 @@ module.exports = function() {
         req.on('data', chunk => {
             body += chunk.toString();
         });
-        console.log("getServiceActions");
-        const { serviceId } = JSON.parse(body);
-        res.set('Content-Type', 'text/html');
-        getAllServices.getServiceActions(serviceId)
-        .then(services => {
-            res.json(services);
-        })
-        .catch(error => {
-            res.status(500).json({ error: error.message });
-        });
+        req.on('end', () => {
+            try {
+                console.log("getServiceActions");
+                const { serviceId } = JSON.parse(body);
+                res.set('Content-Type', 'text/html');
+                getServiceActions(serviceId)
+                .then(services => {
+                    res.json(services);
+                })
+                .catch(error => {
+                    res.status(500).json({ error: error.message });
+                });
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: error.message }));
+            }
+
+});
     });
 
     router.post("/login", async (req, res) => {
@@ -138,17 +156,19 @@ module.exports = function() {
             body += chunk.toString();
         });
 
-        try {
-            const { userId, serviceId } = JSON.parse(body);
-            service_login_user_id = userId;
-            service_login_service_id = serviceId;
-            const url = get_login_url(serviceId);
-             res.writeHead(201, { 'Content-Type': 'application/json' });
-             res.end(JSON.stringify({ url: url }));
-        } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: error.message }));
-        }
+        req.on('end', async () => {
+            try {
+                const { userId, serviceId } = JSON.parse(body);
+                service_login_user_id = userId;
+                service_login_service_id = serviceId;
+                const url = get_login_url(serviceId);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ url: url }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: error.message }));
+            }
+        });
     });
 
     router.get('/spotify_callback', async (req, res) => {

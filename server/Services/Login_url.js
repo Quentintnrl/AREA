@@ -8,6 +8,7 @@ async function getLoginLink(service_id) {
         switch (service.name) {
             case 'Spotify':
                 disconnect();
+                console.log('Returning Spotify login URL:', spotify_login_url);
                 return spotify_login_url;
             default:
                 throw new Error('Service not supported');
