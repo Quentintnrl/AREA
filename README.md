@@ -90,7 +90,7 @@ git commit -m "📝 Update API documentation"
 ## 📚 Documentation
 - [API Documentation](docs/API.md)
 - [Technical Guide](docs/TECHNICAL.md)
-- [User Manual](docs/USER_MANUAL.md)
+- [User Manual](https://www.notion.so/User-Documentation-1583927a231c80a7a1f2c18d8c354b67?pvs=4)
 - [Comparative Guide](https://www.notion.so/comparative-dev-1583927a231c8087bbcfec7991181036?pvs=4)
 ## 🤔 Support
 For questions or issues, please open a GitHub issue or contact us via.
