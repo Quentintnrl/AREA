@@ -198,7 +198,8 @@ class ServiceManager {
             for (const service of this.servicesList) {
                 if (action.service_id === service.id) {
                     const task = new Task(id, action.name, params);
-                    service.do_task(task);
+                    console.log('task:', task);
+                    return await service.do_task(task);
                     return true;
                 }
             }

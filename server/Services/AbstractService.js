@@ -6,9 +6,9 @@ class Task {
         if (typeof name !== 'string') {
             throw new Error("Name must be a string");
         }
-        if (typeof params !== 'object') {
-            throw new Error("Params must be an object");
-        }
+        // if (typeof params !== 'object') {
+        //     throw new Error("Params must be an object");
+        // }
         this._id = id;
         this._name = name;
         this._params = params;
