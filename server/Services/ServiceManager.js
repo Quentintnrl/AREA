@@ -1,8 +1,26 @@
 const { AbstractService, Task } = require('./AbstractService');
 const { ServicesFactory } = require('./ServicesFactory');
 const { Spotify } = require('./Spotify');
+const add_spotify_tokens = require('./Spotify').addSpotifyTokens;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
+
+async function add_user_tokens(user_id, service_id, tokens) {
+    try {
+        const service = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
+        switch (service.name) {
+            case 'Spotify':
+                disconnect();
+                add_spotify_tokens(user_id, service_id, tokens);
+            default:
+                throw new Error('Service not supported');
+        }
+    } catch (error) {
+        console.error('Error fetching data from services table:', error);
+        disconnect();
+    }
+    disconnect();
+}
 
 const getAllActions = async () => {
     try {
@@ -113,4 +131,4 @@ class ServiceManager {
     }
 }
 
-module.exports = { ServiceManager };
+module.exports = { ServiceManager, add_user_tokens };
