@@ -1,26 +1,46 @@
 import {View, Text, TextInput, TouchableOpacity} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 
 export default function CreateScreen() {
     const navigation = useNavigation();
 
     return (
-        <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{paddingHorizontal: 25}}/>
-            <View>
-                <Text
-                    style={{
-                        fontFamily: 'SpaceMono-Regular',
-                        fontSize: 30,
-                        fontWeight: 700,
-                        color: '333',
-                        marginBottom: 30,
-                        textAlign: 'center',
-                    }}>
-                    Tab Profile
-                </Text>
+        <SafeAreaView
+            style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+            <View
+                style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    //position: 'absolute',
+                    //bottom: 0,
+                    paddingHorizontal: 50
+                }}>
+                <TouchableOpacity onPress={() => {}}>
+                    <Text
+                        style={{
+                            textAlign: 'left',
+                            fontSize: 30,
+                            fontWeight: 800,
+                            marginBottom: 20,
+                        }}>
+                        Account
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {navigation.navigate("Login" as never)}}>
+                    <Text
+                        style={{
+                            textAlign: 'left',
+                            fontSize: 30,
+                            fontWeight: 800,
+                        }}>
+                        Sign out
+                    </Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     )
