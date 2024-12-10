@@ -1,3 +1,5 @@
+const { get } = require('http');
+
 const pool = require('./db').connection;
 
 async function getAllServices()
@@ -34,8 +36,32 @@ async function getAllReactions()
     }
 }
 
+async function getServiceReactions(serviceId)
+{
+    try {
+        const [existingReactions] = await pool.execute('SELECT * FROM reactions WHERE service_id = ?', [serviceId]);
+        return existingReactions;
+    } catch (error) {
+        console.error('Error getting reactions:', error);
+        throw error;
+    }
+}
+
+async function getServiceActions(serviceId)
+{
+    try {
+        const [existingActions] = await pool.execute('SELECT * FROM actions WHERE service_id = ?', [serviceId]);
+        return existingActions;
+    } catch (error) {
+        console.error('Error getting reactions:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAllServices,
     getAllActions,
-    getAllReactions
+    getAllReactions,
+    getServiceReactions,
+    getServiceActions
 };

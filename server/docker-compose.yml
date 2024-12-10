@@ -25,6 +25,9 @@ services:
     depends_on:
       - db
     command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "./start_server.sh"]
+    volumes:
+    - .:/usr/src/app  # Map the current directory to /usr/src/app in the container
+    - /usr/src/app/node_modules  # Prevent overwriting node_modules
     networks:
       - my_network
     ports:
