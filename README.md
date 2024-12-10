@@ -86,7 +86,7 @@ git commit -m "📝 update API documentation"
 - Cross-platform accessibility
 - Robust and scalable architecture
 ## 📚 Documentation
-- [API Documentation](docs/API.md)
+- [API Documentation](http://localhost:8080/api-docs/) -> when server is running
 - [Technical Guide](docs/TECHNICAL.md)
 - [User Manual](docs/USER_MANUAL.md)
 - [Comparative Guide](https://www.notion.so/comparative-dev-1583927a231c8087bbcfec7991181036?pvs=4)
