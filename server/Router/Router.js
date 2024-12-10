@@ -173,7 +173,7 @@ module.exports = function() {
                 const { userId, serviceId } = JSON.parse(body);
                 service_login_user_id = userId;
                 service_login_service_id = serviceId;
-                const url = get_login_url(serviceId);
+                const url = await get_login_url(serviceId);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ url: url }));
             } catch (error) {

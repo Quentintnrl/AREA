@@ -88,5 +88,8 @@ async function getServiceActions(serviceId)
 module.exports = {
     getAllServices,
     getAllActions,
+    getAllReactions,
+    getServiceActions,
+    getServiceReactions,
     getaboutroutes
 };

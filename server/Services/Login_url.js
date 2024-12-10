@@ -1,15 +1,17 @@
-const { spotify_login_url } = require('./Spotify').getLoginLink();
+const spotify_login_url = require('./Spotify').getLoginLink;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
 async function getLoginLink(service_id) {
     try {
-        const service = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
-        switch (service.name) {
+        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
+        console.log('Service:', service[0]);
+        switch (service[0].name) {
             case 'Spotify':
-                disconnect();
-                console.log('Returning Spotify login URL:', spotify_login_url);
-                return spotify_login_url;
+                // disconnect();
+                const url = spotify_login_url();
+                console.log('Returning Spotify login URL:', url);
+                return url;
             default:
                 throw new Error('Service not supported');
         }
