@@ -1,22 +1,38 @@
-version: "3.9"
+version: '3.8'
 
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_container
-    restart: always
     environment:
-      MYSQL_HOST: ${MYSQL_HOST}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_USER_PASSWORD
     volumes:
-      - db_data:/var/lib/mysql
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+      - ./init-scripts:/docker-entrypoint-initdb.d  # Path to init scripts relative to the docker-compose.yml
+    networks:
+      - my_network
+
+  server:
+    build:
+      context: .  # Build the Docker image from the current directory (server/)
+    environment:
+      DB_HOST: db
+      DB_USER: $MYSQL_USER
+      DB_PASSWORD: $MYSQL_USER_PASSWORD
+      DB_NAME: $MYSQL_DATABASE
+    depends_on:
+      - db
+    command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "./start_server.sh"]
+    networks:
+      - my_network
     ports:
-      - "3306:3306"
+      - "8080:8080"
+
+networks:
+  my_network:
+    driver: bridge
 
 volumes:
-  db_data:
-    driver: local
+  mysql_data:
