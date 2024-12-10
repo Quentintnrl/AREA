@@ -1,4 +1,4 @@
-name: ci
+name: front_ci
 
 env:
   MIRROR_URL: git@github.com:EpitechPromo2027/B-DEV-500-NAN-5-2-area-loup.thomas.git
@@ -9,13 +9,15 @@ on:
       - main
       - dev
     paths:
-      - './web/**'
+      - 'web/**'
+      - '.github/workflows/front_ci.yml'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
-      - './web/**'
+      - 'web/**'
+      - '.github/workflows/front_ci.yml'
 
 jobs:
 
