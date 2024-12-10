@@ -91,6 +91,6 @@ git commit -m "📝 Update API documentation"
 - [API Documentation](docs/API.md)
 - [Technical Guide](docs/TECHNICAL.md)
 - [User Manual](docs/USER_MANUAL.md)
-- [Comparative Guide](docs/COMP.md)
+- [Comparative Guide](https://www.notion.so/comparative-dev-1583927a231c8087bbcfec7991181036?pvs=4)
 ## 🤔 Support
 For questions or issues, please open a GitHub issue or contact us via.
