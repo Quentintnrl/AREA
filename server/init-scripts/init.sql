@@ -12,14 +12,14 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create the `services` table
 CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50)
+    name VARCHAR(50),
 );
 
 -- Create the `users_services_login` table
 CREATE TABLE IF NOT EXISTS users_services_login (
     user_id INT,
     service_id INT,
-    connect_token VARCHAR(100),
+    connect_token JSON,
     PRIMARY KEY (user_id, service_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (service_id) REFERENCES services(id)

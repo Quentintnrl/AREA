@@ -2,6 +2,7 @@ module.exports = function() {
     const { login, register } = require('../login.js');
     const express = require('express');
     const router = express.Router();
+    const get_login_url  = require('../Services/Login_url.js').getLoginLink;
 
     router.get("/", (req, res) => {
         res.set('Content-Type', 'text/html');
@@ -52,6 +53,23 @@ module.exports = function() {
                 res.end(JSON.stringify({ error: error.message }));
             }
         });
+    });
+
+    router.get("/get_service_login_url", async (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        try {
+            const { serviceId } = JSON.parse(body);
+            const url = get_login_url(serviceId);
+             res.writeHead(201, { 'Content-Type': 'application/json' });
+             res.end(JSON.stringify({ url: url }));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
     });
 
     return router;
