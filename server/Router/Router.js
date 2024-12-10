@@ -10,6 +10,7 @@ module.exports = function() {
     const getAllServices = require('../getService.js')
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
+    const createActionReaction = require('../Services/ServiceManager.js').createActionReaction;
 
     router.get("/getServices", (req, res) => {
         console.log("getServices");
@@ -127,6 +128,30 @@ module.exports = function() {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: error.message }));
         }
+    });
+
+    router.put("/CreateActionReaction", async (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => { // Mark this function as async
+            // Now the body is fully collected, you can log it
+            const userId = JSON.parse(body).user_id;
+            const actionJson = JSON.parse(body).action;
+            const reactionJson = JSON.parse(body).reaction;
+
+            console.log("userId: ", userId);
+            console.log("actionJson: ", actionJson);
+            console.log("reactionJson: ", reactionJson);
+
+            await createActionReaction(userId, actionJson, reactionJson);
+
+            // Send a response after handling the request
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: "Request received" }));
+        });
     });
 
     router.get('/spotifyCallback', async (req, res) => {
