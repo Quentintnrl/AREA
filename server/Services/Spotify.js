@@ -1,5 +1,33 @@
 const { AbstractService, Task } = require('./AbstractService');
 
+// Spotify API Credentials
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+
+/**
+ * Return the login link for Spotify.
+ *
+ * @returns {string} - The login link.
+*/
+function getLoginLink() {
+    const scopes = [
+        'user-read-playback-state',
+        'user-modify-playback-state',
+        'playlist-read-private',
+        'playlist-modify-private',
+        'playlist-modify-public',
+    ].join(' ');
+
+    const authUrl = `https://accounts.spotify.com/authorize?${querystring.stringify({
+        response_type: 'code',
+        client_id: CLIENT_ID,
+        scope: scopes,
+        redirect_uri: REDIRECT_URI,
+    })}`;
+    return authUrl;
+}
+
 /**
  * Checks if the number of tracks in a playlist is higher than the given number.
  * @param {string} userToken - Spotify user's access token.
@@ -232,4 +260,4 @@ class Spotify extends AbstractService {
     }
 }
 
-module.exports = { Spotify };
+module.exports = { Spotify, getLoginLink };
