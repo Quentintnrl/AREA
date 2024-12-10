@@ -43,6 +43,17 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     }
   };
 
+  const fetchActions = async (serviceId) => {
+    try {
+      console.log('Fetching actions for service:', serviceId);
+      const response = await axios.get('http://localhost:8080/getActions');
+      const actions = response.data.filter(action => action.service_id === serviceId);
+      return
+    } catch (error) {
+      console.error('Error fetching actions:', error);
+    }
+  };
+
   const fetchServiceReactions = async (serviceId) => {
     try {
       const response = await axios.get('http://localhost:8080/getServiceReactions', {

@@ -6,7 +6,7 @@ import axios from "axios";
 function Details() {
   const [isConnected, setIsConnected] = useState(false);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const { id } = useParams();
+  const { actionId } = useParams();
   const location = useLocation();
   const card = location.state?.card;
 
@@ -52,9 +52,29 @@ function Details() {
     }
   };
 
+  const createAREA = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const response = await axios.post(`http://localhost:8080/createAREA/${userId}`, {
+        serviceId: 1,
+        action: "createPlaylist",
+        reaction: "addSongToPlaylist",
+        actionParams: {
+          playlistName: "My Playlist"
+        },
+        reactionParams: {
+          songName: "My Song"
+        }
+      });
+      console.log('AREA created:', response.data);
+    } catch (error) {
+      console.error('AREA creation failed', error.response?.data);
+    };
+  };
+
   return (
     <div className="details">
-      <h1>{card?.title || `Details for Card ${id}`}</h1>
+      <h1>{card?.title || `Details for Card ${actionId}`}</h1>
       <p>{card?.details || "No additional details available."}</p>
       {!isConnected ? (
         <div
@@ -68,8 +88,9 @@ function Details() {
         </div>
       ) : (
         <div>
-          <input type="text" placeholder="Enter your action" />
-          <input type="text" placeholder="Enter your reaction" />
+          <input type="text" placeholder="Enter the playlist name" />
+          <input type="text" placeholder="Enter the song name" />
+          <button>Submit</button>
         </div>
       )}
     </div>
