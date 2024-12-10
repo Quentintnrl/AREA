@@ -1,5 +1,3 @@
-
-
 # 🚀 Action-Reaction: Automation Platform
 ## 📋 Project Overview
 Action-Reaction is an automation platform inspired by IFTTT and Zapier, allowing users to create custom integrations between various services through Actions and Reactions.
@@ -38,7 +36,7 @@ docker-compose up
 ## 🌐 Application Access
 - Web Client: `http://localhost:8081`
 - Application Server: `http://localhost:8080`
-- Mobile Client APK: `http://localhost:8081/client.apk`
+- Mobile Client: `npm i && npx expo start --tunnel`
 ## 📡 API Endpoints
 Detailed API documentation available in `docs/API.md`
 ## 🤝 Contributing
@@ -68,18 +66,18 @@ Gitmojis:
 
 ### Example Commits
 ```bash
-git commit -m "✨ Implement OAuth2 login flow"
-git commit -m "🐛 Fix authentication token expiration issue"
-git commit -m "📝 Update API documentation"
+git commit -m "✨ implement OAuth2 login flow"
+git commit -m "🐛 fix authentication token expiration issue"
+git commit -m "📝 update API documentation"
 ```
 
 ## 👥 Team Organization
 ### Roles
-- Backend Developers: @QuentinTennerel, @RegineEmmanuelleEmagniDeugo
-- Frontend Developers: @zia, @iKroZz44
+- Backend Developers: [@Quentintnrl](https://github.com/Quentintnrl), [@eregine](https://github.com/eregine)
+- Frontend Developers: [@ziaa15](https://github.com/ziaa15), [@lxnbt](https://github.com/lxnbt)
 - DevOps & Documentation: All team members
 ### Communication Channels
-- Project Management: Notion
+- Project Management: [Notion Organisation](https://lowly-desert-eb1.notion.site/AREA-1433927a231c800a8ed0e917efa11492?pvs=4)
 - Team Communication: Microsoft Teams
 - Code Collaboration: GitHub
 ## 🎯 Project Goals
@@ -88,9 +86,9 @@ git commit -m "📝 Update API documentation"
 - Cross-platform accessibility
 - Robust and scalable architecture
 ## 📚 Documentation
-- [API Documentation](docs/API.md)
+- [API Documentation](http://localhost:8080/api-docs/) -> when server is running
 - [Technical Guide](docs/TECHNICAL.md)
 - [User Manual](https://www.notion.so/User-Documentation-1583927a231c80a7a1f2c18d8c354b67?pvs=4)
 - [Comparative Guide](https://www.notion.so/comparative-dev-1583927a231c8087bbcfec7991181036?pvs=4)
 ## 🤔 Support
-For questions or issues, please open a GitHub issue or contact us via.
+For questions or issues, please open a GitHub issue.
