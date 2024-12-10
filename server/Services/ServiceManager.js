@@ -107,12 +107,14 @@ async function createActionReaction(user_id, actionJson, reactionJson) {
         if (!await testReactionCreation(user_id, reactionJson)) {
             throw new Error('Cannot create AREA, bad reaction');
         }
-        // const actionDbJson = createServiceJson(user_id, actionJson);
-        // console.log('Action json: ', actionDbJson);
-        // const reactionDbJson = createServiceJson(user_id, reactionJson);
-        // console.log('Reaction json', reactionDbJson);
-        const query = 'INSERT INTO action_reaction (user_id, action, reaction) VALUES (?, ?, ?)';
-        await pool.query(query, [user_id, actionJson, reactionJson]);
+        console.log(actionJson);
+        console.log(reactionJson);
+        const action = JSON.stringify(actionJson);
+        const reaction = JSON.stringify(reactionJson);
+        await pool.query(
+            'INSERT INTO action_reaction (user_id, action, reaction) VALUES (?, ?, ?)',
+            [user_id, action, reaction]
+        );
     } catch (error) {
         console.error('Error creating action and reaction:', error);
     }
