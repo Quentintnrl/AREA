@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS actions (
     service_id INT,
     name VARCHAR(50),
     params JSON,
+    description VARCHAR(255),
     FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS reactions (
     service_id INT,
     name VARCHAR(50),
     params JSON,
+    description VARCHAR(255),
     FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
