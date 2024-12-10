@@ -10,6 +10,7 @@ module.exports = function() {
     const getAllServices = require('../getService.js')
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
+    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions } = require('../getService.js');
 
     router.get("/", (req, res) => {
         res.set('Content-Type', 'text/html');
@@ -44,6 +45,40 @@ module.exports = function() {
         console.log("getReactions");
         res.set('Content-Type', 'text/html');
         getAllServices.getAllReactions()
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getServiceReactions", (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        console.log("getServiceReactions");
+        const { serviceId } = JSON.parse(body);
+        res.set('Content-Type', 'text/html');
+        getAllServices.getServiceReactions(serviceId)
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getServiceActions", (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        console.log("getServiceActions");
+        const { serviceId } = JSON.parse(body);
+        res.set('Content-Type', 'text/html');
+        getAllServices.getServiceActions(serviceId)
         .then(services => {
             res.json(services);
         })
