@@ -297,6 +297,7 @@ async function playTrackOnActiveDevice(accessToken, trackId) {
             console.log('Track is playing successfully!');
         }
     } catch (error) {
+
         if (error.response) {
             if (error.response.status === 400) {
                 console.error('Bad request. Ensure the track URI is valid and the token has the correct scopes.');
@@ -393,7 +394,6 @@ class Spotify extends AbstractService {
             console.log('tokens: ', user_tokens[0].connect_token);
             const access_token = user_tokens[0].connect_token["access token"];
             console.log('access token: ', access_token);
-            // return false;
             if (!await isAccessTokenValid(access_token)) {
                 const refresh_token = user_tokens[0].connect_token["refresh token"];
                 const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
@@ -427,7 +427,7 @@ class Spotify extends AbstractService {
         } else {
             throw new Error('Task must be an instance of Task');
         }
-        return true;
+        return value;
     }
 }
 
