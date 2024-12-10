@@ -1,30 +1,150 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import './dashboard.css';
+
+// Services data
+const SERVICES = {
+  spotify: {
+    actions: ['Play a playlist', 'Add to playlist', 'Save current track'],
+    reactions: ['Create playlist', 'Add to library', 'Share track']
+  },
+  // You can expand this with more services
+  gmail: {
+    actions: ['Receive email', 'New email from', 'Email contains'],
+    reactions: ['Send email', 'Forward email', 'Create draft']
+  }
+};
+
+// CreateAppletModal Component
+const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
+  const [selectedService1, setSelectedService1] = useState('');
+  const [selectedService2, setSelectedService2] = useState('');
+  const [selectedAction, setSelectedAction] = useState('');
+  const [selectedReaction, setSelectedReaction] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleCreateApplet = () => {
+    // Validate selections
+    if (selectedService1 && selectedService2 && selectedAction && selectedReaction) {
+      onCreateApplet({
+        service1: selectedService1,
+        service2: selectedService2,
+        action: selectedAction,
+        reaction: selectedReaction
+      });
+      onClose();
+    } else {
+      alert('Please select all options');
+    }
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <button className="modal-close" onClick={onClose}>
+          <X size={24} />
+        </button>
+        <h2>Create New Applet</h2>
+        <div className="modal-columns">
+          <div className="modal-column">
+            <h3>When This</h3>
+            <select 
+              value={selectedService1} 
+              onChange={(e) => setSelectedService1(e.target.value)}
+            >
+              <option value="">Select Service</option>
+              {Object.keys(SERVICES).map(service => (
+                <option key={service} value={service}>
+                  {service.charAt(0).toUpperCase() + service.slice(1)}
+                </option>
+              ))}
+            </select>
+
+            {selectedService1 && (
+              <select 
+                value={selectedAction}
+                onChange={(e) => setSelectedAction(e.target.value)}
+              >
+                <option value="">Select Action</option>
+                {SERVICES[selectedService1].actions.map(action => (
+                  <option key={action} value={action}>{action}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          
+          <div className="modal-column">
+            <h3>Do This</h3>
+            <select 
+              value={selectedService2} 
+              onChange={(e) => setSelectedService2(e.target.value)}
+            >
+              <option value="">Select Service</option>
+              {Object.keys(SERVICES).map(service => (
+                <option key={service} value={service}>
+                  {service.charAt(0).toUpperCase() + service.slice(1)}
+                </option>
+              ))}
+            </select>
+
+            {selectedService2 && (
+              <select 
+                value={selectedReaction}
+                onChange={(e) => setSelectedReaction(e.target.value)}
+              >
+                <option value="">Select Reaction</option>
+                {SERVICES[selectedService2].reactions.map(reaction => (
+                  <option key={reaction} value={reaction}>{reaction}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        </div>
+        <button 
+          className="create-applet-button" 
+          onClick={handleCreateApplet}
+        >
+          Create Applet
+        </button>
+      </div>
+    </div>
+  );
+};
 
 function Dashboard() {
   const navigate = useNavigate();
-  const cards = Array(20)
-    .fill(0)
-    .map((_, i) => ({
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [cards, setCards] = useState(
+    Array(20).fill(0).map((_, i) => ({
       id: i + 1,
-      color:
-        i % 5 === 0
-          ? '#DAD4DE'
-          : i % 5 === 1
-          ? '#BBB4DE'
-          : i % 5 === 2
-          ? '#7B9DD2'
-          : i % 5 === 3
-          ? '#70C7C6' 
-          : '#F2B880',
+      color: 
+        i % 5 === 0 ? '#DAD4DE' :
+        i % 5 === 1 ? '#BBB4DE' :
+        i % 5 === 2 ? '#7B9DD2' :
+        i % 5 === 3 ? '#70C7C6' : 
+        '#F2B880',
       title: `Card Title ${i + 1}`,
       subtitle: `Subtitle for card ${i + 1}`,
       details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
-    }));
+    }))
+  );
 
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
+  };
+
+  const handleCreateApplet = (newApplet) => {
+    const newCard = {
+      id: cards.length + 1,
+      color: '#F4F0E3', // New card color as specified
+      title: `${newApplet.service1} to ${newApplet.service2}`,
+      subtitle: `${newApplet.action} → ${newApplet.reaction}`,
+      details: `Automated workflow between ${newApplet.service1} and ${newApplet.service2}`
+    };
+
+    setCards([...cards, newCard]);
   };
 
   return (
@@ -33,19 +153,26 @@ function Dashboard() {
         <div className="logo">IFTTT</div>
         <button className="cta-button">Google Calendar automations</button>
       </header>
+      
       <nav className="nav">
         <ul>
           <li>Explore</li>
           <li>Solutions</li>
           <li>My Applets</li>
           <li>
-            <button className="create-button">Create</button>
+            <button 
+              className="create-button"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Create
+            </button>
           </li>
           <li>
             <button className="pro-button">Try Pro free</button>
           </li>
         </ul>
       </nav>
+
       <main className="main">
         <h1>Explore</h1>
         <div className="filters">
@@ -54,7 +181,12 @@ function Dashboard() {
           <button>Services</button>
           <button>Stories</button>
         </div>
-        <input className="search-bar" type="text" placeholder="Search Applets or services" />
+        <input 
+          className="search-bar" 
+          type="text" 
+          placeholder="Search Applets or services" 
+        />
+        
         <div className="card-container">
           {cards.map((card) => (
             <div
@@ -69,6 +201,12 @@ function Dashboard() {
           ))}
         </div>
       </main>
+
+      <CreateAppletModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreateApplet={handleCreateApplet}
+      />
     </div>
   );
 }
