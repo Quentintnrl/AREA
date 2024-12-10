@@ -1,4 +1,4 @@
-Here's the updated README with the Gitmoji commit convention:
+
 
 # 🚀 Action-Reaction: Automation Platform
 ## 📋 Project Overview
