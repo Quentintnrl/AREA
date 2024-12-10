@@ -98,6 +98,23 @@ module.exports = function() {
         });
     });
 
+    router.get("/about.json", (req, res) => {
+        const ip = req.headers['x-forwarded-for']
+                    ? req.headers['x-forwarded-for'].split(',')[0]
+                    : req.socket.remoteAddress;
+
+        const ipv4 = ip.startsWith('::ffff:') ? ip.substr(7) : ip;
+
+        res.set('Content-Type', 'application/json');
+        getAllServices.getaboutroutes(ipv4)
+        .then(services => {
+            res.json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
     router.get("/get_service_login_url", async (req, res) => {
         let body = '';
         req.on('data', chunk => {
