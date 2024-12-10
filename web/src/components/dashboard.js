@@ -22,7 +22,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get('/getServices');
+      const response = await axios.get('http://localhost:8080/getServices');
+      console.log('Services:', response.data);
       setServices(response.data);
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -31,9 +32,9 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
   const fetchServiceActions = async (serviceId) => {
     try {
-      const response = await axios.get('/getServiceActions', {
-        method: 'get',
-        data: JSON.stringify({ serviceId })
+      console.log('Fetching actions for service:', serviceId);
+      const response = await axios.get(`http://localhost:8080/getServiceActions`, {
+        params: { serviceId }
       });
       setActions(response.data);
     } catch (error) {
@@ -43,9 +44,9 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
   const fetchServiceReactions = async (serviceId) => {
     try {
-      const response = await axios.get('/getServiceReactions', {
+      const response = await axios.get('http://localhost:8080/getServiceReactions', {
         method: 'get',
-        data: JSON.stringify({ serviceId })
+        data: JSON.stringify({ "serviceId": serviceId })
       });
       setReactions(response.data);
     } catch (error) {
@@ -161,7 +162,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [cards, setCards] = useState(
-    Array(20).fill(0).map((_, i) => ({
+    Array(4).fill(0).map((_, i) => ({
       id: i + 1,
       color: 
         i % 5 === 0 ? '#DAD4DE' :
