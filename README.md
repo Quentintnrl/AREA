@@ -91,6 +91,6 @@ git commit -m "📝 Update API documentation"
 - [API Documentation](docs/API.md)
 - [Technical Guide](docs/TECHNICAL.md)
 - [User Manual](docs/USER_MANUAL.md)
--[Comparative Guide](docs/COMP.md)
+- [Comparative Guide](docs/COMP.md)
 ## 🤔 Support
 For questions or issues, please open a GitHub issue or contact us via.
