@@ -7,19 +7,21 @@ const disconnect = require('../db').close;
 
 async function add_user_tokens(user_id, service_id, tokens) {
     try {
-        const service = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
-        switch (service.name) {
-            case 'Spotify':
-                disconnect();
+        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
+        console.log('Service:', service[0].name);
+        switch (service[0].name) {
+            case 'spotify':
+                // disconnect();
                 add_spotify_tokens(user_id, service_id, tokens);
+                return
             default:
                 throw new Error('Service not supported');
         }
     } catch (error) {
         console.error('Error fetching data from services table:', error);
-        disconnect();
+        //disconnect();
     }
-    disconnect();
+    // disconnect();
 }
 
 const getAllActions = async () => {

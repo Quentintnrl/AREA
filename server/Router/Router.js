@@ -1,4 +1,6 @@
 const { createGzip } = require('zlib');
+const store = require("store");
+const pool = require('../db').connection;
 
 module.exports = function() {
     const { login, register } = require('../login.js');
@@ -11,6 +13,11 @@ module.exports = function() {
     const axios = require('axios');
     const querystring = require('querystring');
     const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
+
+    // Spotify API Credentials
+    const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+    const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+    const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
     router.get("/getServices", (req, res) => {
         console.log("getServices");
@@ -74,15 +81,12 @@ module.exports = function() {
         });
     });
 
-    router.get("/getServiceActions", (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
+    router.get("/getServiceActions/", (req, res) => {
         req.on('end', () => {
             try {
-                console.log("getServiceActions");
-                const { serviceId } = JSON.parse(body);
+                console.log("getServiceActions and the body is", body);
+                const serviceId = req.url.split('/getServiceActions/')[1];
+                console.log("the is is", serviceId);
                 res.set('Content-Type', 'text/html');
                 getServiceActions(serviceId)
                 .then(services => {
@@ -105,11 +109,13 @@ module.exports = function() {
             body += chunk.toString();
         });
 
+
         req.on('end', async () => {
             try {
                 const { userName, password } = JSON.parse(body);
                 const loginResult = await login(userName, password);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
+                store.set('id', loginResult.Id);
                 res.end(JSON.stringify({
                     token: loginResult.token,
                     userName: loginResult.userName,
@@ -133,6 +139,7 @@ module.exports = function() {
                 const {userEmail, userName, password } = JSON.parse(body);
                 const registerResult = await register(userEmail, userName, password);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
+                store.set('id', loginResult.Id);
                 res.end(JSON.stringify({
                     token: registerResult.token,
                     userName: registerResult.userName,
@@ -162,29 +169,36 @@ module.exports = function() {
         });
     });
 
-    router.get("/getServiceLoginURL", async (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', async () => {
-            try {
-                const { userId, serviceId } = JSON.parse(body);
-                service_login_user_id = userId;
-                service_login_service_id = serviceId;
-                const url = await get_login_url(serviceId);
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ url: url }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: error.message }));
-            }
-        });
+    router.get("/getServiceLoginURL/:userId/:serviceId", async (req, res) => {
+        const userId = req.params.userId;
+        const serviceId = req.params.serviceId;
+        
+        try {
+            console.log("the element is getServiceLoginURL");
+            service_login_user_id = userId;
+            service_login_service_id = serviceId;
+            const url = await get_login_url(serviceId);
+            console.log("THE URL IS= ", url);
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ url: url }));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
     });
 
     router.get('/spotifyCallback', async (req, res) => {
+        console.log('Spotify callback');
         const code = req.query.code || null;
+
+        const [serviceId] = await pool.query('SELECT id FROM services WHERE name = "spotify"');
+
+        console.log('Service ID:', serviceId);
+        if (serviceId.length === 0) {
+            console.error('Service not found');
+            res.status(500).send('Service not found');
+            return;
+        }
 
         try {
             // Exchange the authorization code for access and refresh tokens
@@ -204,7 +218,7 @@ module.exports = function() {
             );
 
             // Save tokens in session
-            add_user_tokens(service_login_user_id, service_login_service_id, response.data);
+            add_user_tokens(store.get("id"), serviceId[0].id, response.data);
 
             res.status(200).send('Logged in! Tokens are saved in session.');
         } catch (error) {

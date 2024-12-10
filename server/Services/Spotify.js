@@ -35,7 +35,15 @@ function getLoginLink() {
 async function addSpotifyTokens(user_id, service_id, tokens) {
     try {
         const { access_token, refresh_token} = tokens;
-        const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+        const tokenexists = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        if (tokenexists[0].length > 0) {
+            console.log('Spotify tokens already exist:', tokenexists[0]);
+            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
+            console.log('Spotify tokens updated:', rows);
+            return;
+        } else {
+            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+        }
         console.log('Spotify tokens added:', rows);
     } catch (error) {
         console.error('Error adding Spotify tokens:', error);

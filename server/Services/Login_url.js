@@ -7,7 +7,7 @@ async function getLoginLink(service_id) {
         const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
         console.log('Service:', service[0]);
         switch (service[0].name) {
-            case 'Spotify':
+            case 'spotify':
                 // disconnect();
                 const url = spotify_login_url();
                 console.log('Returning Spotify login URL:', url);

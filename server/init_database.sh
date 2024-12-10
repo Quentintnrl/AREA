@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS services (
 CREATE TABLE IF NOT EXISTS users_services_login (
     user_id INT,
     service_id INT,
-    connect_token VARCHAR(100),
+    connect_token VARCHAR(500),
     PRIMARY KEY (user_id, service_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (service_id) REFERENCES services(id)
