@@ -135,9 +135,10 @@ async function addSpotifyTokens(user_id, service_id, tokens) {
             console.log('Spotify tokens already exist:', tokenexists[0]);
             const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
             console.log('Spotify tokens updated:', rows);
-            return;
+            return rows;
         } else {
             const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+            return rows;
         }
         // console.log('Spotify tokens added:', rows);
     } catch (error) {

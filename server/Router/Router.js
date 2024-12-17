@@ -55,52 +55,44 @@ module.exports = function() {
         });
     });
 
-    router.get("/getServiceReactions", (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            try {
-                console.log("getServiceReactions");
-                const { serviceId } = JSON.parse(body);
-                console.log(serviceId);
-                res.set('Content-Type', 'text/html');
-                getServiceReactions(serviceId)
-                .then(services => {
-                    res.json(services);
-                })
-                .catch(error => {
-                    res.status(500).json({ error: error.message });
-                });
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: error.message }));
-            }
+    router.get("/getServiceActions/:serviceId", (req, res) => {
+        try {
+            console.log("getServiceActions");
+            const serviceId = req.url.split('/getServiceActions/')[1];
+            console.log("the is is", serviceId);
+            res.set('Content-Type', 'text/html');
+            getServiceActions(serviceId)
+            .then(services => {
+                res.json(services);
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message });
+            });
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
 
-        });
     });
 
-    router.get("/getServiceActions/", (req, res) => {
-        // req.on('end', () => {
-            try {
-                console.log("getServiceActions and the body is", body);
-                const serviceId = req.url.split('/getServiceActions/')[1];
-                console.log("the is is", serviceId);
-                res.set('Content-Type', 'text/html');
-                getServiceActions(serviceId)
-                .then(services => {
-                    res.json(services);
-                })
-                .catch(error => {
-                    res.status(500).json({ error: error.message });
-                });
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: error.message }));
-            }
+    router.get("/getServiceReactions/:serviceId", (req, res) => {
+        try {
+            console.log("getServiceReactions");
+            const serviceId = req.url.split('/getServiceReactions/')[1];
+            console.log("the is is", serviceId);
+            res.set('Content-Type', 'text/html');
+            getServiceReactions(serviceId)
+            .then(services => {
+                res.json(services);
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message });
+            });
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
 
-        // });
     });
 
     router.post("/login", async (req, res) => {
@@ -171,7 +163,7 @@ module.exports = function() {
     router.get("/getServiceLoginURL/:userId/:serviceId", async (req, res) => {
         const userId = req.params.userId;
         const serviceId = req.params.serviceId;
-        
+
         try {
             console.log("the element is getServiceLoginURL");
             service_login_user_id = userId;
@@ -254,11 +246,11 @@ module.exports = function() {
     router.get("/isUserLogin/:serviceId/:id", async (req, res) => {
         console.log("isUserLogin");
         try {
-            const serviceId = req.params.serviceId; 
+            const serviceId = req.params.serviceId;
             const userId = req.params.id;
             console.log("store.get('id'): ", userId);
             const [token] = await pool.query('SELECT connect_token FROM users_services_login WHERE user_id = ? and service_id = ?', [userId, serviceId]);
-            console.log("serviceId: ", serviceId); 
+            console.log("serviceId: ", serviceId);
 
             if (token.length !== 0) {
                 console.log("isUserLogin");
