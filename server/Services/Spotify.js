@@ -64,7 +64,56 @@ async function checkPlayATrack(params, user_id, service_id) {
         const access_token = user_tokens[0].connect_token["access token"];
         console.log('access token: ', access_token);
         if (!await isAccessTokenValid(access_token)) {
-            console.log('Access token need to be refresh');
+            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+            user_tokens[0].connect_token["access token"] = access_token;
+            console.log(user_tokens[0].connect_token);
+            await pool.query(
+                `UPDATE users_services_login
+                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 WHERE user_id = ? AND service_id = ?`,
+                [access_token, refresh_token, user_id, service_id]
+            );
+        }
+        if (!await doesTrackExist(access_token, params["Track Uri"])) {
+            console.error('Track doesn\'t exist');
+            return false
+        }
+    } catch (error) {
+        console.error(error);
+        console.error('Bad parameters for the action \"A track is added to a playlist\"');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Check if the params for the action that is triggered when a track is played
+ *
+ * @param {JSON} params - The parameters of the action
+ * @param {string} user_id - The id of the user
+ * @param {string} service_id - The id of the service
+ * @returns {boolean} - Return true if the params are good for this actions
+ */
+async function checkATrackHasBeenPlayed(params, user_id, service_id) {
+    try {
+        console.log('params: ', params["Track Uri"]);
+        console.log('service id: ', service_id);
+        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        console.log('tokens: ', user_tokens[0].connect_token);
+        const access_token = user_tokens[0].connect_token["access token"];
+        console.log('access token: ', access_token);
+        if (!await isAccessTokenValid(access_token)) {
+            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+            user_tokens[0].connect_token["access token"] = access_token;
+            console.log(user_tokens[0].connect_token);
+            await pool.query(
+                `UPDATE users_services_login
+                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 WHERE user_id = ? AND service_id = ?`,
+                [access_token, refresh_token, user_id, service_id]
+            );
         }
         if (!await doesTrackExist(access_token, params["Track Uri"])) {
             console.error('Track doesn\'t exist');
@@ -95,6 +144,8 @@ async function checkSpotifyActionReaction(params, name, user_id, service_id) {
                 return await checkTrackAddedToAPlaylist(params, user_id, service_id);
             case 'play a track':
                 return await checkPlayATrack(params, user_id, service_id);
+            case 'A track has been played':
+                return await checkATrackHasBeenPlayed(params, user_id, service_id);
             default:
                 throw new Error('Action or reaction not supported');
         }
@@ -164,8 +215,17 @@ async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
             },
         });
 
+        //print tracks name
+        console.log('Tracks:', response.data.tracks.items.map(item => item.track.name));
         const trackCount = response.data.tracks.total;
-        return trackCount > threshold;
+        console.log('Treshold:', threshold);
+        console.log('Track count:', trackCount);
+        if (trackCount > threshold) {
+            console.log('Playlist track count is higher than the threshold.');
+            return true;
+        }
+        console.log('Playlist track count is lower or equal than the threshold.');
+        return false;
     } catch (error) {
         console.error('Error checking playlist track count:', error.response?.data || error.message);
         throw new Error('Failed to check playlist track count.');
@@ -276,12 +336,14 @@ async function isTrackCurrentlyPlaying(userToken, trackId) {
  * @param {string} trackUri - The Spotify URI of the track to play.
  * @throws Will throw an error if there is no active device or the API call fails.
  */
-async function playTrackOnActiveDevice(accessToken, trackUri) {
+async function playTrackOnActiveDevice(accessToken, trackId) {
+    const trackUri = `spotify:track:${trackId}`;
+    console.log('Playing track:', trackUri);
     try {
         const response = await axios.put(
             'https://api.spotify.com/v1/me/player/play',
             {
-                uris: [trackUri], // Play the specific track
+                uris: [trackUri],
             },
             {
                 headers: {
@@ -295,13 +357,23 @@ async function playTrackOnActiveDevice(accessToken, trackUri) {
             console.log('Track is playing successfully!');
         }
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-            console.error('No active device found. Start Spotify on a device first.');
+
+        if (error.response) {
+            if (error.response.status === 400) {
+                console.error('Bad request. Ensure the track URI is valid and the token has the correct scopes.');
+            } else if (error.response.status === 404) {
+                console.error('No active device found. Start Spotify on a device first.');
+            } else if (error.response.status === 401) {
+                console.error('Access token expired or invalid. Refresh the token.');
+            } else {
+                console.error('Spotify API error:', error.response.status, error.response.data);
+            }
         } else {
             console.error('Failed to play track:', error.message);
         }
     }
 }
+
 
 /**
  * Check if the Spotify access token is valid by calling the 'me' endpoint.
@@ -371,13 +443,51 @@ class Spotify extends AbstractService {
         console.log('Spotify service created');
     }
 
-    do_task(task) {
+    async do_task(task) {
+        let value = false;
         if (task instanceof Task) {
             console.log(`Spotify service is doing task: ${task.name}`);
+            const user_id = task.id;
+            const [service_id] = await pool.query('SELECT id FROM services WHERE name = ?', "Spotify");
+            console.log('service id: ', service_id[0].id);
+            const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id[0].id]);
+            console.log('tokens: ', user_tokens[0].connect_token);
+            const access_token = user_tokens[0].connect_token["access token"];
+            console.log('access token: ', access_token);
+            if (!await isAccessTokenValid(access_token)) {
+                const refresh_token = user_tokens[0].connect_token["refresh token"];
+                const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+                user_tokens[0].connect_token["access token"] = access_token;
+                console.log(user_tokens[0].connect_token);
+                await pool.query(
+                    `UPDATE users_services_login
+                    SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                    WHERE user_id = ? AND service_id = ?`,
+                    [access_token, refresh_token, user_id, service_id[0].id]
+                );
+            }
+            switch (task.name) {
+                case 'A track is added to a playlist':
+                    console.log('Doing task: A track is added to a playlist');
+                    const playlistUri = task.params["Playlist Uri"];
+                    console.log('playlist uri: ', playlistUri);
+                    const nb_tracks = task.params["nb_music"];
+                    if (await isPlaylistTrackCountHigher(access_token, playlistUri, nb_tracks)) {
+                        value = true;
+                    }
+                    break;
+                case 'Play a track':
+                    console.log('Doing task: Play a track');
+                    // console.log('params: ', task.params);
+                    const trackUri = task.params["Track Uri"];
+                    console.log('track uri: ', trackUri);
+                    await playTrackOnActiveDevice(access_token, trackUri);
+                    break;
+            }
         } else {
             throw new Error('Task must be an instance of Task');
         }
-        return true;
+        return value;
     }
 }
 
