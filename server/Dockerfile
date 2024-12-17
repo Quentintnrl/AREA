@@ -18,6 +18,9 @@ RUN npm install
 # Copy the rest of the app code
 COPY . .
 
+#Grant permissions for the start script
+RUN chmod 755 start_server.sh
+
 # Expose the port the app runs on
 EXPOSE 8080
 
