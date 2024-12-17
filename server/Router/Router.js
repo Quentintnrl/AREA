@@ -82,7 +82,7 @@ module.exports = function() {
     });
 
     router.get("/getServiceActions/", (req, res) => {
-        req.on('end', () => {
+        // req.on('end', () => {
             try {
                 console.log("getServiceActions and the body is", body);
                 const serviceId = req.url.split('/getServiceActions/')[1];
@@ -100,7 +100,7 @@ module.exports = function() {
                 res.end(JSON.stringify({ error: error.message }));
             }
 
-});
+        // });
     });
 
     router.post("/login", async (req, res) => {
@@ -138,13 +138,12 @@ module.exports = function() {
             try {
                 const {userEmail, userName, password } = JSON.parse(body);
                 const registerResult = await register(userEmail, userName, password);
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                store.set('id', loginResult.Id);
-                res.end(JSON.stringify({
+                store.set('id', registerResult.Id);
+                res.status(201).json({
                     token: registerResult.token,
                     userName: registerResult.userName,
                     Id: registerResult.Id
-                }));
+                });
             } catch (error) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: error.message }));

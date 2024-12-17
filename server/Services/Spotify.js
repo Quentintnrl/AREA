@@ -139,7 +139,7 @@ async function addSpotifyTokens(user_id, service_id, tokens) {
         } else {
             const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
         }
-        console.log('Spotify tokens added:', rows);
+        // console.log('Spotify tokens added:', rows);
     } catch (error) {
         console.error('Error adding Spotify tokens:', error);
         throw new Error('Failed to add Spotify tokens.');

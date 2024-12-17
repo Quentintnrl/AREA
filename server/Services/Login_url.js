@@ -17,7 +17,7 @@ async function getLoginLink(service_id) {
         }
     } catch (error) {
         console.error('Error fetching data from services table:', error);
-        disconnect();
+        // disconnect();
         return '';
     }
     disconnect();
