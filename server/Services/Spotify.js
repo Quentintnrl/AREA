@@ -64,7 +64,56 @@ async function checkPlayATrack(params, user_id, service_id) {
         const access_token = user_tokens[0].connect_token["access token"];
         console.log('access token: ', access_token);
         if (!await isAccessTokenValid(access_token)) {
-            console.log('Access token need to be refresh');
+            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+            user_tokens[0].connect_token["access token"] = access_token;
+            console.log(user_tokens[0].connect_token);
+            await pool.query(
+                `UPDATE users_services_login
+                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 WHERE user_id = ? AND service_id = ?`,
+                [access_token, refresh_token, user_id, service_id]
+            );
+        }
+        if (!await doesTrackExist(access_token, params["Track Uri"])) {
+            console.error('Track doesn\'t exist');
+            return false
+        }
+    } catch (error) {
+        console.error(error);
+        console.error('Bad parameters for the action \"A track is added to a playlist\"');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Check if the params for the action that is triggered when a track is played
+ *
+ * @param {JSON} params - The parameters of the action
+ * @param {string} user_id - The id of the user
+ * @param {string} service_id - The id of the service
+ * @returns {boolean} - Return true if the params are good for this actions
+ */
+async function checkATrackHasBeenPlayed(params, user_id, service_id) {
+    try {
+        console.log('params: ', params["Track Uri"]);
+        console.log('service id: ', service_id);
+        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        console.log('tokens: ', user_tokens[0].connect_token);
+        const access_token = user_tokens[0].connect_token["access token"];
+        console.log('access token: ', access_token);
+        if (!await isAccessTokenValid(access_token)) {
+            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+            user_tokens[0].connect_token["access token"] = access_token;
+            console.log(user_tokens[0].connect_token);
+            await pool.query(
+                `UPDATE users_services_login
+                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 WHERE user_id = ? AND service_id = ?`,
+                [access_token, refresh_token, user_id, service_id]
+            );
         }
         if (!await doesTrackExist(access_token, params["Track Uri"])) {
             console.error('Track doesn\'t exist');
@@ -95,6 +144,8 @@ async function checkSpotifyActionReaction(params, name, user_id, service_id) {
                 return await checkTrackAddedToAPlaylist(params, user_id, service_id);
             case 'play a track':
                 return await checkPlayATrack(params, user_id, service_id);
+            case 'A track has been played':
+                return await checkATrackHasBeenPlayed(params, user_id, service_id);
             default:
                 throw new Error('Action or reaction not supported');
         }
