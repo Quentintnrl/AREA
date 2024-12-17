@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS reactions (
 
 -- Create the `action_reaction` table
 CREATE TABLE IF NOT EXISTS action_reaction (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     action JSON,
     reaction JSON,
-    PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
