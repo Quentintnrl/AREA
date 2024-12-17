@@ -34,12 +34,20 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const fetchServiceActions = async (serviceId) => {
     try {
       console.log('Fetching actions for service:', serviceId);
-      const response = await axios.get(`http://localhost:8080/getServiceActions`, {
-        params: { serviceId }
-      });
+      const response = await axios.get(`http://localhost:8080/getServiceActions/${serviceId}`);
       setActions(response.data);
     } catch (error) {
       console.error('Error fetching actions:', error);
+    }
+  };
+
+  const fetchServiceReactions = async (serviceId) => {
+    try {
+      console.log('Fetching actions for service:', serviceId);
+      const response = await axios.get(`http://localhost:8080/getServiceReactions/${serviceId}`);
+      setReactions(response.data);
+    } catch (error) {
+      console.error('Error fetching reactions:', error);
     }
   };
 
@@ -54,17 +62,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     }
   };
 
-  const fetchServiceReactions = async (serviceId) => {
-    try {
-      const response = await axios.get('http://localhost:8080/getServiceReactions', {
-        method: 'get',
-        data: JSON.stringify({ "serviceId": serviceId })
-      });
-      setReactions(response.data);
-    } catch (error) {
-      console.error('Error fetching reactions:', error);
-    }
-  };
 
   const handleService1Change = (e) => {
     const serviceId = e.target.value;
@@ -109,8 +106,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         <div className="modal-columns">
           <div className="modal-column">
             <h3>When This</h3>
-            <select 
-              value={selectedService1} 
+            <select
+              value={selectedService1}
               onChange={handleService1Change}
             >
               <option value="">Select Service</option>
@@ -122,7 +119,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             </select>
 
             {selectedService1 && (
-              <select 
+              <select
                 value={selectedAction}
                 onChange={(e) => setSelectedAction(e.target.value)}
               >
@@ -132,18 +129,17 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
-            <textarea 
-              className="description-textarea" 
-              placeholder="Enter action description" 
-              value={actionDescription} 
+            <textarea
+              className="description-textarea"
+              placeholder="Enter action description"
+              value={actionDescription}
               onChange={(e) => setActionDescription(e.target.value)}
             />
           </div>
-          
           <div className="modal-column">
             <h3>Do This</h3>
-            <select 
-              value={selectedService2} 
+            <select
+              value={selectedService2}
               onChange={handleService2Change}
             >
               <option value="">Select Service</option>
@@ -155,7 +151,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             </select>
 
             {selectedService2 && (
-              <select 
+              <select
                 value={selectedReaction}
                 onChange={(e) => setSelectedReaction(e.target.value)}
               >
@@ -165,16 +161,16 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
-            <textarea 
-              className="description-textarea" 
-              placeholder="Enter reaction description" 
-              value={reactionDescription} 
+            <textarea
+              className="description-textarea"
+              placeholder="Enter reaction description"
+              value={reactionDescription}
               onChange={(e) => setReactionDescription(e.target.value)}
             />
           </div>
         </div>
-        <button 
-          className="create-applet-button" 
+        <button
+          className="create-applet-button"
           onClick={handleCreateApplet}
         >
           Create Applet
