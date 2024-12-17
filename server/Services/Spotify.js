@@ -467,8 +467,8 @@ class Spotify extends AbstractService {
                         value = true;
                     }
                     break;
-                case 'play a track':
-                    console.log('Doing task: play a track');
+                case 'Play a track':
+                    console.log('Doing task: Play a track');
                     // console.log('params: ', task.params);
                     const trackUri = task.params["Track Uri"];
                     console.log('track uri: ', trackUri);
