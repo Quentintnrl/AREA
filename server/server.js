@@ -10,7 +10,8 @@ let serviceManager = new ServiceManager();
 serviceManager.init();
 
 async function serviceManagerLoop() {
-    // while (true) {
+    while (true) {
+        console.log('SERVICE MANAGER LOOP');
         const [action_reactions] = await pool.query('SELECT * FROM action_reaction');
         await new Promise(resolve => setTimeout(resolve, 5000));
         for (let i = 0; i < action_reactions.length; i++) {
@@ -26,6 +27,7 @@ async function serviceManagerLoop() {
             try {
                 if (await serviceManager.checkAction(user_id, actionParam)) {
                     console.log('Action is valid');
+                    console.log('SERVICE MANAGER LOOP IF ACTION IS VALID');
                     const reaction = action_reactions[i].reaction;
                     console.log(reaction);
                     const reactionParam = reaction.params;
@@ -40,25 +42,25 @@ async function serviceManagerLoop() {
             const reaction = action_reactions[i].reaction;
             console.log(reaction);
         }
-    // }
+    }
 }
 
 // const YAML = require('yamljs')
 // const swaggerDoc = YAML.load('./Router/swagger.yml')
 // const swaggerUI = require('swagger-ui-express')
 
-serviceManagerLoop();
 const app = express();
 const port = 8080;
 
 app.use(cors());
 app.use('/', router());
 // app.use(
-//     "/api-docs",
-//     // swaggerUI.serve,S
-//     // swaggerUI.setup(swaggerDoc)
-// )
-
+    //     "/api-docs",
+    //     // swaggerUI.serve,S
+    //     // swaggerUI.setup(swaggerDoc)
+    // )
+    
 app.listen(port, () => {
     console.log('Server app listening on port ' + port);
+    serviceManagerLoop();
 });

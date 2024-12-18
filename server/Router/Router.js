@@ -13,6 +13,7 @@ module.exports = function() {
     const axios = require('axios');
     const querystring = require('querystring');
     const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
+    const createActionReaction = require('../Services/ServiceManager.js').createActionReaction;
 
     // Spotify API Credentials
     const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -59,7 +60,6 @@ module.exports = function() {
         try {
             console.log("getServiceActions");
             const serviceId = req.url.split('/getServiceActions/')[1];
-            console.log("the is is", serviceId);
             res.set('Content-Type', 'text/html');
             getServiceActions(serviceId)
             .then(services => {
@@ -79,7 +79,6 @@ module.exports = function() {
         try {
             console.log("getServiceReactions");
             const serviceId = req.url.split('/getServiceReactions/')[1];
-            console.log("the is is", serviceId);
             res.set('Content-Type', 'text/html');
             getServiceReactions(serviceId)
             .then(services => {
@@ -179,6 +178,7 @@ module.exports = function() {
     });
 
     router.put("/CreateActionReaction", async (req, res) => {
+        console.log("IN THE ACTION REACTION");
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();
@@ -186,9 +186,10 @@ module.exports = function() {
 
         req.on('end', async () => { // Mark this function as async
             // Now the body is fully collected, you can log it
-            const userId = JSON.parse(body).user_id;
-            const actionJson = JSON.parse(body).action;
-            const reactionJson = JSON.parse(body).reaction;
+            console.log("Received body:", body);
+            const userId = JSON.parse(body).JsonReponse.user_id;
+            const actionJson = JSON.parse(body).JsonReponse.action;
+            const reactionJson = JSON.parse(body).JsonReponse.reaction;
 
             console.log("userId: ", userId);
             console.log("actionJson: ", actionJson);
@@ -206,7 +207,7 @@ module.exports = function() {
         console.log('Spotify callback');
         const code = req.query.code || null;
 
-        const [serviceId] = await pool.query('SELECT id FROM services WHERE name = "spotify"');
+        const [serviceId] = await pool.query('SELECT id FROM services WHERE name = "Spotify"');
 
         console.log('Service ID:', serviceId);
         if (serviceId.length === 0) {
@@ -216,7 +217,7 @@ module.exports = function() {
         }
 
         try {
-            // Exchange the authorization code for access and refresh tokens
+            // Exchange the authorization code for access and refresh_tokens
             const response = await axios.post(
                 'https://accounts.spotify.com/api/token',
                 querystring.stringify({
