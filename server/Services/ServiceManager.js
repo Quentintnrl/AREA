@@ -11,7 +11,7 @@ async function add_user_tokens(user_id, service_id, tokens) {
         const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
         console.log('Service:', service[0].name);
         switch (service[0].name) {
-            case 'spotify':
+            case 'Spotify':
                 if (add_spotify_tokens(user_id, service_id, tokens).length != 0)
                     return true ;
                 else
