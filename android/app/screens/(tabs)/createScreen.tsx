@@ -7,8 +7,10 @@ import config from "../../../config"
 
 export default function CreateScreen() {
     const navigation = useNavigation();
-    const [selected, setSelected] = useState("");
-    const [data, setData] = useState([]);
+    const [selectedService, setSelectedService] = useState("");
+    const [selectedAction, setSelectedAction] = useState("");
+    const [dataServices, setDataServices] = useState([]);
+    const [dataActions, setDataActions] = useState([]);
 
     useEffect(() => {
         const getServices = async() => {
@@ -19,13 +21,36 @@ export default function CreateScreen() {
                 json.forEach((elt: any) => {
                     newArray.push({key: elt.id, value: elt.name})
                 });
-                setData(newArray)
+                setDataServices(newArray)
             } catch (error) {
                 console.log(error)
             }
         }
         getServices();
     }, [])
+
+    const checkSelectedService = () => {
+        if (selectedService) {
+            const getServiceActions = async () => {
+                let newArray = [] as any
+                try {
+                    const response = await fetch('http://' + config.IP + ':8080/getServiceActions/' + selectedService)
+                    const json = await response.json();
+                    json.forEach((elt: any) => {
+                        newArray.push({key: elt.id, value: elt.name})
+                    });
+                    setDataActions(newArray)
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+            if (dataActions.length == 0)
+                getServiceActions()
+            return true
+        } else {
+            return false
+        }
+    }
 
     return (
         <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -46,10 +71,22 @@ export default function CreateScreen() {
             <View>
                 <Text>Available Services</Text>
                 <SelectList
-                    setSelected={(val: any) => setSelected(val)}
-                    data={data}
-                    save="value"
+                    setSelected={(val: any) => setSelectedService(val)}
+                    data={dataServices}
+                    save="key"
+                    placeholder='Select Service'
                 />
+                {checkSelectedService() &&
+                    <View>
+                        <Text>Available Actions</Text>
+                        <SelectList
+                            setSelected={(val: any) => setSelectedAction(val)}
+                            data={dataActions}
+                            save="value"
+                            placeholder='Select Action'
+                        />
+                    </View>
+                }
             </View>
         </SafeAreaView>
     )
