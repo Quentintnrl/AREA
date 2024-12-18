@@ -6,6 +6,7 @@ import LoginPage from "./components/LoginPage";
 import Dashboard from "./components/dashboard";
 import Card from "./components/cards";
 import Details from "./components/details";
+import ConnectServices from "./components/connectServices";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/details/:id" element={<Details />} />
+          <Route path="/ConnectServices/:id" element={<ConnectServices />} />
         </Routes>
       </div>
     </Router>

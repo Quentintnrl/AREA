@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
+import connectServices from './connectServices';
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
   const [selectedService1, setSelectedService1] = useState('');
   const [selectedService2, setSelectedService2] = useState('');
   const [selectedAction, setSelectedAction] = useState('');
+  const [action, setAction] = useState({});
+  const [reaction, setReaction] = useState({});
   const [selectedReaction, setSelectedReaction] = useState('');
   const [actions, setActions] = useState([]);
   const [reactions, setReactions] = useState([]);
@@ -20,6 +23,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       fetchServices();
     }
   }, [isOpen]);
+
+  
 
   const fetchServices = async () => {
     try {
@@ -81,6 +86,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
   const handleCreateApplet = () => {
     // Validate selections
+    console.log("the selected action is " + action);
     if (selectedService1 && selectedService2 && selectedAction && selectedReaction) {
       onCreateApplet({
         service1: selectedService1,
@@ -131,7 +137,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             )}
             <textarea
               className="description-textarea"
-              placeholder="Enter action description"
+              placeholder="Enter the name of the playlist"
               value={actionDescription}
               onChange={(e) => setActionDescription(e.target.value)}
             />
@@ -153,7 +159,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             {selectedService2 && (
               <select
                 value={selectedReaction}
-                onChange={(e) => setSelectedReaction(e.target.value)}
+                onChange={(e) =>setSelectedReaction(e.target.value)}
               >
                 <option value="">Select Reaction</option>
                 {reactions.map(reaction => (
@@ -163,7 +169,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             )}
             <textarea
               className="description-textarea"
-              placeholder="Enter reaction description"
+              placeholder="Enter the name of the song"
               value={reactionDescription}
               onChange={(e) => setReactionDescription(e.target.value)}
             />
@@ -186,11 +192,11 @@ function Dashboard() {
   const [cards, setCards] = useState(
     Array(4).fill(0).map((_, i) => ({
       id: i + 1,
-      color: 
+      color:
         i % 5 === 0 ? '#DAD4DE' :
         i % 5 === 1 ? '#BBB4DE' :
         i % 5 === 2 ? '#7B9DD2' :
-        i % 5 === 3 ? '#70C7C6' : 
+        i % 5 === 3 ? '#70C7C6' :
         '#F2B880',
       title: `Card Title ${i + 1}`,
       subtitle: `Subtitle for card ${i + 1}`,
@@ -202,7 +208,23 @@ function Dashboard() {
     navigate(`/details/${card.id}`, { state: { card } });
   };
 
+  const createActionsReactions = async (userId, actionId, reactionId, playlistId, songId) => {
+
+    const action = {"id": actionId, "params": {"Track Uri": playlistId, "nb_music": 0}};
+    const reaction = {"id": reactionId, "params": {"Track Uri": songId}};
+    const JsonReponse = {"user_id": userId, action, reaction};
+    try {
+      const response = await axios.put('http://localhost:8080/createActionReaction', {
+        JsonReponse
+      });
+      console.log('Actions and reactions created successfully:', response.data);
+    } catch (error) {
+      console.error('Error fetching actions and reactions:', error);
+    }
+  };
+
   const handleCreateApplet = (newApplet) => {
+    const user_id = localStorage.getItem('userId');
     const newCard = {
       id: cards.length + 1,
       color: '#F4F0E3',
@@ -210,8 +232,9 @@ function Dashboard() {
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
       details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
     };
-
     setCards([...cards, newCard]);
+    navigate(`/connectServices/${newApplet.service1}`);
+    createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
   };
 
   return (
@@ -220,14 +243,13 @@ function Dashboard() {
         <div className="logo">IFTTT</div>
         <button className="cta-button">Google Calendar automations</button>
       </header>
-      
       <nav className="nav">
         <ul>
           <li>Explore</li>
           <li>Solutions</li>
           <li>My Applets</li>
           <li>
-            <button 
+            <button
               className="create-button"
               onClick={() => setIsCreateModalOpen(true)}
             >
@@ -248,12 +270,12 @@ function Dashboard() {
           <button>Services</button>
           <button>Stories</button>
         </div>
-        <input 
-          className="search-bar" 
-          type="text" 
-          placeholder="Search Applets or services" 
+        <input
+          className="search-bar"
+          type="text"
+          placeholder="Search Applets or services"
         />
-        
+
         <div className="card-container">
           {cards.map((card) => (
             <div
@@ -269,7 +291,7 @@ function Dashboard() {
         </div>
       </main>
 
-      <CreateAppletModal 
+      <CreateAppletModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreateApplet={handleCreateApplet}
