@@ -202,6 +202,28 @@ async function addSpotifyTokens(user_id, service_id, tokens) {
 }
 
 /**
+ * Return the number of track in a playlist.
+ * @param {string} playlistId - The ID of the playlist to check.
+ * @returns {number} - Return the number of track in a playlist.
+ */
+async function getTrackSize(userToken, playlistId) {
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+            },
+        });
+
+        return response.data.tracks.total;
+    } catch (error) {
+        console.error('Error checking playlist track count:', error.response?.data || error.message);
+        throw new Error('Failed to check playlist track count.');
+    }
+}
+
+/**
  * Checks if the number of tracks in a playlist is higher than the given number.
  * @param {string} userToken - Spotify user's access_token.
  * @param {string} playlistId - The ID of the playlist to check.
@@ -212,15 +234,7 @@ async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
     const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
 
     try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${userToken}`,
-            },
-        });
-
-        //print tracks name
-        console.log('Tracks:', response.data.tracks.items.map(item => item.track.name));
-        const trackCount = response.data.tracks.total;
+        const trackCount = await getTrackSize(userToken, playlistId);
         console.log('Treshold:', threshold);
         console.log('Track count:', trackCount);
         if (trackCount > threshold) {
@@ -381,7 +395,6 @@ async function playTrackOnActiveDevice(accessToken, trackId) {
     }
 }
 
-
 /**
  * Check if the Spotify access_token is valid by calling the 'me' endpoint.
  *
@@ -399,6 +412,8 @@ async function isAccessTokenValid(accessToken) {
         if (response.status === 200) {
             console.log('access_token is valid.');
             return true;
+        } else {
+            return false;
         }
     } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -408,6 +423,7 @@ async function isAccessTokenValid(accessToken) {
         }
         return false;
     }
+    return false;
 }
 
 /**
@@ -444,6 +460,69 @@ async function refreshAccessToken(refreshToken, clientId, clientSecret) {
     }
 }
 
+/**
+ * Refresh the access_token using the refresh_token.
+ *
+ * @param {string} access_token - The token used to communicate with the spotify api.
+ * @param {string} playlist_uri - The Uri of the spotify playlist
+ * @returns {JSON} - The JSON for the action "A Track is added to a playlist".
+ */
+async function create_json_action_a_track_is_added_to_playlist(access_token, playlist_uri, request_json) {
+    const nb_musics = await getTrackSize(access_token, playlist_uri);
+    console.log('Nb musics: ', nb_musics);
+    request_json.params["nb_musics"] = nb_musics;
+    console.log(request_json);
+    return request_json;
+}
+
+/**
+ * Create the json for the SPotify actions and reactions.
+ *
+ * @param {JSON} request_json - The json send in the request.
+ * @param {string} target_name - The name of the action/reaction.
+ * @returns {Promise<string>} - Returns the json for the database.
+ */
+async function create_json(request_json, target_name, user_id, service_id) {
+    console.log('user_id:', user_id);
+    console.log('service_id:', service_id);
+    const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+    access_token = user_tokens[0].connect_token["access_token"]
+    if (!await isAccessTokenValid(access_token)) {
+        const refresh_token = user_tokens[0].connect_token["refresh_token"];
+        access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
+        user_tokens[0].connect_token["access_token"] = access_token;
+        await pool.query(
+            `UPDATE users_services_login
+            SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
+            WHERE user_id = ? AND service_id = ?`,
+            [access_token, refresh_token, user_id, service_id]
+        );
+    }
+    try {
+        console.log('Creating json for:\"', target_name, '\"');
+        switch (target_name) {
+            //actions
+            case 'A track is played':
+
+            case 'A track is added to a playlist': {
+                console.log(request_json);
+                const playlistUri = request_json.params["Playlist Uri"];
+                console.log('Playlist Uri: ', playlistUri);
+                return await create_json_action_a_track_is_added_to_playlist(access_token, playlistUri, request_json);
+                break;
+            }
+
+            //reactions
+            case 'Play a track':
+
+            default:
+                throw new Error('Action not supported');
+        }
+    } catch (error) {
+        console.error('Error creating json:', error);
+    }
+}
+
 class Spotify extends AbstractService {
     constructor(id, name) {
         super(id, name);
@@ -460,12 +539,10 @@ class Spotify extends AbstractService {
             const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id[0].id]);
             console.log('tokens: ', user_tokens[0].connect_token);
             const access_token = user_tokens[0].connect_token["access_token"];
-            console.log('access_token: ', access_token);
             if (!await isAccessTokenValid(access_token)) {
                 const refresh_token = user_tokens[0].connect_token["refresh_token"];
                 const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
                 user_tokens[0].connect_token["access_token"] = access_token;
-                console.log(user_tokens[0].connect_token);
                 await pool.query(
                     `UPDATE users_services_login
                     SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
@@ -498,4 +575,4 @@ class Spotify extends AbstractService {
     }
 }
 
-module.exports = { Spotify, getLoginLink, addSpotifyTokens, checkSpotifyActionReaction };
+module.exports = { Spotify, getLoginLink, addSpotifyTokens, checkSpotifyActionReaction, create_json };

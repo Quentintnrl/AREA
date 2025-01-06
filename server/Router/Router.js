@@ -14,6 +14,7 @@ module.exports = function() {
     const querystring = require('querystring');
     const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
     const createActionReaction = require('../Services/ServiceManager.js').createActionReaction;
+    const create_json = require('../Services/ServiceManager.js').create_json;
 
     // Spotify API Credentials
     const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -186,20 +187,25 @@ module.exports = function() {
 
         req.on('end', async () => { // Mark this function as async
             // Now the body is fully collected, you can log it
-            console.log("Received body:", body);
-            const userId = JSON.parse(body).JsonReponse.user_id;
-            const actionJson = JSON.parse(body).JsonReponse.action;
-            const reactionJson = JSON.parse(body).JsonReponse.reaction;
+            try {
+                // console.log("Received body:", body);
+                const userId = JSON.parse(body).user_id;
+                const actionJson = await create_json(JSON.parse(body).action, userId);
+                // const reactionJson = create_json(JSON.parse(body).JsonReponse.reaction);
 
-            console.log("userId: ", userId);
-            console.log("actionJson: ", actionJson);
-            console.log("reactionJson: ", reactionJson);
+                console.log("userId: ", userId);
+                console.log("actionJson: ", actionJson);
+                // console.log("reactionJson: ", reactionJson);
 
-            await createActionReaction(userId, actionJson, reactionJson);
+                // await createActionReaction(userId, actionJson, reactionJson);
 
-            // Send a response after handling the request
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: "Request received" }));
+                // Send a response after handling the request
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: "Action-reaction created" }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: "Cannot create the Action-reaction" }));
+            }
         });
     });
 

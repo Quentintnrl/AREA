@@ -3,8 +3,30 @@ const { ServicesFactory } = require('./ServicesFactory');
 const { Spotify } = require('./Spotify');
 const add_spotify_tokens = require('./Spotify').addSpotifyTokens;
 const checkSpotifyActionReaction = require('./Spotify').checkSpotifyActionReaction;
+const spotify_create_json = require('./Spotify').create_json;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
+
+async function create_json(request_json, user_id) {
+    try {
+        const id = request_json.id;
+        console.log('id:', id);
+        const [actions] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
+        const service_id = actions[0].service_id;
+        console.log('service_id:', service_id);
+        const [services] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
+        const service_name = services[0].name;
+        console.log('service_name:', service_name);
+        switch (service_name) {
+            case 'Spotify':
+                return await spotify_create_json(request_json, actions[0].name, user_id, service_id);
+            default:
+                throw new Error('Service not supported');
+        }
+    } catch (error) {
+        console.error('Error creating json:', error);
+    }
+}
 
 async function add_user_tokens(user_id, service_id, tokens) {
     try {
@@ -228,4 +250,4 @@ class ServiceManager {
     }
 }
 
-module.exports = { ServiceManager, add_user_tokens, createActionReaction };
+module.exports = { ServiceManager, add_user_tokens, createActionReaction, create_json };
