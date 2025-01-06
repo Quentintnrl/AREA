@@ -22,6 +22,11 @@ module.exports = function() {
     const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
     const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
+
+
+
+//                                                                               GET ROUTES
+
     router.get("/getServices", (req, res) => {
         console.log("getServices");
         res.set('Content-Type', 'text/html');
@@ -96,123 +101,6 @@ module.exports = function() {
 
     });
 
-    router.post("/login", async (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-
-        req.on('end', async () => {
-            try {
-                const { userName, password } = JSON.parse(body);
-                const loginResult = await login(userName, password);
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                store.set('id', loginResult.Id);
-                res.end(JSON.stringify({
-                    token: loginResult.token,
-                    userName: loginResult.userName,
-                    Id: loginResult.Id
-                }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: error.message }));
-            }
-        });
-    });
-
-    router.post("/register", async (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', async () => {
-            try {
-                const {userEmail, userName, password } = JSON.parse(body);
-                const registerResult = await register(userEmail, userName, password);
-                store.set('id', registerResult.Id);
-                res.status(201).json({
-                    token: registerResult.token,
-                    userName: registerResult.userName,
-                    Id: registerResult.Id
-                });
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: error.message }));
-            }
-        });
-    });
-
-    router.get("/about.json", (req, res) => {
-        const ip = req.headers['x-forwarded-for']
-                    ? req.headers['x-forwarded-for'].split(',')[0]
-                    : req.socket.remoteAddress;
-
-        const ipv4 = ip.startsWith('::ffff:') ? ip.substr(7) : ip;
-
-        res.set('Content-Type', 'application/json');
-        getAllServices.getaboutroutes(ipv4)
-        .then(services => {
-            res.status(200).json(services);
-        })
-        .catch(error => {
-            res.status(500).json({ error: error.message });
-        });
-    });
-
-    router.get("/getServiceLoginURL/:userId/:serviceId", async (req, res) => {
-        const userId = req.params.userId;
-        const serviceId = req.params.serviceId;
-
-        try {
-            console.log("the element is getServiceLoginURL");
-            service_login_user_id = userId;
-            service_login_service_id = serviceId;
-            const url = await get_login_url(serviceId);
-            console.log("THE URL IS= ", url);
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ url: url }));
-        } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: error.message }));
-        }
-    });
-
-    router.put("/CreateActionReaction", async (req, res) => {
-        console.log("IN THE ACTION REACTION");
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', async () => { // Mark this function as async
-            // Now the body is fully collected, you can log it
-            try {
-                // console.log("Received body:", body);
-                const userId = JSON.parse(body).user_id;
-                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
-                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
-
-                console.log("userId: ", userId);
-                console.log("actionJson: ", actionJson);
-                console.log("reactionJson: ", reactionJson);
-
-                if (actionJson === undefined || reactionJson === undefined) {
-                    throw new Error('Bad Json at the creation');
-                }
-                await createActionReaction(userId, actionJson, reactionJson);
-
-                // Send a response after handling the request
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: "Action-reaction created" }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: "Cannot create the Action-reaction" }));
-            }
-        });
-    });
-
     router.get('/spotifyCallback', async (req, res) => {
         console.log('Spotify callback');
         const code = req.query.code || null;
@@ -275,6 +163,134 @@ module.exports = function() {
         }
         }
     );
+
+    router.get("/about.json", (req, res) => {
+        const ip = req.headers['x-forwarded-for']
+                    ? req.headers['x-forwarded-for'].split(',')[0]
+                    : req.socket.remoteAddress;
+
+        const ipv4 = ip.startsWith('::ffff:') ? ip.substr(7) : ip;
+
+        res.set('Content-Type', 'application/json');
+        getAllServices.getaboutroutes(ipv4)
+        .then(services => {
+            res.status(200).json(services);
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    });
+
+    router.get("/getServiceLoginURL/:userId/:serviceId", async (req, res) => {
+        const userId = req.params.userId;
+        const serviceId = req.params.serviceId;
+
+        try {
+            console.log("the element is getServiceLoginURL");
+            service_login_user_id = userId;
+            service_login_service_id = serviceId;
+            const url = await get_login_url(serviceId);
+            console.log("THE URL IS= ", url);
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ url: url }));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
+    });
+
+
+
+
+    //                                                                               POST ROUTES
+
+    router.post("/login", async (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+
+        req.on('end', async () => {
+            try {
+                const { userName, password } = JSON.parse(body);
+                const loginResult = await login(userName, password);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                store.set('id', loginResult.Id);
+                res.end(JSON.stringify({
+                    token: loginResult.token,
+                    userName: loginResult.userName,
+                    Id: loginResult.Id
+                }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: error.message }));
+            }
+        });
+    });
+
+    router.post("/register", async (req, res) => {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => {
+            try {
+                const {userEmail, userName, password } = JSON.parse(body);
+                const registerResult = await register(userEmail, userName, password);
+                store.set('id', registerResult.Id);
+                res.status(201).json({
+                    token: registerResult.token,
+                    userName: registerResult.userName,
+                    Id: registerResult.Id
+                });
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: error.message }));
+            }
+        });
+    });
+
+
+
+
+
+//                                                                               PUT ROUTES
+
+    router.put("/CreateActionReaction", async (req, res) => {
+        console.log("IN THE ACTION REACTION");
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => { // Mark this function as async
+            // Now the body is fully collected, you can log it
+            try {
+                // console.log("Received body:", body);
+                const userId = JSON.parse(body).user_id;
+                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
+
+                console.log("userId: ", userId);
+                console.log("actionJson: ", actionJson);
+                console.log("reactionJson: ", reactionJson);
+
+                if (actionJson === undefined || reactionJson === undefined) {
+                    throw new Error('Bad Json at the creation');
+                }
+                await createActionReaction(userId, actionJson, reactionJson);
+
+                // Send a response after handling the request
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: "Action-reaction created" }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: "Cannot create the Action-reaction" }));
+            }
+        });
+    });
 
     return router;
 };
