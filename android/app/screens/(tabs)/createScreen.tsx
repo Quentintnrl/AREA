@@ -30,26 +30,21 @@ export default function CreateScreen() {
     }, [])
 
     const checkSelectedService = () => {
-        if (selectedService) {
-            const getServiceActions = async () => {
-                let newArray = [] as any
-                try {
-                    const response = await fetch('http://' + config.IP + ':8080/getServiceActions/' + selectedService)
-                    const json = await response.json();
-                    json.forEach((elt: any) => {
-                        newArray.push({key: elt.id, value: elt.name})
-                    });
-                    setDataActions(newArray)
-                } catch (error) {
-                    console.log(error)
-                }
+        const getServiceActions = async () => {
+            let newArray = [] as any
+            try {
+                const response = await fetch('http://' + config.IP + ':8080/getServiceActions/' + selectedService)
+                const json = await response.json();
+                json.forEach((elt: any) => {
+                    newArray.push({key: elt.id, value: elt.name})
+                });
+                setDataActions(newArray)
+                setSelectedAction("")
+            } catch (error) {
+                console.log(error)
             }
-            if (dataActions.length == 0)
-                getServiceActions()
-            return true
-        } else {
-            return false
         }
+        getServiceActions()
     }
 
     return (
@@ -73,10 +68,11 @@ export default function CreateScreen() {
                 <SelectList
                     setSelected={(val: any) => setSelectedService(val)}
                     data={dataServices}
+                    onSelect={checkSelectedService}
                     save="key"
                     placeholder='Select Service'
                 />
-                {checkSelectedService() &&
+                {selectedService &&
                     <View>
                         <Text>Available Actions</Text>
                         <SelectList
