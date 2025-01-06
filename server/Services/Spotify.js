@@ -9,154 +9,10 @@ const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
-/**
- * Check if the params for the action that is triggered when a track is added to a playlist
- *
- * @param {JSON} params - The parameters of the action
- * @returns {boolean} - Return true if the params are good for this actions
- */
-async function checkTrackAddedToAPlaylist(params, user_id, service_id) {
-    try {
-        console.log("VHZECDSJHCSJHDCQSCBJHUJKEFVV")
-        console.log('params: ', params["Playlist Uri"]);
-        console.log('service id: ', service_id);
-        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        console.log('tokens: ', user_tokens[0].connect_token);
-        const access_token = user_tokens[0].connect_token["access_token"];
-        console.log('access_token: ', access_token);
-        if (!await isAccessTokenValid(access_token)) {
-            const refresh_token = user_tokens[0].connect_token["refresh_token"];
-            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access_token"] = access_token;
-            console.log(user_tokens[0].connect_token);
-            await pool.query(
-                `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
-                 WHERE user_id = ? AND service_id = ?`,
-                [access_token, refresh_token, user_id, service_id]
-            );
-        }
-        if (!await doesPlaylistExist(access_token, params["Playlist Uri"])) {
-            console.error('Playlist doesn\'t exist');
-            return false
-        }
-    } catch (error) {
-        console.error(error);
-        console.error('Bad parameters for the action \"A track is added to a playlist\"');
-        return false;
-    }
-    return true;
-}
 
-/**
- * Check if a the track that want to be target exist
- *
- * @param {JSON} params - The parameters of this reaction
- * @param {string} user_id - The id of the user
- * @param {string} servide_id - The id of the spotify service
- * @returns {boolean} - Return a boolean if the track exist
- */
-async function checkPlayATrack(params, user_id, service_id) {
-    try {
-        // console.log('params: ', params["Track Uri"]);
-        // console.log('service id: ', service_id);
-        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        // console.log('tokens: ', user_tokens[0].connect_token);
-        const access_token = user_tokens[0].connect_token["access_token"];
-        // console.log('access_token: ', access_token);
-        if (!await isAccessTokenValid(access_token)) {
-            const refresh_token = user_tokens[0].connect_token["refresh_token"];
-            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access_token"] = access_token;
-            console.log(user_tokens[0].connect_token);
-            await pool.query(
-                `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
-                 WHERE user_id = ? AND service_id = ?`,
-                [access_token, refresh_token, user_id, service_id]
-            );
-        }
-        if (!await doesTrackExist(access_token, params["Track Uri"])) {
-            console.error('Track doesn\'t exist');
-            return false
-        }
-    } catch (error) {
-        console.error(error);
-        console.error('Bad parameters for the action \"A track is added to a playlist\"');
-        return false;
-    }
-    return true;
-}
 
-/**
- * Check if the params for the action that is triggered when a track is played
- *
- * @param {JSON} params - The parameters of the action
- * @param {string} user_id - The id of the user
- * @param {string} service_id - The id of the service
- * @returns {boolean} - Return true if the params are good for this actions
- */
-async function checkATrackHasBeenPlayed(params, user_id, service_id) {
-    try {
-        // console.log('params: ', params["Track Uri"]);
-        // console.log('service id: ', service_id);
-        console.log("PARAM :", params);
-        const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        console.log('tokens: ', user_tokens);
-        const access_token = user_tokens[0].connect_token["access_token"];
-        // console.log('access_token: ', access_token);
-        if (!await isAccessTokenValid(access_token)) {
-            console.log("IN CONDITION ACCESS TOKEN VALID");
-            const refresh_token = user_tokens[0].connect_token["refresh_token"];
-            const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access_token"] = access_token;
-            console.log(user_tokens[0].connect_token);
-            await pool.query(
-                `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
-                 WHERE user_id = ? AND service_id = ?`,
-                [access_token, refresh_token, user_id, service_id]
-            );
-        }
-        if (!await doesTrackExist(access_token, params["Track Uri"])) {
-            console.error('Track doesn\'t exist');
-            return false
-        }
-    } catch (error) {
-        console.error(error);
-        console.error('Bad parameters for the action \"A track is added to a playlist\"');
-        return false;
-    }
-    return true;
-}
 
-/**
- * Check the different actions and reactions that can be done with Spotify.
- *
- * @param {JSON} params - The parameters of the action or reaction.
- * @param {string} name - The name of the action or reaction.
- * @returns {boolean} - Returns true if the action or reaction is valid; otherwise, false.
- */
-async function checkSpotifyActionReaction(params, name, user_id, service_id) {
-    console.log('name: ', name);
-    console.log('service id: ', service_id);
-    console.log('params', params);
-    try {
-        switch (name) {
-            case 'A track is added to a playlist':
-                return await checkTrackAddedToAPlaylist(params, user_id, service_id);
-            case 'Play a track':
-                return await checkPlayATrack(params, user_id, service_id);
-            case 'A track is played':
-                return await checkATrackHasBeenPlayed(params, user_id, service_id);
-            default:
-                throw new Error('Action or reaction not supported');
-        }
-    } catch (error) {
-        console.error('Error checking Spotify action or reaction:', error);
-        throw new Error('Failed to check Spotify action or reaction.');
-    }
-}
+//                                                                                  FUNCTIONS UTILS
 
 /**
  * Return the login link for Spotify.
@@ -181,26 +37,6 @@ function getLoginLink() {
     return authUrl;
 }
 
-async function addSpotifyTokens(user_id, service_id, tokens) {
-    try {
-        const { access_token, refresh_token} = tokens;
-        const tokenexists = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        if (tokenexists[0].length > 0) {
-            console.log('Spotify tokens already exist:', tokenexists[0]);
-            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
-            console.log('Spotify tokens updated:', rows);
-            return rows;
-        } else {
-            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
-            return rows;
-        }
-        // console.log('Spotify tokens added:', rows);
-    } catch (error) {
-        console.error('Error adding Spotify tokens:', error);
-        throw new Error('Failed to add Spotify tokens.');
-    }
-}
-
 /**
  * Return the number of track in a playlist.
  * @param {string} playlistId - The ID of the playlist to check.
@@ -220,64 +56,6 @@ async function getTrackSize(userToken, playlistId) {
     } catch (error) {
         console.error('Error checking playlist track count:', error.response?.data || error.message);
         throw new Error('Failed to check playlist track count.');
-    }
-}
-
-/**
- * Checks if the number of tracks in a playlist is higher than the given number.
- * @param {string} userToken - Spotify user's access_token.
- * @param {string} playlistId - The ID of the playlist to check.
- * @param {number} threshold - The number to compare against.
- * @returns {Promise<boolean>} - Returns true if the number of tracks in the playlist is greater than the threshold.
- */
-async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
-    const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
-
-    try {
-        const trackCount = await getTrackSize(userToken, playlistId);
-        console.log('Treshold:', threshold);
-        console.log('Track count:', trackCount);
-        if (trackCount != threshold) {
-
-            if (trackCount > threshold) {
-                console.log('Playlist track count is higher than the threshold.');
-                return true;
-            }
-        }
-        console.log('Playlist track count is lower or equal than the threshold.');
-        return false;
-    } catch (error) {
-        console.error('Error checking playlist track count:', error.response?.data || error.message);
-        throw new Error('Failed to check playlist track count.');
-    }
-}
-
-/**
- * Checks if a playlist ID exists for a specific user token.
- * @param {string} userToken - Spotify user's access_token.
- * @param {string} playlistId - The ID of the playlist to check.
- * @returns {Promise<boolean>} - Returns true if the playlist exists; otherwise, false.
- */
-async function doesPlaylistExist(userToken, playlistId) {
-    const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
-
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${userToken}`,
-            },
-        });
-
-        // If the playlist is successfully fetched, it exists.
-        console.log('Playlist exist');
-        return true;
-    } catch (error) {
-        // If the error is a 404, the playlist does not exist.
-        if (error.response?.status === 404) {
-            return false;
-        }
-        console.error('Error checking playlist existence:', error.response?.data || error.message);
-        throw new Error('Failed to check playlist existence.');
     }
 }
 
@@ -308,6 +86,41 @@ async function doesTrackExist(userToken, trackId) {
         }
         console.error('Error checking track existence:', error.response?.data || error.message);
         throw new Error('Failed to check track existence.');
+    }
+}
+
+
+
+
+//                                                                                  ACTIONS
+
+
+/**
+ * Checks if the number of tracks in a playlist is higher than the given number.
+ * @param {string} userToken - Spotify user's access_token.
+ * @param {string} playlistId - The ID of the playlist to check.
+ * @param {number} threshold - The number to compare against.
+ * @returns {Promise<boolean>} - Returns true if the number of tracks in the playlist is greater than the threshold.
+ */
+async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
+
+    try {
+        const trackCount = await getTrackSize(userToken, playlistId);
+        console.log('Treshold:', threshold);
+        console.log('Track count:', trackCount);
+        if (trackCount != threshold) {
+
+            if (trackCount > threshold) {
+                console.log('Playlist track count is higher than the threshold.');
+                return true;
+            }
+        }
+        console.log('Playlist track count is lower or equal than the threshold.');
+        return false;
+    } catch (error) {
+        console.error('Error checking playlist track count:', error.response?.data || error.message);
+        throw new Error('Failed to check playlist track count.');
     }
 }
 
@@ -349,6 +162,11 @@ async function isTrackCurrentlyPlaying(userToken, trackId) {
         throw new Error('Failed to check if track is currently playing.');
     }
 }
+
+
+
+
+//                                                                                  REACTIONS
 
 /**
  * Play a specific track on the active device.
@@ -392,6 +210,33 @@ async function playTrackOnActiveDevice(accessToken, trackId) {
         } else {
             console.error('Failed to play track:', error.message);
         }
+    }
+}
+
+
+
+
+
+//                                                                             TOKENS
+
+
+async function addSpotifyTokens(user_id, service_id, tokens) {
+    try {
+        const { access_token, refresh_token} = tokens;
+        const tokenexists = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        if (tokenexists[0].length > 0) {
+            console.log('Spotify tokens already exist:', tokenexists[0]);
+            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
+            console.log('Spotify tokens updated:', rows);
+            return rows;
+        } else {
+            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+            return rows;
+        }
+        // console.log('Spotify tokens added:', rows);
+    } catch (error) {
+        console.error('Error adding Spotify tokens:', error);
+        throw new Error('Failed to add Spotify tokens.');
     }
 }
 
@@ -459,6 +304,14 @@ async function refreshAccessToken(refreshToken, clientId, clientSecret) {
         throw new Error('Unable to refresh access_token');
     }
 }
+
+
+
+
+
+
+
+//                                                                             JSON CREATION
 
 /**
  * Create the json for the action "A Track is added to a playlist".
@@ -565,6 +418,12 @@ async function create_json(request_json, target_name, user_id, service_id) {
     }
 }
 
+
+
+
+
+//                                                                           SPOTIFY CLASS
+
 class Spotify extends AbstractService {
     constructor(id, name) {
         super(id, name);
@@ -651,4 +510,4 @@ class Spotify extends AbstractService {
     }
 }
 
-module.exports = { Spotify, getLoginLink, addSpotifyTokens, checkSpotifyActionReaction, create_json };
+module.exports = { Spotify, getLoginLink, addSpotifyTokens, create_json };

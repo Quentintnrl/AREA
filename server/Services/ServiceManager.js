@@ -2,7 +2,6 @@ const { AbstractService, Task } = require('./AbstractService');
 const { ServicesFactory } = require('./ServicesFactory');
 const { Spotify } = require('./Spotify');
 const add_spotify_tokens = require('./Spotify').addSpotifyTokens;
-const checkSpotifyActionReaction = require('./Spotify').checkSpotifyActionReaction;
 const spotify_create_json = require('./Spotify').create_json;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
