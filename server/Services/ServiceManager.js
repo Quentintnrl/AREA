@@ -74,50 +74,27 @@ async function createActionReaction(user_id, actionJson, reactionJson) {
     }
 }
 
-const getAllActions = async () => {
-    try {
-        // Query to get all rows from the 'actions' table
-        const [rows] = await pool.query('SELECT * FROM actions');
-
-        // Return the rows (the result of the query)
-        return rows;
-    } catch (error) {
-        // Handle any errors that occur during the query
-        console.error('Error fetching data from actions table:', error);
-        throw new Error('Could not fetch actions data.');
-    }
-};
-
-const getAllReactions = async () => {
-    try {
-        // Query to get all rows from the 'actions' table
-        const [rows] = await pool.query('SELECT * FROM reactions');
-
-        // Return the rows (the result of the query)
-        return rows;
-    } catch (error) {
-        // Handle any errors that occur during the query
-        console.error('Error fetching data from actions table:', error);
-        throw new Error('Could not fetch actions data.');
-    }
-};
-
 const query = async () => {
     try {
-      // Execute the query to get all rows from the 'services' table
-      const [rows] = await pool.query('SELECT id, name FROM services');
+        // Execute the query to get all rows from the 'services' table
+        const [rows] = await pool.query('SELECT id, name FROM services');
 
-      // Format the result as an array of objects (if needed)
-      const services = rows.map(row => ({ id: row.id, name: row.name }));
+        // Format the result as an array of objects (if needed)
+        const services = rows.map(row => ({ id: row.id, name: row.name }));
 
-      // Log or use the resulting array
-      console.log(services);
-      return services;
+        // Log or use the resulting array
+        console.log(services);
+        return services;
     } catch (error) {
-      console.error('Error executing query:', error);
-      throw error;
+        console.error('Error executing query:', error);
+        throw error;
     }
-  };
+};
+
+
+
+
+//                                                                          SERVICE MANAGER CLASS
 
 class ServiceManager {
     constructor() {
