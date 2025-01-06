@@ -7,19 +7,30 @@ const spotify_create_json = require('./Spotify').create_json;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
-async function create_json(request_json, user_id) {
+const ActionOrReaction = {
+    Action: "action",
+    Reaction: "reaction",
+};
+
+async function create_json(request_json, user_id, action_or_reaction) {
     try {
         const id = request_json.id;
         console.log('id:', id);
-        const [actions] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
-        const service_id = actions[0].service_id;
+        target = [];
+        if (action_or_reaction === "action") {
+            [target] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
+        } else if (action_or_reaction === "reaction") {
+            [target] = await pool.query('SELECT * FROM reactions WHERE id = ?', [id]);
+        }
+        console.log(target);
+        const service_id = target[0].service_id;
         console.log('service_id:', service_id);
         const [services] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
         const service_name = services[0].name;
         console.log('service_name:', service_name);
         switch (service_name) {
             case 'Spotify':
-                return await spotify_create_json(request_json, actions[0].name, user_id, service_id);
+                return await spotify_create_json(request_json, target[0].name, user_id, service_id);
             default:
                 throw new Error('Service not supported');
         }
@@ -250,4 +261,4 @@ class ServiceManager {
     }
 }
 
-module.exports = { ServiceManager, add_user_tokens, createActionReaction, create_json };
+module.exports = { ServiceManager, add_user_tokens, createActionReaction, create_json, ActionOrReaction };

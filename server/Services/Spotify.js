@@ -289,9 +289,6 @@ async function doesTrackExist(userToken, trackId) {
 
     try {
         console.log('Checking track existence for track ID:', trackId);
-        console.log('User token:', userToken);
-        console.log("HHHHHEEEEEELLLLLLLOOOOOOO")
-        console.log('access_token:', userToken);
         const response = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${userToken}`,
@@ -461,7 +458,7 @@ async function refreshAccessToken(refreshToken, clientId, clientSecret) {
 }
 
 /**
- * Refresh the access_token using the refresh_token.
+ * Create the json for the action "A Track is added to a playlist".
  *
  * @param {string} access_token - The token used to communicate with the spotify api.
  * @param {string} playlist_uri - The Uri of the spotify playlist
@@ -474,6 +471,35 @@ async function create_json_action_a_track_is_added_to_playlist(access_token, pla
     console.log(request_json);
     return request_json;
 }
+
+/**
+ * Create the json for the reaction "Play a track".
+ *
+ * @param {string} access_token - The token used to communicate with the spotify api.
+ * @param {string} track_uri - The Uri of the spotify track
+ * @returns {JSON} - The JSON for the action "Play a track".
+ */
+async function create_json_action_play_a_track(access_token, track_uri, request_json) {
+    if (!await doesTrackExist(access_token, track_uri)) {
+        return undefined;
+    }
+    return request_json;
+}
+
+/**
+ * Create the json for the reaction "A song is played".
+ *
+ * @param {string} access_token - The token used to communicate with the spotify api.
+ * @param {string} track_uri - The Uri of the spotify track
+ * @returns {JSON} - The JSON for the action "A song is played".
+ */
+async function create_json_action_a_song_is_played(access_token, track_uri, request_json) {
+    if (!await doesTrackExist(access_token, track_uri)) {
+        return undefined;
+    }
+    return request_json;
+}
+
 
 /**
  * Create the json for the SPotify actions and reactions.
@@ -502,7 +528,13 @@ async function create_json(request_json, target_name, user_id, service_id) {
         console.log('Creating json for:\"', target_name, '\"');
         switch (target_name) {
             //actions
-            case 'A track is played':
+            case 'A song is played': {
+                console.log(request_json);
+                const track_uri = request_json.params["Track Uri"];
+                console.log('Track Uri: ', track_uri);
+                return await create_json_action_a_song_is_played(access_token, track_uri, request_json);
+                break;
+            }
 
             case 'A track is added to a playlist': {
                 console.log(request_json);
@@ -513,10 +545,17 @@ async function create_json(request_json, target_name, user_id, service_id) {
             }
 
             //reactions
-            case 'Play a track':
+            case 'Play a track': {
+                console.log(request_json);
+                const track_uri = request_json.params["Track Uri"];
+                console.log('Track Uri: ', track_uri);
+                return await create_json_action_play_a_track(access_token, track_uri, request_json);
+                break;
+            }
 
-            default:
+            default: {
                 throw new Error('Action not supported');
+            }
         }
     } catch (error) {
         console.error('Error creating json:', error);

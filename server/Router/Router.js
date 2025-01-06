@@ -15,6 +15,7 @@ module.exports = function() {
     const add_user_tokens = require('../Services/ServiceManager.js').add_user_tokens;
     const createActionReaction = require('../Services/ServiceManager.js').createActionReaction;
     const create_json = require('../Services/ServiceManager.js').create_json;
+    const { ActionOrReaction } = require('../Services/ServiceManager.js').ActionOrReaction;
 
     // Spotify API Credentials
     const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -190,14 +191,17 @@ module.exports = function() {
             try {
                 // console.log("Received body:", body);
                 const userId = JSON.parse(body).user_id;
-                const actionJson = await create_json(JSON.parse(body).action, userId);
-                // const reactionJson = create_json(JSON.parse(body).JsonReponse.reaction);
+                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);
-                // console.log("reactionJson: ", reactionJson);
+                console.log("reactionJson: ", reactionJson);
 
-                // await createActionReaction(userId, actionJson, reactionJson);
+                if (actionJson === undefined || reactionJson === undefined) {
+                    throw new Error('Bad Json at the creation');
+                }
+                await createActionReaction(userId, actionJson, reactionJson);
 
                 // Send a response after handling the request
                 res.writeHead(200, { 'Content-Type': 'application/json' });
