@@ -75,7 +75,7 @@ SELECT ROW_COUNT();
 
 -- Insert actions
 INSERT INTO actions (service_id, name, params, description) 
-VALUES (1, 'A song is played', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a song is played on Spotify');
+VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is played on Spotify');
 SELECT ROW_COUNT();
 
 INSERT INTO actions (service_id, name, params, description) 

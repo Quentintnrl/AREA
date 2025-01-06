@@ -8,19 +8,20 @@ const disconnect = require('../db').close;
 
 async function add_user_tokens(user_id, service_id, tokens) {
     try {
-        const service = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
-        switch (service.name) {
+        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [service_id]);
+        console.log('Service:', service[0].name);
+        switch (service[0].name) {
             case 'Spotify':
-                disconnect();
-                add_spotify_tokens(user_id, service_id, tokens);
+                if (add_spotify_tokens(user_id, service_id, tokens).length != 0)
+                    return true ;
+                else
+                    return false;
             default:
                 throw new Error('Service not supported');
         }
     } catch (error) {
         console.error('Error fetching data from services table:', error);
-        disconnect();
     }
-    disconnect();
 }
 
 async function testActionCreation(user_id, actionJson) {
@@ -95,7 +96,6 @@ async function createServiceJson(user_id, json) {
 
 async function createActionReaction(user_id, actionJson, reactionJson) {
     try {
-        //get user from user_id
         const [user] = await pool.query('SELECT * FROM users WHERE id = ?', [user_id]);
         console.log('user:', user[0]);
 

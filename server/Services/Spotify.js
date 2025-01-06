@@ -17,20 +17,21 @@ const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
  */
 async function checkTrackAddedToAPlaylist(params, user_id, service_id) {
     try {
+        console.log("VHZECDSJHCSJHDCQSCBJHUJKEFVV")
         console.log('params: ', params["Playlist Uri"]);
         console.log('service id: ', service_id);
         const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
         console.log('tokens: ', user_tokens[0].connect_token);
-        const access_token = user_tokens[0].connect_token["access token"];
-        console.log('access token: ', access_token);
+        const access_token = user_tokens[0].connect_token["access_token"];
+        console.log('access_token: ', access_token);
         if (!await isAccessTokenValid(access_token)) {
-            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const refresh_token = user_tokens[0].connect_token["refresh_token"];
             const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access token"] = access_token;
+            user_tokens[0].connect_token["access_token"] = access_token;
             console.log(user_tokens[0].connect_token);
             await pool.query(
                 `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
                  WHERE user_id = ? AND service_id = ?`,
                 [access_token, refresh_token, user_id, service_id]
             );
@@ -57,20 +58,20 @@ async function checkTrackAddedToAPlaylist(params, user_id, service_id) {
  */
 async function checkPlayATrack(params, user_id, service_id) {
     try {
-        console.log('params: ', params["Track Uri"]);
-        console.log('service id: ', service_id);
+        // console.log('params: ', params["Track Uri"]);
+        // console.log('service id: ', service_id);
         const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        console.log('tokens: ', user_tokens[0].connect_token);
-        const access_token = user_tokens[0].connect_token["access token"];
-        console.log('access token: ', access_token);
+        // console.log('tokens: ', user_tokens[0].connect_token);
+        const access_token = user_tokens[0].connect_token["access_token"];
+        // console.log('access_token: ', access_token);
         if (!await isAccessTokenValid(access_token)) {
-            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            const refresh_token = user_tokens[0].connect_token["refresh_token"];
             const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access token"] = access_token;
+            user_tokens[0].connect_token["access_token"] = access_token;
             console.log(user_tokens[0].connect_token);
             await pool.query(
                 `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
                  WHERE user_id = ? AND service_id = ?`,
                 [access_token, refresh_token, user_id, service_id]
             );
@@ -97,20 +98,22 @@ async function checkPlayATrack(params, user_id, service_id) {
  */
 async function checkATrackHasBeenPlayed(params, user_id, service_id) {
     try {
-        console.log('params: ', params["Track Uri"]);
-        console.log('service id: ', service_id);
+        // console.log('params: ', params["Track Uri"]);
+        // console.log('service id: ', service_id);
+        console.log("PARAM :", params);
         const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
-        console.log('tokens: ', user_tokens[0].connect_token);
-        const access_token = user_tokens[0].connect_token["access token"];
-        console.log('access token: ', access_token);
+        console.log('tokens: ', user_tokens);
+        const access_token = user_tokens[0].connect_token["access_token"];
+        // console.log('access_token: ', access_token);
         if (!await isAccessTokenValid(access_token)) {
-            const refresh_token = user_tokens[0].connect_token["refresh token"];
+            console.log("IN CONDITION ACCESS TOKEN VALID");
+            const refresh_token = user_tokens[0].connect_token["refresh_token"];
             const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-            user_tokens[0].connect_token["access token"] = access_token;
+            user_tokens[0].connect_token["access_token"] = access_token;
             console.log(user_tokens[0].connect_token);
             await pool.query(
                 `UPDATE users_services_login
-                 SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                 SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
                  WHERE user_id = ? AND service_id = ?`,
                 [access_token, refresh_token, user_id, service_id]
             );
@@ -142,9 +145,9 @@ async function checkSpotifyActionReaction(params, name, user_id, service_id) {
         switch (name) {
             case 'A track is added to a playlist':
                 return await checkTrackAddedToAPlaylist(params, user_id, service_id);
-            case 'play a track':
+            case 'Play a track':
                 return await checkPlayATrack(params, user_id, service_id);
-            case 'A track has been played':
+            case 'A track is played':
                 return await checkATrackHasBeenPlayed(params, user_id, service_id);
             default:
                 throw new Error('Action or reaction not supported');
@@ -181,8 +184,17 @@ function getLoginLink() {
 async function addSpotifyTokens(user_id, service_id, tokens) {
     try {
         const { access_token, refresh_token} = tokens;
-        const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
-        console.log('Spotify tokens added:', rows);
+        const tokenexists = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        if (tokenexists[0].length > 0) {
+            console.log('Spotify tokens already exist:', tokenexists[0]);
+            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
+            console.log('Spotify tokens updated:', rows);
+            return rows;
+        } else {
+            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+            return rows;
+        }
+        // console.log('Spotify tokens added:', rows);
     } catch (error) {
         console.error('Error adding Spotify tokens:', error);
         throw new Error('Failed to add Spotify tokens.');
@@ -191,7 +203,7 @@ async function addSpotifyTokens(user_id, service_id, tokens) {
 
 /**
  * Checks if the number of tracks in a playlist is higher than the given number.
- * @param {string} userToken - Spotify user's access token.
+ * @param {string} userToken - Spotify user's access_token.
  * @param {string} playlistId - The ID of the playlist to check.
  * @param {number} threshold - The number to compare against.
  * @returns {Promise<boolean>} - Returns true if the number of tracks in the playlist is greater than the threshold.
@@ -225,7 +237,7 @@ async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
 
 /**
  * Checks if a playlist ID exists for a specific user token.
- * @param {string} userToken - Spotify user's access token.
+ * @param {string} userToken - Spotify user's access_token.
  * @param {string} playlistId - The ID of the playlist to check.
  * @returns {Promise<boolean>} - Returns true if the playlist exists; otherwise, false.
  */
@@ -254,7 +266,7 @@ async function doesPlaylistExist(userToken, playlistId) {
 
 /**
  * Checks if a track exists for a specific user token.
- * @param {string} userToken - Spotify user's access token.
+ * @param {string} userToken - Spotify user's access_token.
  * @param {string} trackId - The ID of the track to check.
  * @returns {Promise<boolean>} - Returns true if the track exists; otherwise, false.
  */
@@ -262,6 +274,10 @@ async function doesTrackExist(userToken, trackId) {
     const url = `https://api.spotify.com/v1/tracks/${trackId}`;
 
     try {
+        console.log('Checking track existence for track ID:', trackId);
+        console.log('User token:', userToken);
+        console.log("HHHHHEEEEEELLLLLLLOOOOOOO")
+        console.log('access_token:', userToken);
         const response = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${userToken}`,
@@ -283,7 +299,7 @@ async function doesTrackExist(userToken, trackId) {
 
 /**
  * Checks if a specific track is currently being played on the active device.
- * @param {string} userToken - Spotify user's access token.
+ * @param {string} userToken - Spotify user's access_token.
  * @param {string} trackId - The ID of the track to check.
  * @returns {Promise<boolean>} - Returns true if the track is currently playing; otherwise, false.
  */
@@ -323,7 +339,7 @@ async function isTrackCurrentlyPlaying(userToken, trackId) {
 /**
  * Play a specific track on the active device.
  *
- * @param {string} accessToken - The Spotify access token.
+ * @param {string} accessToken - The Spotify access_token.
  * @param {string} trackUri - The Spotify URI of the track to play.
  * @throws Will throw an error if there is no active device or the API call fails.
  */
@@ -355,7 +371,7 @@ async function playTrackOnActiveDevice(accessToken, trackId) {
             } else if (error.response.status === 404) {
                 console.error('No active device found. Start Spotify on a device first.');
             } else if (error.response.status === 401) {
-                console.error('Access token expired or invalid. Refresh the token.');
+                console.error('access_token expired or invalid. Refresh the token.');
             } else {
                 console.error('Spotify API error:', error.response.status, error.response.data);
             }
@@ -367,9 +383,9 @@ async function playTrackOnActiveDevice(accessToken, trackId) {
 
 
 /**
- * Check if the Spotify access token is valid by calling the 'me' endpoint.
+ * Check if the Spotify access_token is valid by calling the 'me' endpoint.
  *
- * @param {string} accessToken - The Spotify access token.
+ * @param {string} accessToken - The Spotify access_token.
  * @returns {Promise<boolean>} - Returns true if the token is valid, false otherwise.
  */
 async function isAccessTokenValid(accessToken) {
@@ -381,12 +397,12 @@ async function isAccessTokenValid(accessToken) {
         });
 
         if (response.status === 200) {
-            console.log('Access token is valid.');
+            console.log('access_token is valid.');
             return true;
         }
     } catch (error) {
         if (error.response && error.response.status === 401) {
-            console.log('Invalid or expired access token.');
+            console.log('Invalid or expired access_token.');
         } else {
             console.error('Error checking token validity:', error.message);
         }
@@ -395,12 +411,12 @@ async function isAccessTokenValid(accessToken) {
 }
 
 /**
- * Refresh the access token using the refresh token.
+ * Refresh the access_token using the refresh_token.
  *
- * @param {string} refreshToken - The refresh token obtained from the initial authorization.
+ * @param {string} refreshToken - The refresh_token obtained from the initial authorization.
  * @param {string} clientId - The client ID of your Spotify app.
  * @param {string} clientSecret - The client secret of your Spotify app.
- * @returns {Promise<string>} - Returns a new access token.
+ * @returns {Promise<string>} - Returns a new access_token.
  */
 async function refreshAccessToken(refreshToken, clientId, clientSecret) {
     try {
@@ -420,11 +436,11 @@ async function refreshAccessToken(refreshToken, clientId, clientSecret) {
 
         const newAccessToken = response.data.access_token;
 
-        console.log('New access token:', newAccessToken);
+        console.log('New access_token:', newAccessToken);
         return newAccessToken;
     } catch (error) {
-        console.error('Error refreshing access token:', error.response?.data || error.message);
-        throw new Error('Unable to refresh access token');
+        console.error('Error refreshing access_token:', error.response?.data || error.message);
+        throw new Error('Unable to refresh access_token');
     }
 }
 
@@ -443,16 +459,16 @@ class Spotify extends AbstractService {
             console.log('service id: ', service_id[0].id);
             const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id[0].id]);
             console.log('tokens: ', user_tokens[0].connect_token);
-            const access_token = user_tokens[0].connect_token["access token"];
-            console.log('access token: ', access_token);
+            const access_token = user_tokens[0].connect_token["access_token"];
+            console.log('access_token: ', access_token);
             if (!await isAccessTokenValid(access_token)) {
-                const refresh_token = user_tokens[0].connect_token["refresh token"];
+                const refresh_token = user_tokens[0].connect_token["refresh_token"];
                 const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
-                user_tokens[0].connect_token["access token"] = access_token;
+                user_tokens[0].connect_token["access_token"] = access_token;
                 console.log(user_tokens[0].connect_token);
                 await pool.query(
                     `UPDATE users_services_login
-                    SET connect_token = JSON_SET(connect_token, '$."access token"', ?, '$."refresh token"', ?)
+                    SET connect_token = JSON_SET(connect_token, '$."access_token"', ?, '$."refresh_token"', ?)
                     WHERE user_id = ? AND service_id = ?`,
                     [access_token, refresh_token, user_id, service_id[0].id]
                 );
