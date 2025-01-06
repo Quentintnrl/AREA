@@ -11,6 +11,8 @@ export default function CreateScreen() {
     const [selectedAction, setSelectedAction] = useState("");
     const [dataServices, setDataServices] = useState([]);
     const [dataActions, setDataActions] = useState([]);
+    const [dataParams, setDataParams] = useState([]);
+    const [paramValue, setParamValue] = useState("");
 
     useEffect(() => {
         const getServices = async() => {
@@ -32,12 +34,17 @@ export default function CreateScreen() {
     const checkSelectedService = () => {
         const getServiceActions = async () => {
             let newArray = [] as any
+            let paramsArray = [] as any
             try {
                 const response = await fetch('http://' + config.IP + ':8080/getServiceActions/' + selectedService)
                 const json = await response.json();
                 json.forEach((elt: any) => {
+                    if (elt.params != null) {
+                        paramsArray.push({id: elt.id, value: elt.params.params[0].name})
+                    }
                     newArray.push({key: elt.id, value: elt.name})
                 });
+                setDataParams(paramsArray)
                 setDataActions(newArray)
                 setSelectedAction("")
             } catch (error) {
@@ -45,6 +52,27 @@ export default function CreateScreen() {
             }
         }
         getServiceActions()
+    }
+
+    const displayInputs = () => {
+        console.log(dataParams)
+        return dataParams.map((data:any, i) =>
+            <View key={i}>
+                <TextInput
+                    placeholder={data.value}
+                    style={{
+                        fontFamily: 'SpaceMono-Regular',
+                        fontSize: 20,
+                        marginTop: 20,
+                        marginBottom: 10,
+                        textAlign: 'center',
+                        borderWidth: 2,
+                        width: 150,
+                    }}
+                    onChangeText={(paramValue) => setParamValue(paramValue)}
+                />
+            </View>
+        )
     }
 
     return (
@@ -81,6 +109,31 @@ export default function CreateScreen() {
                             save="value"
                             placeholder='Select Action'
                         />
+                    {selectedAction &&
+                        <View>
+                            {displayInputs()}
+                            <View>
+                                <TouchableOpacity
+                                    onPress={alert("created") as any}
+                                    style={{
+                                        backgroundColor: '#7B9DD2',
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        marginTop: 30,
+                                        width: 150,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            textAlign: 'center',
+                                            fontSize: 20,
+                                            fontWeight: 600,
+                                        }}>
+                                        Create
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    }
                     </View>
                 }
             </View>
