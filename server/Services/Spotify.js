@@ -237,9 +237,12 @@ async function isPlaylistTrackCountHigher(userToken, playlistId, threshold) {
         const trackCount = await getTrackSize(userToken, playlistId);
         console.log('Treshold:', threshold);
         console.log('Track count:', trackCount);
-        if (trackCount > threshold) {
-            console.log('Playlist track count is higher than the threshold.');
-            return true;
+        if (trackCount != threshold) {
+
+            if (trackCount > threshold) {
+                console.log('Playlist track count is higher than the threshold.');
+                return true;
+            }
         }
         console.log('Playlist track count is lower or equal than the threshold.');
         return false;
@@ -568,7 +571,7 @@ class Spotify extends AbstractService {
         console.log('Spotify service created');
     }
 
-    async do_task(task) {
+    async do_task(task, action_reaction_id) {
         let value = false;
         if (task instanceof Task) {
             console.log(`Spotify service is doing task: ${task.name}`);
@@ -578,6 +581,7 @@ class Spotify extends AbstractService {
             const [user_tokens] = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id[0].id]);
             console.log('tokens: ', user_tokens[0].connect_token);
             const access_token = user_tokens[0].connect_token["access_token"];
+
             if (!await isAccessTokenValid(access_token)) {
                 const refresh_token = user_tokens[0].connect_token["refresh_token"];
                 const access_token = await refreshAccessToken(refresh_token, CLIENT_ID, CLIENT_SECRET);
@@ -589,23 +593,56 @@ class Spotify extends AbstractService {
                     [access_token, refresh_token, user_id, service_id[0].id]
                 );
             }
+
             switch (task.name) {
-                case 'A track is added to a playlist':
+
+                //Actions
+                case 'A track is added to a playlist': {
                     console.log('Doing task: A track is added to a playlist');
                     const playlistUri = task.params["Playlist Uri"];
                     console.log('playlist uri: ', playlistUri);
-                    const nb_tracks = task.params["nb_music"];
+                    const nb_tracks = task.params["nb_musics"];
                     if (await isPlaylistTrackCountHigher(access_token, playlistUri, nb_tracks)) {
+                        console.log('A track has been add to the playlist');
+                        value = true;
+                    }
+                    const new_nb_tracks = await getTrackSize(access_token, playlistUri);
+                    if (new_nb_tracks != nb_tracks) {
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["nb_musics"] = new_nb_tracks;
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    }
+                    break;
+                }
+
+                case 'A song is played': {
+                    console.log('Doing task: A song is played');
+                    const trackUri = task.params["Track Uri"];
+                    console.log('Track Uri: ', trackUri);
+                    const nb_tracks = task.params["nb_music"];
+                    if (await isTrackCurrentlyPlaying(access_token, trackUri)) {
+                        console.log('Track is played');
                         value = true;
                     }
                     break;
-                case 'Play a track':
+                }
+
+                //Reactions
+                case 'Play a track': {
                     console.log('Doing task: Play a track');
                     // console.log('params: ', task.params);
                     const trackUri = task.params["Track Uri"];
                     console.log('track uri: ', trackUri);
                     await playTrackOnActiveDevice(access_token, trackUri);
                     break;
+                }
             }
         } else {
             throw new Error('Task must be an instance of Task');

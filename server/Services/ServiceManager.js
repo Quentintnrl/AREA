@@ -141,8 +141,8 @@ class ServiceManager {
         }
     }
 
-    async checkAction(id, params) {
-        if (typeof id !== 'number') {
+    async checkAction(user_id, params, action_id, action_reaction_id) {
+        if (typeof user_id !== 'number') {
             console.error('Invalid action id');
             return false;
         }
@@ -150,22 +150,23 @@ class ServiceManager {
             console.error('Invalid action params');
             return false;
         }
-        const actions = await getAllActions();
-        for (const action of actions) {
-            for (const service of this.servicesList) {
-                if (action.service_id === service.id) {
-                    const task = new Task(id, action.name, params);
-                    console.log('task:', task);
-                    return await service.do_task(task);
-                    return true;
-                }
+        console.log('action_reaction_id:', action_reaction_id);
+        const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [action_id]);
+        console.log('action:', action[0]);
+        for (const service of this.servicesList) {
+            console.log('service id:', service.id);
+            console.log('action service id:', action[0].service_id);
+            if (action[0].service_id === service.id) {
+                const task = new Task(user_id, action[0].name, params);
+                console.log('task:', task);
+                return await service.do_task(task, action_reaction_id);
             }
         }
         return false;
     }
 
-    async executeReaction(id, params) {
-        if (typeof id !== 'number') {
+    async executeReaction(user_id, params, reaction_id, action_reaction_id) {
+        if (typeof user_id !== 'number') {
             console.error('Invalid action id');
             return false;
         }
@@ -173,13 +174,11 @@ class ServiceManager {
             console.error('Invalid action params');
             return false;
         }
-        const reactions = await getAllReactions();
-        for (const reaction of reactions) {
-            for (const service of this.servicesList) {
-                if (reaction.service_id === service.id) {
-                    const task = new Task(id, reaction.name, params);
-                    service.do_task(task);
-                }
+        const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [reaction_id]);
+        for (const service of this.servicesList) {
+            if (reaction[0].service_id === service.id) {
+                const task = new Task(user_id, reaction[0].name, params);
+                service.do_task(task, action_reaction_id);
             }
         }
     }
