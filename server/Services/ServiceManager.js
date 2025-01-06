@@ -104,29 +104,6 @@ async function testReactionCreation(user_id, reactionJson) {
     }
 }
 
-async function createServiceJson(user_id, json) {
-    try {
-        const [trigger] = await pool.query('SELECT * FROM reactions WHERE id = ?', [json.id]);
-        if (trigger.length !== 1) {
-            return false;
-        }
-        console.log('trigger:', trigger[0]);
-        const name = trigger[0].name;
-        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [trigger[0].service_id]);
-        console.log('service:', service[0]);
-        switch (service[0].name) {
-            case 'Spotify':
-                return await checkSpotifyActionReaction(json.params, name, user_id, trigger[0].service_id);
-            default:
-                throw new Error('Service not supported');
-        }
-        return true
-    } catch (error) {
-        console.error('Error fetching data from reactions table:', error);
-        throw new Error('Could not fetch reactions data.');
-    }
-}
-
 async function createActionReaction(user_id, actionJson, reactionJson) {
     try {
         const [user] = await pool.query('SELECT * FROM users WHERE id = ?', [user_id]);
