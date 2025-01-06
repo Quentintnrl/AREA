@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import config from "../../config"
+import SessionStorage from 'react-native-session-storage';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -21,10 +22,10 @@ export default function LoginScreen() {
                     method: 'post'
                 });
             const json = await response.json();
-
-            if (response.status == 201)
+            if (response.status == 201) {
+                SessionStorage.setItem('@id', json.Id);
                 navigation.navigate("App" as never)
-            else
+            } else
                 alert(json.error)
         } catch (error) {
             console.log(error)

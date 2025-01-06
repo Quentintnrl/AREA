@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import config from "../../../config"
+import SessionStorage from 'react-native-session-storage';
 
 export default function CreateScreen() {
     const navigation = useNavigation();
@@ -13,6 +14,7 @@ export default function CreateScreen() {
     const [dataActions, setDataActions] = useState([]);
     const [dataParams, setDataParams] = useState([]);
     const [paramValue, setParamValue] = useState("");
+    const userId = SessionStorage.getItem('@id');
 
     useEffect(() => {
         const getServices = async() => {
