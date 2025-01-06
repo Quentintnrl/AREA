@@ -554,7 +554,7 @@ async function create_json(request_json, target_name, user_id, service_id) {
             }
 
             default: {
-                throw new Error('Action not supported');
+                throw new Error('Action/Reaction not supported');
             }
         }
     } catch (error) {

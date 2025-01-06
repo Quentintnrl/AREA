@@ -57,64 +57,11 @@ async function add_user_tokens(user_id, service_id, tokens) {
     }
 }
 
-async function testActionCreation(user_id, actionJson) {
-    try {
-        const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [actionJson.id]);
-        if (action.length !== 1) {
-            console.log('error action:', action);
-            return false;
-        }
-        console.log('action:', action[0]);
-        const actionName = action[0].name;
-        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [action[0].service_id]);
-        console.log('service:', service[0]);
-        switch (service[0].name) {
-            case 'Spotify':
-                return await checkSpotifyActionReaction(actionJson.params, actionName, user_id, action[0].service_id);
-            default:
-                throw new Error('Service not supported');
-        }
-        return true;
-    } catch (error) {
-        console.error('Error fetching data from actions table:', error);
-        throw new Error('Could not fetch actions data.');
-    }
-}
-
-async function testReactionCreation(user_id, reactionJson) {
-    try {
-        const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [reactionJson.id]);
-        if (reaction.length !== 1) {
-            return false;
-        }
-        console.log('reaction:', reaction[0]);
-        const reactionName = reaction[0].name;
-        const [service] = await pool.query('SELECT * FROM services WHERE id = ?', [reaction[0].service_id]);
-        console.log('service:', service[0]);
-        switch (service[0].name) {
-            case 'Spotify':
-                return await checkSpotifyActionReaction(reactionJson.params, reactionName, user_id, reaction[0].service_id);
-            default:
-                throw new Error('Service not supported');
-        }
-        return true
-    } catch (error) {
-        console.error('Error fetching data from reactions table:', error);
-        throw new Error('Could not fetch reactions data.');
-    }
-}
-
 async function createActionReaction(user_id, actionJson, reactionJson) {
     try {
         const [user] = await pool.query('SELECT * FROM users WHERE id = ?', [user_id]);
         console.log('user:', user[0]);
 
-        if (!await testActionCreation(user_id, actionJson)) {
-            throw new Error('Cannot create AREA, bad action');
-        }
-        if (!await testReactionCreation(user_id, reactionJson)) {
-            throw new Error('Cannot create AREA, bad reaction');
-        }
         console.log(actionJson);
         console.log(reactionJson);
         const action = JSON.stringify(actionJson);
