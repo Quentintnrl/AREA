@@ -38,7 +38,6 @@ async function serviceManagerLoop() {
                 // return;
             } catch (error) {
                 console.error('Error fetching data from actions table:', error);
-                throw new Error('Could not fetch actions data.');
             }
             continue;
             const reaction = action_reactions[i].reaction;
