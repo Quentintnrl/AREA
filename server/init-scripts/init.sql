@@ -81,3 +81,7 @@ SELECT ROW_COUNT();
 INSERT INTO actions (service_id, name, params, description)
 VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
 SELECT ROW_COUNT();
+
+-- Insert the service 'Github'
+INSERT INTO services (name) VALUES ('Github');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
