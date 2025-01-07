@@ -3,6 +3,7 @@ const { ServicesFactory } = require('./ServicesFactory');
 const { Spotify } = require('./Spotify');
 const add_spotify_tokens = require('./Spotify').addSpotifyTokens;
 const spotify_create_json = require('./Spotify').create_json;
+const github_create_json = require('./Github').create_json;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
@@ -30,6 +31,8 @@ async function create_json(request_json, user_id, action_or_reaction) {
         switch (service_name) {
             case 'Spotify':
                 return await spotify_create_json(request_json, target[0].name, user_id, service_id);
+            case 'Github':
+                return await github_create_json(request_json, target[0].name, user_id, service_id);
             default:
                 throw new Error('Service not supported');
         }
@@ -127,11 +130,10 @@ class ServiceManager {
             return false;
         }
         console.log('action_reaction_id:', action_reaction_id);
+        console.log(action_id);
         const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [action_id]);
         console.log('action:', action[0]);
         for (const service of this.servicesList) {
-            console.log('service id:', service.id);
-            console.log('action service id:', action[0].service_id);
             if (action[0].service_id === service.id) {
                 const task = new Task(user_id, action[0].name, params);
                 console.log('task:', task);
