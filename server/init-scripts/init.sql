@@ -1,5 +1,6 @@
--- Switch to the target database
 USE area_database;
+-- Check current database
+SELECT DATABASE();
 
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS users (
@@ -47,10 +48,10 @@ CREATE TABLE IF NOT EXISTS reactions (
 
 -- Create the `action_reaction` table
 CREATE TABLE IF NOT EXISTS action_reaction (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     action JSON,
     reaction JSON,
-    PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -62,3 +63,21 @@ CREATE TABLE IF NOT EXISTS templates (
     FOREIGN KEY (action_id) REFERENCES actions(id),
     FOREIGN KEY (reaction_id) REFERENCES reactions(id)
 );
+
+-- Insert the service 'Spotify'
+INSERT INTO services (name) VALUES ('Spotify');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
+
+-- Insert the reaction 'Play a track'
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (1, 'Play a track', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'Play a track on Spotify');
+SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is played on Spotify');
+SELECT ROW_COUNT();
+
+INSERT INTO actions (service_id, name, params, description)
+VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
+SELECT ROW_COUNT();
