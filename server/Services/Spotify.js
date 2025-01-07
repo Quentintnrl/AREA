@@ -384,7 +384,7 @@ async function create_json(request_json, target_name, user_id, service_id) {
         console.log('Creating json for:\"', target_name, '\"');
         switch (target_name) {
             //actions
-            case 'A song is played': {
+            case 'A track is played': {
                 console.log(request_json);
                 const track_uri = request_json.params["Track Uri"];
                 console.log('Track Uri: ', track_uri);
