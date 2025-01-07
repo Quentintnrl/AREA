@@ -69,15 +69,15 @@ INSERT INTO services (name) VALUES ('Spotify');
 SELECT ROW_COUNT();  -- Check if 1 row was inserted
 
 -- Insert the reaction 'Play a track'
-INSERT INTO reactions (service_id, name, params, description) 
+INSERT INTO reactions (service_id, name, params, description)
 VALUES (1, 'Play a track', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'Play a track on Spotify');
 SELECT ROW_COUNT();
 
 -- Insert actions
-INSERT INTO actions (service_id, name, params, description) 
+INSERT INTO actions (service_id, name, params, description)
 VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is played on Spotify');
 SELECT ROW_COUNT();
 
-INSERT INTO actions (service_id, name, params, description) 
+INSERT INTO actions (service_id, name, params, description)
 VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
 SELECT ROW_COUNT();
