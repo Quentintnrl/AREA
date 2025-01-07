@@ -190,6 +190,31 @@ async function getOpenPullRequestsPublic(owner, repo) {
   }
 }
 
+/**
+ * Get the number of followers for a GitHub user.
+ * @param {string} username - The GitHub username.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @returns {Promise<number>} - The number of followers.
+ */
+async function getFollowerCountPrivate(username, token) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/users/${username}`,
+      {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+
+    return response.data.followers;
+  } catch (error) {
+    console.error('Error fetching follower count:', error.message);
+    throw error;
+  }
+}
+
 
 
 
@@ -316,6 +341,31 @@ async function checkNewPublicPullRequest(owner, repo, previous_pullRequestTitles
     }
 }
 
+/**
+ * Check if the user has gained a new follower.
+ *
+ * @param {string} username - The GitHub username.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @param {number} treshold - The number of followers to check against.
+ *
+ * @returns {Promise<boolean>} - Returns true if the user has gained a new follower.
+ */
+async function checkNewFollower(username, token, treshold) {
+    try {
+        const followerCount = await getFollowerCountPrivate(username, token);
+        console.log('followerCount:', followerCount);
+        if (followerCount > treshold) {
+            console.log('New follower');
+            return true;
+        }
+        console.log('No new follower');
+        return false;
+    } catch (error) {
+        console.error('Error checking new follower:', error);
+        return false;
+    }
+}
+
 
 
 
@@ -416,6 +466,29 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     }
                 };
                 return json;
+            }
+
+            case 'New private followers': {
+              console.log(request_json);
+              const username = request_json.params["User"];
+              console.log('username:', username);
+              const token = request_json.params["Token"];
+              console.log('token:', token);
+              const followerCount = await getFollowerCountPrivate(username, token);
+              console.log('followerCount:', followerCount);
+              const json = {
+                  id: request_json.id,
+                  params: {
+                      user: username,
+                      token: token,
+                      follower_count: followerCount
+                  }
+              };
+              return json;
+            }
+
+            case 'New public followers': {
+                console.log(request_json);
             }
 
             //reactions
@@ -549,6 +622,37 @@ class Github extends AbstractService {
                   await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                   break;
               }
+
+              case 'New private followers': {
+                console.log(task);
+                const username = task.params["user"];
+                console.log('username:', username);
+                const token = task.params["token"];
+                if (await checkNewFollower(username, token, task.params["follower_count"])) {
+                    value = true;
+                }
+                if (task.params["follower_count"] != await getFollowerCountPrivate(username, token)) {
+                    const new_follower_count = await getFollowerCountPrivate(username, token);
+                    console.log('New follower count', new_follower_count);
+                    const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                    console.log('action_reaction:', action_reaction[0]);
+                    let action = action_reaction[0].action;
+                    let params = action.params;
+                    console.log('params:', params);
+                    params["follower_count"] = new_follower_count;
+                    console.log('new params:', params);
+                    action.params = params;
+                    console.log('new action:', action);
+                    await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                }
+                break;
+              }
+
+              case 'New public followers': {
+                console.log(task);
+                break;
+              }
+
 
                 //reactions
 
