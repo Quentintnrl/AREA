@@ -11,7 +11,7 @@ serviceManager.init();
 
 async function serviceManagerLoop() {
     while (true) {
-        console.log('SERVICE MANAGER LOOP');
+        // console.log('SERVICE MANAGER LOOP');
         const [action_reactions] = await pool.query('SELECT * FROM action_reaction');
         for (let i = 0; i < action_reactions.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -27,13 +27,13 @@ async function serviceManagerLoop() {
                 console.log('action params', actionParam);
                 if (await serviceManager.checkAction(user_id, actionParam, actionId, action_reactions[i].id)) {
                     console.log('Action is valid');
-                    // const reaction = action_reactions[i].reaction;
-                    // console.log(reaction);
-                    // const reactionParam = reaction.params;
-                    // console.log('reaction params', reactionParam);
-                    // const reactionId = reaction.id;
-                    // console.log(reactionId);
-                    // await serviceManager.executeReaction(user_id, reactionParam, reactionId, action_reactions[i].id);
+                    const reaction = action_reactions[i].reaction;
+                    console.log(reaction);
+                    const reactionParam = reaction.params;
+                    console.log('reaction params', reactionParam);
+                    const reactionId = reaction.id;
+                    console.log(reactionId);
+                    await serviceManager.executeReaction(user_id, reactionParam, reactionId, action_reactions[i].id);
                 }
                 return;
             } catch (error) {
