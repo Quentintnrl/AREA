@@ -94,6 +94,56 @@ async function getCommitCount(owner, repo) {
     }
 }
 
+/**
+ * Get the name and ID of all open pull requests for a private GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @returns {Promise<Array<{id: number, title: string}>>} - An array of objects containing the pull request ID and title.
+ */
+async function getOpenPullRequestsPrivate(owner, repo, token) {
+    let page = 1;
+    let pullRequests = [];
+    const perPage = 100; // Maximum allowed per page
+
+    try {
+      while (true) {
+        const response = await axios.get(
+          `https://api.github.com/repos/${owner}/${repo}/pulls`,
+          {
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            params: {
+              per_page: perPage,
+              page: page,
+              state: 'open', // Only fetch open pull requests
+            }
+          }
+        );
+
+        // Extract pull request ID and title
+        pullRequests = pullRequests.concat(
+          response.data.map(pr => ({ id: pr.id, title: pr.title }))
+        );
+
+        // Check if there are more pull requests to fetch
+        if (response.data.length < perPage) {
+          break;
+        }
+
+        page++;
+      }
+
+      return pullRequests;
+    } catch (error) {
+      console.error('Error fetching pull requests:', error.message);
+      throw error;
+    }
+}
+
+
 
 
 
@@ -149,6 +199,42 @@ async function checkNewPublicCommit(owner, repo, treshold) {
         return false;
     }
 }
+
+/**
+ * Check if the user has made a new private pull request.
+ *
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @param {Array<{id: number, title: string}>} previous_pullRequestTitles - The previous pull request titles.
+ *
+ * @returns {Promise<boolean>} - Returns true if the user has made a new pull request.
+ */
+async function checkNewPrivatePullRequest(owner, repo, token, previous_pullRequestTitles) {
+    try {
+      const pullRequestTitles = await getOpenPullRequestsPrivate(owner, repo, token);
+      console.log('pullRequestTitles:', pullRequestTitles);
+      let value = true;
+      for (let i = 0; i < pullRequestTitles.length; i++) {
+        value = true;
+        for (let j = 0; j < previous_pullRequestTitles.length; j++) {
+              if (pullRequestTitles[i].id === previous_pullRequestTitles[j].id) {
+                  value = false;
+              }
+            }
+            if (value) {
+              console.log('New private pull request');
+              return true;
+            }
+        }
+        console.log('No new private pull request');
+        return value;
+    } catch (error) {
+        console.error('Error checking new private pull request:', error);
+        return false;
+    }
+}
+
 
 
 
@@ -209,6 +295,31 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     }
                 };
                 return json;
+            }
+
+            case 'New private pullrequest': {
+                console.log(request_json);
+                const owner = request_json.params["Owner"];
+                const repo = request_json.params["Repo Url"];
+                const token = request_json.params["Token"];
+                console.log('owner:', owner);
+                console.log('repo:', repo);
+                const pullRequestTitles = await getOpenPullRequestsPrivate(owner, repo, token);
+                console.log('pullRequestTitles:', pullRequestTitles);
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        owner: owner,
+                        repo_url: repo,
+                        token: token,
+                        pull_request_titles: pullRequestTitles
+                    }
+                };
+                return json;
+            }
+
+            case 'New public pullrequest': {
+                console.log(request_json);
             }
 
             //reactions
@@ -289,6 +400,38 @@ class Github extends AbstractService {
                     }
                     break;
                 }
+
+                case 'New private pullrequest': {
+                  console.log(task);
+                  const owner = task.params["owner"];
+                  console.log('owner:', owner);
+                  const repo = task.params["repo_url"];
+                  console.log('repo:', repo);
+                  const token = task.params["token"];
+                  const previous_pullRequestTitles = task.params["pull_request_titles"];
+                  console.log('previous_pullRequestTitles:', previous_pullRequestTitles);
+                  if (await checkNewPrivatePullRequest(owner, repo, token, previous_pullRequestTitles)) {
+                      value = true;
+                  }
+                  const pullRequestTitles = await getOpenPullRequestsPrivate(owner, repo, token);
+                  console.log('pullRequestTitles:', pullRequestTitles);
+                  const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                  console.log('action_reaction:', action_reaction[0]);
+                  let action = action_reaction[0].action;
+                  let params = action.params;
+                  console.log('params:', params);
+                  params["pull_request_titles"] = pullRequestTitles;
+                  console.log('new params:', params);
+                  action.params = params;
+                  console.log('new action:', action);
+                  await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                  break;
+              }
+
+              case 'New public pullrequest': {
+                  console.log(task);
+                  break;
+              }
 
                 //reactions
 
