@@ -238,6 +238,32 @@ async function getFollowerCountPublic(username) {
   }
 }
 
+/**
+ * Get the number of stars for a GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @returns {Promise<number>} - The number of stars.
+ */
+async function getStarCountPrivate(owner, repo, token) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+
+    return response.data.stargazers_count;
+  } catch (error) {
+    console.error('Error fetching star count:', error.message);
+    throw error;
+  }
+}
+
 
 
 
@@ -392,8 +418,8 @@ async function checkNewFollowerPrivate(username, token, treshold) {
 /**
  * Check if the user has gained a new follower without token.
  *
- * @param {string} username - Teh GitHub username
- * @param {string} treshold - The number of followers to check against
+ * @param {string} username - The GitHub username
+ * @param {number} treshold - The number of followers to check against
  *
  * @returns {Promise<boolean>} - Returns true if the user has gained a new follower.
  */
@@ -407,10 +433,36 @@ async function checkNewFollowerPublic(username, treshold) {
     }
     console.log('No new follower');
     return false;
-} catch (error) {
-    console.error('Error checking new follower:', error);
-    return false;
+  } catch (error) {
+      console.error('Error checking new follower:', error);
+      return false;
+  }
 }
+
+/**
+ * Check if a private repository has get a new star
+ *
+ * @param {string} owner - The owner of the repository
+ * @param {string} repo - The repository to check
+ * @param {string} token - The token of the owner
+ * @param {number} treshold - The number of stars to check against
+ *
+ * @returns {Promise<boolean>} - Returns true if the repository has gained new stars.
+ */
+async function checkNewStarPrivate(owner, repo, token, treshold) {
+  try {
+    const starCount = await getStarCountPrivate(owner, repo, token);
+    console.log('startCount:', starCount);
+    if (starCount > treshold) {
+      console.log('New star');
+      return true;
+    }
+    console.log('No new follower');
+    return false;
+  } catch (error) {
+    console.error('Error checking new star:', error);
+    return false;
+  }
 }
 
 
@@ -441,7 +493,6 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 const token = request_json.params["Token"];
                 console.log('owner:', owner);
                 console.log('repo:', repo);
-                console.log('token:', token);
                 const commitCount = await getPrivateCommitCount(owner, repo, token);
                 console.log('commitCount:', commitCount);
                 const json = {
@@ -520,7 +571,6 @@ async function create_json(request_json, target_name, user_id, service_id) {
               const username = request_json.params["User"];
               console.log('username:', username);
               const token = request_json.params["Token"];
-              console.log('token:', token);
               const followerCount = await getFollowerCountPrivate(username, token);
               console.log('followerCount:', followerCount);
               const json = {
@@ -550,11 +600,35 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 return json;
             }
 
-            //reactions
-
-            default: {
-                throw new Error('Action/Reaction not supported');
+            case 'New private star': {
+              console.log(request_json);
+              const owner = request_json.params["Owner"];
+              const repo = request_json.params["Repo Url"];
+              const token = request_json.params["Token"];
+              console.log('owner:', owner);
+              console.log('repo:', repo);
+              const starCount = await getStarCountPrivate(owner, repo, token);
+              console.log('starCount: ', starCount);
+              const json = {
+                id: request_json.id,
+                params: {
+                  owner: owner,
+                  repo_url: repo,
+                  token: token,
+                  star_count: starCount
+                }
+              };
+              return json;
             }
+
+          case 'New public star': {
+            console.log(request_json);
+          }
+
+          //reactions
+          default: {
+              throw new Error('Action/Reaction not supported');
+          }
         }
     } catch (error) {
         console.error('Error creating json:', error);
@@ -728,6 +802,37 @@ class Github extends AbstractService {
                     console.log('new action:', action);
                     await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                 }
+                break;
+              }
+
+              case 'New private star': {
+                console.log(task);
+                const owner = task.params["owner"];
+                console.log('owner:', owner);
+                const repo = task.params["repo_url"];
+                console.log('repo:', repo);
+                const token = task.params["token"];
+                if (await checkNewStarPrivate(owner, repo, token, task.params["star_count"])) {
+                  value = true;
+                }
+                const new_star_count = await getStarCountPrivate(owner, repo, token);
+                if (task.params["star_count"] != new_star_count) {
+                    const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                    console.log('action_reaction:', action_reaction[0]);
+                    let action = action_reaction[0].action;
+                    let params = action.params;
+                    console.log('params:', params);
+                    params["star_count"] = new_star_count;
+                    console.log('new params:', params);
+                    action.params = params;
+                    console.log('new action:', action);
+                    await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                }
+                break;
+              }
+
+              case 'New public star': {
+                console.log(task);
                 break;
               }
 
