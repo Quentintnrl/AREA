@@ -358,7 +358,7 @@ async function create_json_action_a_song_is_played(access_token, track_uri, requ
 
 
 /**
- * Create the json for the SPotify actions and reactions.
+ * Create the json for the Spotify actions and reactions.
  *
  * @param {JSON} request_json - The json send in the request.
  * @param {string} target_name - The name of the action/reaction.
