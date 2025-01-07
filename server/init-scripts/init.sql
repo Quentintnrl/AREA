@@ -105,3 +105,13 @@ SELECT ROW_COUNT();
 INSERT INTO actions (service_id, name, params, description)
 VALUES (2, 'New public pullrequest', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a pullrequest is open on a public repository');
 SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (2, 'New private followers', '{"params": [{"name": "User", "type": "string"}, {"name": "Token", "type": "string"}]}', 'When a you get a new follower on your account');
+SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (2, 'New public followers', '{"params": [{"name": "User", "type": "string"}]}', 'When an user get a new follower on his account');
+SELECT ROW_COUNT();
