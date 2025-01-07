@@ -88,10 +88,10 @@ SELECT ROW_COUNT();  -- Check if 1 row was inserted
 
 -- Insert actions
 INSERT INTO actions (service_id, name, params, description)
-VALUES (1, 'New private commit', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}, {"name": "Token", "type": "string"}]}', 'When a commit is pushed on one of my repository');
+VALUES (2, 'New private commit', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}, {"name": "Token", "type": "string"}]}', 'When a commit is pushed on one of my repository');
 SELECT ROW_COUNT();
 
 -- Insert actions
 INSERT INTO actions (service_id, name, params, description)
-VALUES (1, 'New public commit', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a commit is pushed on a public repository');
+VALUES (2, 'New public commit', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a commit is pushed on a public repository');
 SELECT ROW_COUNT();
