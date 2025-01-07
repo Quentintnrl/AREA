@@ -1,5 +1,6 @@
 const { AbstractService } = require('./AbstractService');
 const { Spotify } = require('./Spotify');
+const { Github } = require('./Github');
 
 class ServicesFactory {
     constructor() {
@@ -13,6 +14,9 @@ class ServicesFactory {
             case 'Spotify':
                 console.log('Creating Spotify service');
                 return new Spotify(id, name);
+            case 'Github':
+                console.log('Creating Github service');
+                return new Github(id, name);
             default:
                 throw new Error("Unknown service type");
         }

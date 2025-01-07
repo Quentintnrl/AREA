@@ -10,7 +10,7 @@ let serviceManager = new ServiceManager();
 serviceManager.init();
 
 async function serviceManagerLoop() {
-    while (true) {
+    /*while (true) {
         console.log('SERVICE MANAGER LOOP');
         const [action_reactions] = await pool.query('SELECT * FROM action_reaction');
         for (let i = 0; i < action_reactions.length; i++) {
@@ -43,7 +43,7 @@ async function serviceManagerLoop() {
             const reaction = action_reactions[i].reaction;
             console.log(reaction);
         }
-    }
+    }*/
 }
 
 const YAML = require('yamljs')
@@ -67,63 +67,3 @@ app.listen(port, () => {
     // Run the loop in parallel using Parallel.js
     serviceManagerLoop();
 });
-
-/*const express = require('express');
-const axios = require('axios');
-const querystring = require('querystring');
-
-const app = express();
-
-const CLIENT_ID = '4626520233864aa3b185c01bf536be35'; // Replace with your Client ID
-const CLIENT_SECRET = '7dd3e8591b9e43de99d191221e0b488e'; // Replace with your Client Secret
-const REDIRECT_URI = 'http://localhost:8080/spotify_callback'; // Redirect URI you set in your Spotify app
-
-// Step 1: Redirect to Spotify login
-app.get('/login', (req, res) => {
-    const scopes = 'user-read-playback-state user-modify-playback-state';
-    const authUrl = `https://accounts.spotify.com/authorize?${querystring.stringify({
-        response_type: 'code',
-        client_id: CLIENT_ID,
-        scope: scopes,
-        redirect_uri: REDIRECT_URI,
-    })}`;
-
-    res.redirect(authUrl);
-});
-
-// Step 2: Spotify callback to handle authorization code
-app.get('/spotify_callback', async (req, res) => {
-    const code = req.query.code || null;
-
-    try {
-        // Exchange authorization code for tokens
-        const response = await axios.post(
-            'https://accounts.spotify.com/api/token',
-            querystring.stringify({
-                code,
-                redirect_uri: REDIRECT_URI,
-                grant_type: 'authorization_code',
-            }),
-            {
-                headers: {
-                    Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            }
-        );
-
-        // Print tokens to the console
-        console.log('Access Token:', response.data.access_token);
-        console.log('Refresh Token:', response.data.refresh_token);
-
-        res.send('You are logged in! Check the console for tokens.');
-    } catch (error) {
-        console.error('Error exchanging token:', error.response?.data || error.message);
-        res.send('Error occurred while logging in.');
-    }
-});
-
-// Start the server
-app.listen(8080, () => {
-    console.log('Server running on http://localhost:8080');
-});*/
