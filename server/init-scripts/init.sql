@@ -95,3 +95,13 @@ SELECT ROW_COUNT();
 INSERT INTO actions (service_id, name, params, description)
 VALUES (2, 'New public commit', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a commit is pushed on a public repository');
 SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (2, 'New private pullrequest', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}, {"name": "Token", "type": "string"}]}', 'When a pullrequest is open on one of my repository');
+SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (2, 'New public pullrequest', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a pullrequest is open on a public repository');
+SELECT ROW_COUNT();
