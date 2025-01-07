@@ -10,10 +10,17 @@ export default function CreateScreen() {
     const navigation = useNavigation();
     const [selectedService, setSelectedService] = useState("");
     const [selectedAction, setSelectedAction] = useState("");
+    const [selectedReaction, setSelectedReaction] = useState("");
     const [dataServices, setDataServices] = useState([]);
     const [dataActions, setDataActions] = useState([]);
-    const [dataParams, setDataParams] = useState([]);
-    const [paramValue, setParamValue] = useState("");
+    const [dataReactions, setDataReactions] = useState([]);
+    const [dataActionsParams, setDataActionsParams] = useState([]);
+    const [dataReactionsParams, setDataReactionsParams] = useState([]);
+    const [paramValueTMP, setParamValueTMP] = useState("");
+    const [paramValue, setParamValue] = useState([]);
+    const [paramReactionValue, setParamReactionValue] = useState("");
+
+
     const userId = SessionStorage.getItem('@id');
 
     useEffect(() => {
@@ -46,7 +53,7 @@ export default function CreateScreen() {
                     }
                     newArray.push({key: elt.id, value: elt.name})
                 });
-                setDataParams(paramsArray)
+                setDataActionsParams(paramsArray)
                 setDataActions(newArray)
                 setSelectedAction("")
             } catch (error) {
@@ -56,9 +63,31 @@ export default function CreateScreen() {
         getServiceActions()
     }
 
-    const displayInputs = () => {
-        console.log(dataParams)
-        return dataParams.map((data:any, i) =>
+    const checkSelectedAction = () => {
+        const getServiceReactions = async () => {
+            let newArray = [] as any
+            let paramsArray = [] as any
+            try {
+                const response = await fetch('http://' + config.IP + ':8080/getServiceReactions/' + selectedService)
+                const json = await response.json();
+                json.forEach((elt: any) => {
+                    if (elt.params != null) {
+                        paramsArray.push({id: elt.id, value: elt.params.params[0].name})
+                    }
+                    newArray.push({key: elt.id, value: elt.name})
+                });
+                setDataReactionsParams(paramsArray)
+                setDataReactions(newArray)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        getServiceReactions()
+    }
+
+    const displayInputsActions = () => {
+        console.log("dataactions = ", dataActionsParams)
+        return dataActionsParams.map((data:any, i) =>
             <View key={i}>
                 <TextInput
                     placeholder={data.value}
@@ -71,10 +100,63 @@ export default function CreateScreen() {
                         borderWidth: 2,
                         width: 150,
                     }}
-                    onChangeText={(paramValue) => setParamValue(paramValue)}
+                    onChangeText={(paramValueTmp) => setParamValueTMP(paramValueTmp)}
                 />
             </View>
         )
+    }
+
+    /*const displayInputsReactions = () => {
+        let array = [] as any
+        if (paramValue.find(item => item === "action")) {
+            console.log("action is find in paramValue")
+        } else {
+            array.push({action: paramValueTMP})
+            setParamValue(array)
+            console.log("paramvalue = ", paramValue)
+        }
+        console.log("datareactions = ", dataReactionsParams)
+        return dataReactionsParams.map((data:any, i) =>
+            <View key={i}>
+                <TextInput
+                    placeholder={data.value}
+                    style={{
+                        fontFamily: 'SpaceMono-Regular',
+                        fontSize: 20,
+                        marginTop: 20,
+                        marginBottom: 10,
+                        textAlign: 'center',
+                        borderWidth: 2,
+                        width: 150,
+                    }}
+                    onChangeText={(paramValueTmp) => setParamValueTMP(paramValueTmp)}
+                />
+            </View>
+        )
+    }*/
+    const createAREA = async () => {
+        try {
+            const action = {"id": selectedAction, "params": {"Track Uri": paramValueTMP}};
+            const reaction = {"id": selectedReaction, "params": {"Track Uri": paramReactionValue}};
+            //const JsonReponse = {"user_id": userId, action, reaction};
+            let formData = JSON.stringify({
+                user_id: userId,
+                action: action,
+                reaction: reaction,
+            });
+            console.log(formData)
+            const response = await fetch('http://' + config.IP + ':8080/CreateActionReaction/',
+                {
+                    body: formData,
+                    method: 'post'
+                });
+            console.log("after request")
+            console.log(response)
+            const json = await response.json();
+            console.log('Actions and reactions created successfully:', json);
+        } catch (error) {
+            console.error('Error fetching actions and reactions:', error);
+        }
     }
 
     return (
@@ -108,32 +190,57 @@ export default function CreateScreen() {
                         <SelectList
                             setSelected={(val: any) => setSelectedAction(val)}
                             data={dataActions}
-                            save="value"
+                            onSelect={checkSelectedAction}
+                            save="key"
                             placeholder='Select Action'
                         />
                     {selectedAction &&
                         <View>
-                            {displayInputs()}
-                            <View>
-                                <TouchableOpacity
-                                    onPress={alert("created") as any}
-                                    style={{
-                                        backgroundColor: '#7B9DD2',
-                                        padding: 20,
-                                        borderRadius: 10,
-                                        marginTop: 30,
-                                        width: 150,
-                                    }}>
-                                    <Text
+                            {displayInputsActions()}
+                            <Text>Available Reactions</Text>
+                            <SelectList
+                                setSelected={(val: any) => setSelectedReaction(val)}
+                                data={dataReactions}
+                                save="value"
+                                placeholder='Select Reaction'
+                            />
+                            {selectedReaction &&
+                                <View>
+                                    <TextInput
+                                        placeholder={"Enter value if needed"}
                                         style={{
-                                            textAlign: 'center',
+                                            fontFamily: 'SpaceMono-Regular',
                                             fontSize: 20,
-                                            fontWeight: 600,
-                                        }}>
-                                        Create
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                                            marginTop: 20,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            borderWidth: 2,
+                                            width: 150,
+                                        }}
+                                        onChangeText={(paramReactionValue) => setParamReactionValue(paramReactionValue)}
+                                    />
+                                    <View>
+                                        <TouchableOpacity
+                                            onPress={createAREA}
+                                            style={{
+                                                backgroundColor: '#7B9DD2',
+                                                padding: 20,
+                                                borderRadius: 10,
+                                                marginTop: 30,
+                                                width: 150,
+                                            }}>
+                                            <Text
+                                                style={{
+                                                    textAlign: 'center',
+                                                    fontSize: 20,
+                                                    fontWeight: 600,
+                                                }}>
+                                                Create AREA
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            }
                         </View>
                     }
                     </View>
