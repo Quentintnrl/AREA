@@ -35,9 +35,9 @@ async function serviceManagerLoop() {
                     console.log(reactionId);
                     await serviceManager.executeReaction(user_id, reactionParam, reactionId, action_reactions[i].id);
                 }
-                return;
+                // return;
             } catch (error) {
-                return;
+                // return;
                 console.error('Error fetching data from actions table:', error);
             }
             continue;
@@ -66,5 +66,5 @@ app.listen(port, () => {
     console.log('Server app listening on port ' + port);
 
     // Run the loop in parallel using Parallel.js
-    // serviceManagerLoop();
+    serviceManagerLoop();
 });
