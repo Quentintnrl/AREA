@@ -56,6 +56,20 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 return json;
             }
 
+            case 'Month of the year': {
+                console.log(request_json);
+                const month = request_json.params["Month of the year"];
+                console.log('Month:', month);
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "Month of the year": month - 1,
+                        "previous_year": -1
+                    }
+                };
+                return json;
+            }
+
             //reactions
 
             default: {
@@ -116,6 +130,37 @@ class TimeAndDate extends AbstractService {
                         await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                     } else {
                         console.log('Day of the month not reached');
+                    }
+                }
+
+                case 'Month of the year': {
+                    console.log(task);
+                    const month = task.params["Month of the year"];
+                    console.log('Month:', month);
+                    const previous_year = task.params["previous_year"];
+                    console.log('Previous year:', previous_year);
+                    //get current date
+                    const date = new Date();
+                    console.log('Current date:', date);
+                    const current_year = date.getFullYear();
+                    console.log('Current year:', current_year);
+                    const current_month = date.getMonth();
+                    console.log('Current month:', current_month);
+                    if (previous_year != current_year && current_month == month) {
+                        console.log('Month of the year reached');
+                        value = true;
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["previous_year"] = current_year;
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    } else {
+                        console.log('Month of the year not reached');
                     }
                 }
 
