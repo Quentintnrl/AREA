@@ -125,3 +125,7 @@ SELECT ROW_COUNT();
 INSERT INTO actions (service_id, name, params, description)
 VALUES (2, 'New public star', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a new star is add on a public repository');
 SELECT ROW_COUNT();
+
+-- Insert the service 'Github'
+INSERT INTO services (name) VALUES ('Time and Date');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
