@@ -214,7 +214,7 @@ function Dashboard() {
     const reaction = {"id": reactionId, "params": {"Track Uri": songId}};
     const JsonReponse = {"user_id": userId, action, reaction};
     try {
-      const response = await axios.put('http://localhost:8080/createActionReaction', {
+      const response = await axios.post('http://localhost:8080/CreateActionReaction', {
         JsonReponse
       });
       console.log('Actions and reactions created successfully:', response.data);
