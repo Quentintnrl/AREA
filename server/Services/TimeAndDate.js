@@ -70,6 +70,17 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 return json;
             }
 
+            case 'Every day': {
+                console.log(request_json);
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "previous_day": -1
+                    }
+                };
+                return json;
+            }
+
             //reactions
 
             default: {
@@ -161,6 +172,31 @@ class TimeAndDate extends AbstractService {
                         await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                     } else {
                         console.log('Month of the year not reached');
+                    }
+                }
+
+                case 'Every day': {
+                    console.log(task);
+                    const day = task.params["previous_day"];
+                    console.log('Day:', day);
+                    const date = new Date();
+                    const current_day = date.getDate();
+                    console.log('Current day:', current_day);
+                    if (day != current_day) {
+                        console.log('New day');
+                        value = true;
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["previous_day"] = current_day;
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    } else {
+                        console.log('Same day');
                     }
                 }
 

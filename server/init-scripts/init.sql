@@ -140,3 +140,8 @@ INSERT INTO actions (service_id, name, params, description)
 VALUES (3, 'Month of the year', '{"params": [{"name": "Month of the year", "type": "number"}]}', 'On a specific month every year');
 SELECT ROW_COUNT();
 
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (3, 'Every day', '{"params": []}', 'Trigger one time every day');
+SELECT ROW_COUNT();
+
