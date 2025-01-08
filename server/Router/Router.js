@@ -16,13 +16,16 @@ module.exports = function() {
     const createActionReaction = require('../Services/ServiceManager.js').createActionReaction;
     const create_json = require('../Services/ServiceManager.js').create_json;
     const { ActionOrReaction } = require('../Services/ServiceManager.js').ActionOrReaction;
+    const nodeMail = require("nodemailer")
 
     // Spotify API Credentials
     const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
     const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
     const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
-
+    // EMAIL Credentials
+    const EMAIL_HOST = process.env.EMAIL_HOST;
+    const EMAIL_PASS = process.env.EMAIL_PASS;
 
 
 //                                                                               GET ROUTES
@@ -288,6 +291,38 @@ module.exports = function() {
             } catch (error) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: "Cannot create the Action-reaction" }));
+            }
+        });
+    });
+
+    router.get("/sendmail/:email", async (req, res) => {
+        const email = req.params.email
+        const transporter = nodeMail.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: EMAIL_HOST,
+                pass: EMAIL_PASS
+            }
+        });
+
+        const mailOptions = {
+            from: EMAIL_HOST,
+            to: email,
+            subject: "Hello from Nodemailer",
+            text: "This is a test email sent using Nodemailer.",
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Error sending email: ", error);
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ message: "Cannot send sms" }));
+            } else {
+              console.log("Email sent: ", info.response);
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ message: "Action-reaction created" }));
             }
         });
     });
