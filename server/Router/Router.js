@@ -258,7 +258,7 @@ module.exports = function() {
 
 //                                                                               PUT ROUTES
 
-    router.post("/CreateActionReaction", async (req, res) => {
+    router.put("/CreateActionReaction", async (req, res) => {
         console.log("IN THE ACTION REACTION");
         let body = '';
         req.on('data', chunk => {
@@ -269,9 +269,9 @@ module.exports = function() {
             // Now the body is fully collected, you can log it
             try {
                 // console.log("Received body:", body);
-                const userId = JSON.parse(body).JsonReponse.user_id;
-                const actionJson = await create_json(JSON.parse(body).JsonReponse.action, userId, "action");
-                const reactionJson = await create_json(JSON.parse(body).JsonReponse.reaction, userId, "reaction");
+                const userId = JSON.parse(body).user_id;
+                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);

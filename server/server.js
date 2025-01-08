@@ -66,5 +66,5 @@ app.listen(port, () => {
     console.log('Server app listening on port ' + port);
 
     // Run the loop in parallel using Parallel.js
-    // serviceManagerLoop();
+    serviceManagerLoop();
 });
