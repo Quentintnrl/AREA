@@ -148,9 +148,11 @@ async function isTrackCurrentlyPlaying(userToken, trackId) {
             playbackState.item &&
             playbackState.item.id === trackId
         ) {
+            console.log('Track is currently playing.');
             return true;
         }
 
+        console.log('Track is not currently playing.');
         return false;
     } catch (error) {
         // Handle errors gracefully
@@ -224,13 +226,19 @@ async function addSpotifyTokens(user_id, service_id, tokens) {
     try {
         const { access_token, refresh_token} = tokens;
         const tokenexists = await pool.query('SELECT * FROM users_services_login WHERE user_id = ? AND service_id = ?', [user_id, service_id]);
+        const json = {
+            access_token: access_token,
+            refresh_token: refresh_token
+        };
         if (tokenexists[0].length > 0) {
             console.log('Spotify tokens already exist:', tokenexists[0]);
-            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', ['{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}', user_id, service_id]);
+            const [rows] = await pool.query('UPDATE users_services_login SET connect_token = ? WHERE user_id = ? AND service_id = ?', [JSON.stringify(json), user_id, service_id]);
             console.log('Spotify tokens updated:', rows);
             return rows;
         } else {
-            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)', [user_id, service_id, '{"access_token": "' + access_token + '", "refresh_token": "' + refresh_token + '"}']);
+            console.log("the Json is ", json);
+            const [rows] = await pool.query('INSERT INTO users_services_login (user_id, service_id, connect_token) VALUES (?, ?, ?)',
+                [user_id, service_id, JSON.stringify(json)]);
             return rows;
         }
         // console.log('Spotify tokens added:', rows);
@@ -481,8 +489,8 @@ class Spotify extends AbstractService {
                     break;
                 }
 
-                case 'A song is played': {
-                    console.log('Doing task: A song is played');
+                case 'A track is played': {
+                    console.log('Doing task: A track is played');
                     const trackUri = task.params["Track Uri"];
                     console.log('Track Uri: ', trackUri);
                     const nb_tracks = task.params["nb_music"];

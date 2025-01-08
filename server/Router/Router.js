@@ -101,7 +101,7 @@ module.exports = function() {
 
     });
 
-    router.get('/spotifyCallback', async (req, res) => {
+    router.get('/spotify_callback', async (req, res) => {
         console.log('Spotify callback');
         const code = req.query.code || null;
 
