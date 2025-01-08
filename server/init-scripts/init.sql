@@ -129,3 +129,8 @@ SELECT ROW_COUNT();
 -- Insert the service 'Github'
 INSERT INTO services (name) VALUES ('Time and Date');
 SELECT ROW_COUNT();  -- Check if 1 row was inserted
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (3, 'Date of the month', '{"params": [{"name": "Day of the month", "type": "number"}]}', 'On a specific day in every months');
+SELECT ROW_COUNT();
