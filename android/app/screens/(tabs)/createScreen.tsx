@@ -1,10 +1,11 @@
-import {View, Text, TextInput, TouchableOpacity} from 'react-native'
+import {View, Text, TextInput, TouchableOpacity, Linking} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import config from "../../../config"
 import SessionStorage from 'react-native-session-storage';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 export default function CreateScreen() {
     const navigation = useNavigation();
@@ -40,6 +41,18 @@ export default function CreateScreen() {
         getServices();
     }, [])
 
+    const checkLogged = async () => {
+        const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
+        const json = await checkIfLogged.json();
+        if (json.login != true) {
+            const serviceURLConnexion = await fetch('http://' + config.IP + ':8080/getServiceLoginURL/' + userId + '/' + selectedService)
+            const serviceURLConnexionjson = await serviceURLConnexion.json();
+            Linking.canOpenURL(serviceURLConnexionjson.url).then((supported) => {
+                supported && Linking.openURL(serviceURLConnexionjson.url);
+            })
+        }
+    }
+
     const checkSelectedService = () => {
         const getServiceActions = async () => {
             let newArray = [] as any
@@ -56,6 +69,7 @@ export default function CreateScreen() {
                 setDataActionsParams(paramsArray)
                 setDataActions(newArray)
                 setSelectedAction("")
+                await checkLogged()
             } catch (error) {
                 console.log(error)
             }
@@ -139,11 +153,11 @@ export default function CreateScreen() {
             const action = {"id": selectedAction, "params": {"Track Uri": paramValueTMP}};
             const reaction = {"id": selectedReaction, "params": {"Track Uri": paramReactionValue}};
             //const JsonReponse = {"user_id": userId, action, reaction};
-            let formData = JSON.stringify({
+            let formData = JSON.stringify({JsonReponse: {
                 user_id: userId,
                 action: action,
                 reaction: reaction,
-            });
+            }});
             console.log(formData)
             const response = await fetch('http://' + config.IP + ':8080/CreateActionReaction/',
                 {
