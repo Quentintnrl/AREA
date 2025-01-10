@@ -44,6 +44,8 @@ export default function CreateScreen() {
     }, [])
 
     const checkLogged = async (selectedService:any) => {
+        if (selectedService == 2) // Github service
+            return;
         const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
         const json = await checkIfLogged.json();
         if (json.login != true) {
@@ -127,6 +129,7 @@ export default function CreateScreen() {
                 });
                 setDataReactions(newArray)
                 //setSelectedReaction("")
+                await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
             }
