@@ -17,14 +17,14 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [reactions, setReactions] = useState([]);
   const [actionDescription, setActionDescription] = useState(''); // New state variable for action text area
   const [reactionDescription, setReactionDescription] = useState(''); // New state variable for reaction text area
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (isOpen) {
       fetchServices();
     }
   }, [isOpen]);
-
-  
 
   const fetchServices = async () => {
     try {
@@ -68,18 +68,35 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   };
 
 
-  const handleService1Change = (e) => {
+  const handleService1Change = async (e) => {
     const serviceId = e.target.value;
+    const user_id = localStorage.getItem('user_id');
     setSelectedService1(serviceId);
     setSelectedAction('');
-    fetchServiceActions(serviceId);
+    // console.log('SELECTED SERVICE IS 1:', serviceId);
+    const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
+    // console.log('RESPONSE IS', response.data);
+    if (response.data.login === true) {
+      fetchServiceActions(serviceId);
+    } else {
+      navigate(`/connectServices/${serviceId}`);
+      console.log('USER IS NOT LOGGED IN');
+    }
   };
 
-  const handleService2Change = (e) => {
+  const handleService2Change = async (e) => {
     const serviceId = e.target.value;
+    const user_id = localStorage.getItem('user_id');
     setSelectedService2(serviceId);
     setSelectedReaction('');
-    fetchServiceReactions(serviceId);
+    const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
+    // console.log('RESPONSE IS', response.data);
+    if (response.data.login === true) {
+      fetchServiceReactions(serviceId);
+    } else {
+      navigate(`/connectServices/${serviceId}`);
+      console.log('USER IS NOT LOGGED IN');
+    }
   };
 
   if (!isOpen) return null;
@@ -233,7 +250,6 @@ function Dashboard() {
       details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
     };
     setCards([...cards, newCard]);
-    navigate(`/connectServices/${newApplet.service1}`);
     createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
   };
 

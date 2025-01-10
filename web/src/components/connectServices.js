@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 
 
 function ConnectServices() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [serviceName, setServiceName] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -39,9 +41,24 @@ function ConnectServices() {
       const userId = localStorage.getItem('userId');
       const response = await axios.get(`http://localhost:8080/getServiceLoginURL/${userId}/${1}`);
       const url = response.data.url;
+
       console.log('Login URL:', url);
-      window.open(url, '_blank');
+      const popup = window.open(
+        url,
+        'Login Service',
+        'width=500,height=600,left=400,top=100'
+      );
+      const checkPopup = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkPopup);
+          checkLoginStatus(); // Check if login was successful
+          setAnimationProgress(0); // Reset animation
+        }
+      }, 1000);
+  
       return url;
+      // window.open(url, '_blank');
+      // return url;
     } catch (error) {
       console.error('Login failed', error.response?.data);
     }
@@ -84,7 +101,25 @@ function ConnectServices() {
         >
         <div className={`toggle-circle ${isConnected ? "active" : ""}`}></div>
         </div>
+        {isConnected && (
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              marginTop: '20px',
+              padding: '10px 20px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            Back to Dashboard
+          </button>
+        )}
       </div>
+      
     );
 
 }
