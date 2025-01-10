@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Linking} from 'react-native'
+import {View, Text, TextInput, TouchableOpacity, Linking, StyleSheet} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,9 @@ import SessionStorage from 'react-native-session-storage';
 
 export default function CreateScreen() {
     const navigation = useNavigation();
-    const [selectedService, setSelectedService] = useState("");
+    const [selectedService1, setSelectedService1] = useState("");
+    const [selectedService2, setSelectedService2] = useState("");
+
     const [selectedAction, setSelectedAction] = useState("");
     const [selectedReaction, setSelectedReaction] = useState("");
     const [dataServices, setDataServices] = useState([]);
@@ -40,7 +42,7 @@ export default function CreateScreen() {
         getServices();
     }, [])
 
-    const checkLogged = async () => {
+    const checkLogged = async (selectedService:any) => {
         const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
         const json = await checkIfLogged.json();
         if (json.login != true) {
@@ -52,15 +54,17 @@ export default function CreateScreen() {
         }
     }
 
-    const checkSelectedService = () => {
+    const checkSelectedService = (selectedService:any) => {
         const getServiceActions = async () => {
             let newArray = [] as any
             let paramsArray = [] as any
             try {
                 const response = await fetch('http://' + config.IP + ':8080/getServiceActions/' + selectedService)
                 const json = await response.json();
-                json.forEach((elt: any) => {
+                json.forEach((elt: any, i:any) => {
+                    console.log("elt nb ", i, "= ", elt)
                     if (elt.params != null) {
+                        console.log("elt.params = ", elt.params)
                         paramsArray.push({id: elt.id, value: elt.params.params[0].name})
                     }
                     newArray.push({key: elt.id, value: elt.name})
@@ -68,7 +72,7 @@ export default function CreateScreen() {
                 setDataActionsParams(paramsArray)
                 setDataActions(newArray)
                 setSelectedAction("")
-                await checkLogged()
+                await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
             }
@@ -76,7 +80,7 @@ export default function CreateScreen() {
         getServiceActions()
     }
 
-    const checkSelectedAction = () => {
+    /*const checkSelectedAction = () => {
         const getServiceReactions = async () => {
             let newArray = [] as any
             let paramsArray = [] as any
@@ -96,7 +100,7 @@ export default function CreateScreen() {
             }
         }
         getServiceReactions()
-    }
+    }*/
 
     const displayInputsActions = () => {
         console.log("dataactions = ", dataActionsParams)
@@ -174,30 +178,52 @@ export default function CreateScreen() {
 
     return (
         <SafeAreaView style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{paddingHorizontal: 25}}/>
-            <View>
-                <Text
+            <View style={styles.container}>
+                <View style={{width: '50%'}}>
+                    <Text style={styles.text}>When This</Text>
+                    <Text style={{textAlign: 'center'}}>Available Services</Text>
+                    <SelectList
+                        setSelected={(val: any) => setSelectedService1(val)}
+                        data={dataServices}
+                        onSelect={() => checkSelectedService(selectedService1)}
+                        save="key"
+                        placeholder='Select Service'
+                    />
+                </View>
+                <View style={{width: '50%', paddingLeft: 10}}>
+                    <Text style={styles.text}>Do This</Text>
+                    <Text style={{textAlign: 'center'}}>Available Services</Text>
+                    <SelectList
+                        setSelected={(val: any) => setSelectedService2(val)}
+                        data={dataServices}
+                        onSelect={() => checkSelectedService(selectedService2)}
+                        save="key"
+                        placeholder='Select Service'
+                    />
+                </View>
+            </View>
+                {/* <Text
                     style={{
                         fontFamily: 'SpaceMono-Regular',
-                        fontSize: 30,
-                        fontWeight: 700,
+                        fontSize: 20,
                         color: '333',
-                        marginBottom: 30,
-                        textAlign: 'center',
+                        marginTop: 30,
+                        textAlign: 'left',
                     }}>
-                    Tab Create
+                    Actions
                 </Text>
-            </View>
-            <View>
-                <Text>Available Services</Text>
-                <SelectList
-                    setSelected={(val: any) => setSelectedService(val)}
-                    data={dataServices}
-                    onSelect={checkSelectedService}
-                    save="key"
-                    placeholder='Select Service'
-                />
-                {selectedService &&
+                <View>
+                    <Text>Available Services</Text>
+                    <SelectList
+                        setSelected={(val: any) => setSelectedService(val)}
+                        data={dataServices}
+                        onSelect={checkSelectedService}
+                        save="key"
+                        placeholder='Select Service'
+                    />
+
+                </View> */}
+                {/* {selectedService &&
                     <View>
                         <Text>Available Actions</Text>
                         <SelectList
@@ -257,8 +283,24 @@ export default function CreateScreen() {
                         </View>
                     }
                     </View>
-                }
-            </View>
+                } */}
         </SafeAreaView>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: 25,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignContent: 'flex-start'
+    },
+    text: {
+        fontFamily: 'SpaceMono-Regular',
+        fontSize: 25,
+        fontWeight: 600,
+        color: '333',
+        marginBottom: 30,
+        textAlign: 'center'
+    }
+})
