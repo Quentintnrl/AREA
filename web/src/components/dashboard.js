@@ -5,6 +5,7 @@ import axios from 'axios';
 import './dashboard.css';
 import connectServices from './connectServices';
 
+
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
   const [selectedService1, setSelectedService1] = useState('');
@@ -190,18 +191,24 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [cards, setCards] = useState(
-    Array(4).fill(0).map((_, i) => ({
-      id: i + 1,
-      color:
-        i % 5 === 0 ? '#DAD4DE' :
-        i % 5 === 1 ? '#BBB4DE' :
-        i % 5 === 2 ? '#7B9DD2' :
-        i % 5 === 3 ? '#70C7C6' :
-        '#F2B880',
-      title: `Card Title ${i + 1}`,
-      subtitle: `Subtitle for card ${i + 1}`,
-      details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
-    }))
+    Array(4)
+      .fill(0)
+      .map((_, i) => ({
+        id: i + 1,
+        color:
+          i % 5 === 0
+            ? '#DAD4DE'
+            : i % 5 === 1
+            ? '#BBB4DE'
+            : i % 5 === 2
+            ? '#7B9DD2'
+            : i % 5 === 3
+            ? '#70C7C6'
+            : '#F2B880',
+        title: `Card Title ${i + 1}`,
+        subtitle: `Subtitle for card ${i + 1}`,
+        details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
+      }))
   );
 
   const handleCardClick = (card) => {
@@ -209,13 +216,13 @@ function Dashboard() {
   };
 
   const createActionsReactions = async (userId, actionId, reactionId, playlistId, songId) => {
+    const action = { id: actionId, params: { 'Track Uri': playlistId, nb_music: 0 } };
+    const reaction = { id: reactionId, params: { 'Track Uri': songId } };
+    const JsonReponse = { user_id: userId, action, reaction };
 
-    const action = {"id": actionId, "params": {"Track Uri": playlistId, "nb_music": 0}};
-    const reaction = {"id": reactionId, "params": {"Track Uri": songId}};
-    const JsonReponse = {"user_id": userId, action, reaction};
     try {
       const response = await axios.post('http://localhost:8080/CreateActionReaction', {
-        JsonReponse
+        JsonReponse,
       });
       console.log('Actions and reactions created successfully:', response.data);
     } catch (error) {
@@ -230,11 +237,24 @@ function Dashboard() {
       color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
+      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`, // Use descriptions from new applet data
     };
     setCards([...cards, newCard]);
     navigate(`/connectServices/${newApplet.service1}`);
-    createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
+    createActionsReactions(
+      user_id,
+      newApplet.action,
+      newApplet.reaction,
+      newApplet.actionDescription,
+      newApplet.reactionDescription
+    );
+  };
+
+  const handleLogout = () => {
+    // Suppression des données utilisateur et redirection
+    localStorage.removeItem('userId');
+    localStorage.removeItem('token'); // Si un token est utilisé
+    navigate('/login');
   };
 
   return (
@@ -258,6 +278,11 @@ function Dashboard() {
           </li>
           <li>
             <button className="pro-button">Try Pro free</button>
+          </li>
+          <li>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
           </li>
         </ul>
       </nav>
