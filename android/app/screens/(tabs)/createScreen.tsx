@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list'
 import config from "../../../config"
 import SessionStorage from 'react-native-session-storage';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 export default function CreateScreen() {
     const navigation = useNavigation();
@@ -215,7 +214,7 @@ export default function CreateScreen() {
                             <SelectList
                                 setSelected={(val: any) => setSelectedReaction(val)}
                                 data={dataReactions}
-                                save="value"
+                                save="key"
                                 placeholder='Select Reaction'
                             />
                             {selectedReaction &&
