@@ -1,12 +1,14 @@
 /* Global styles */
 body, html {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to bottom, #f0f4fc, #ffffff);
+  color: #333;
 }
 
 h1, h2, h3, p {
@@ -21,9 +23,12 @@ a {
 
 button {
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
 }
 
+button:hover {
+  transform: scale(1.05);
+}
 /* Header styles */
 .header {
   display: flex;
@@ -33,6 +38,9 @@ button {
   background-color: #2263b3;
   color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo {
@@ -62,7 +70,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s transform 0.2s;
 }
 
 .nav-links .nav-btn {
@@ -91,6 +99,26 @@ button {
 .cta-button:hover {
   background-color: #17b689;
 }
+
+
+/* Footer styles */
+.footer {
+  background-color: #2263b3;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.footer a {
+  color: #1fe0ac;
+  transition: color 0.2s;
+}
+
+.footer a:hover {
+  color: #17b689;
+}
+
 
 /* Navigation styles */
 .nav {
@@ -121,6 +149,11 @@ button {
 
 /* Main content styles */
 .main {
+  flex: 1; /* Permet au conteneur de prendre tout l'espace disponible */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrer horizontalement */
+  justify-content: flex-start; /* Commencer en haut */
   padding: 40px 20px;
 }
 
@@ -130,7 +163,7 @@ button {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 40px; /* Augmente l'espace sous la barre de recherche */
 }
 
 /* Card styles */
@@ -138,7 +171,9 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 10px;
+  justify-content: center; /* Centre les cartes horizontalement */
+  padding: 20px;
+  width: 100%; /* Prend toute la largeur */
 }
 
 .card {
@@ -247,4 +282,27 @@ button {
 
 .create-applet-button:hover {
   background-color: #17b689;
+}
+
+
+/* Added gradient background to buttons */
+.filters button {
+  margin-right: 10px;
+  padding: 10px;
+  background: linear-gradient(45deg, #2263b3, #1fe0ac);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.filters button:hover {
+  background: linear-gradient(45deg, #1fe0ac, #2263b3);
+}
+
+/* Scrollable content */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 20px;
 }
