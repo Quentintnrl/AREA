@@ -6,12 +6,21 @@
 */
 /* Global styles */
 /* Style global pour la page */
-body {
+body, html {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
   color: #333;
+  height: 100%;
+  width: 100%;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
 }
 
 /* Section Héros */
@@ -19,7 +28,8 @@ body {
   background: linear-gradient(135deg, #2263b3, #1fe0ac);
   color: white;
   padding: 40px 20px;
-  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .hero-section .navbar {
@@ -27,6 +37,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .navbar .logo img {
@@ -67,8 +78,14 @@ body {
   background: #17b689;
 }
 
+.hero-content {
+  text-align: left;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .hero-content h1 {
-  font-size: 36px;
+  font-size: 48px;
   margin-bottom: 10px;
 }
 
@@ -95,7 +112,9 @@ body {
 /* Section des Applets */
 .applets-section {
   padding: 40px 20px;
-  text-align: center;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .applets-section h2 {
@@ -105,13 +124,15 @@ body {
 
 .applets-container {
   display: flex;
-  justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .applet-card {
-  width: 300px;
+  flex: 1 1 calc(25% - 20px);
+  min-width: 250px;
   padding: 20px;
   border-radius: 10px;
   color: white;
@@ -120,6 +141,7 @@ body {
   flex-direction: column;
   gap: 10px;
   transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .applet-card:hover {
@@ -136,8 +158,10 @@ body {
 /* Section des services */
 .services-section {
   padding: 40px 20px;
-  text-align: center;
+  text-align: left;
   background-color: #e2ebf5;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .services-section h2 {
@@ -147,9 +171,10 @@ body {
 
 .services-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 20px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .service-icon {
@@ -172,6 +197,8 @@ body {
   align-items: center;
   gap: 20px;
   padding: 40px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ifttt-section {
