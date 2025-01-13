@@ -27,15 +27,19 @@ export default function ExploreTab() {
 
   useEffect(() => {
     const getAREAs = async() => {
-        let newArray = [] as any
         try {
             const response = await fetch('http://' + config.IP + ':8080/getAREAs/')
             const json = await response.json();
-            json.forEach((elt: any) => {
-                console.log(elt)
-                newArray.push({key: elt.id, value: elt.name})
+            const promises = json.map(async (elt: any) => {
+              const action = await fetch('http://' + config.IP + ':8080/getAction/' + elt.action.id);
+              const jsonAction = await action.json();
+              const reaction = await fetch('http://' + config.IP + ':8080/getReaction/' + elt.reaction.id);
+              const jsonReaction = await reaction.json();
+
+              return { key: elt.id, nameAction: jsonAction.action[0].name, nameReaction: jsonReaction.reaction[0].name };
             });
-            setDataActions(newArray)
+            const newArray = await Promise.all(promises);
+            setDataActions(newArray as any)
         } catch (error) {
             console.log(error)
         }
