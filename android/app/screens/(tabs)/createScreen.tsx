@@ -41,7 +41,7 @@ export default function CreateScreen() {
     }, [])
 
     const checkLogged = async (selectedService:any) => {
-        if (selectedService == 2) // Github service
+        if (selectedService == 2 || selectedService == 3) // 2 = Github, 3 = Date&Time
             return;
         const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
         const json = await checkIfLogged.json();

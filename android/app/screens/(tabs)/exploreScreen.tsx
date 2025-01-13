@@ -18,7 +18,6 @@ export default function ExploreTab() {
   const [dataActions, setDataActions] = useState([]);
 
   const makeCardsAction = () => {
-    console.log(dataActions)
     if (dataActions.length === 0) {
       return <Text>No AREAs found</Text>
     }
