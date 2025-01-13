@@ -19,11 +19,8 @@ export default function CreateScreen() {
     const [dataReactions, setDataReactions] = useState([]);
     const [dataActionsParams, setDataActionsParams] = useState([]);
     const [dataReactionsParams, setDataReactionsParams] = useState([]);
-    const [paramValueTMP, setParamValueTMP] = useState("");
-    const [paramValue, setParamValue] = useState([]);
-    const [paramReactionValue, setParamReactionValue] = useState("");
-
-
+    const [paramActionValue, setParamActionValue] = useState({});
+    const [paramReactionValue, setParamReactionValue] = useState({});
     const userId = SessionStorage.getItem('@id');
 
     useEffect(() => {
@@ -64,10 +61,10 @@ export default function CreateScreen() {
                 const response = await fetch('http://' + config.IP + ':8080/getAction/' + selectedAction)
                 const json = await response.json();
                 json.action.forEach((elt:any, i:any) => {
-                    //console.log(elt, i)
                     if (elt.params != null) {
-                        //console.log(elt.params.params)
-                        paramsArray.push({id: (i + 1), value: elt.params.params[i].name})
+                        elt.params.params.forEach((item:any, i:any) => {
+                            paramsArray.push({id: (i + 1), value: item.name})
+                        })
                     }
                 });
                 setDataActionsParams(paramsArray)
@@ -87,8 +84,9 @@ export default function CreateScreen() {
                 json.reaction.forEach((elt:any, i:any) => {
                     //console.log(elt, i)
                     if (elt.params != null) {
-                        console.log(elt.params.params)
-                        paramsArray.push({id: (i + 1), value: elt.params.params[i].name})
+                        elt.params.params.forEach((item:any, i:any) => {
+                            paramsArray.push({id: (i + 1), value: item.name})
+                        })
                     }
                 });
                 setDataReactionsParams(paramsArray)
@@ -152,7 +150,7 @@ export default function CreateScreen() {
                         borderWidth: 2,
                         width: 150,
                     }}
-                    onChangeText={(paramValueTmp) => setParamValueTMP(paramValueTmp)}
+                    onChangeText={(paramAction) => setParamActionValue(prev => ({...prev, [data.value]: paramAction}))}
                 />
             </View>
         )
@@ -173,7 +171,7 @@ export default function CreateScreen() {
                         borderWidth: 2,
                         width: 150,
                     }}
-                    onChangeText={(paramReactionValue) => setParamReactionValue(paramReactionValue)}
+                    onChangeText={(paramReaction) => setParamReactionValue(prev => ({...prev, [data.value]: paramReaction}))}
                 />
             </View>
         )
@@ -181,8 +179,8 @@ export default function CreateScreen() {
 
     const createAREA = async () => {
         try {
-            const action = {"id": selectedAction, "params": {"Track Uri": paramValueTMP}};
-            const reaction = {"id": selectedReaction, "params": {"Track Uri": paramReactionValue}};
+            const action = {"id": selectedAction, "params": {paramActionValue}};
+            const reaction = {"id": selectedReaction, "params": {paramReactionValue}};
             //const JsonReponse = {"user_id": userId, action, reaction};
             let formData = JSON.stringify({JsonReponse: {
                 user_id: userId,
