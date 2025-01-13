@@ -118,6 +118,79 @@ async function getTrackDetails(token, trackUri) {
     }
 }
 
+/**
+ * Fetch the name of a playlist using the Spotify API.
+ * @param {string} token - The Spotify API access token.
+ * @param {string} playlistUri - The Spotify URI of the playlist (e.g., 'spotify:playlist:PLAYLIST_ID').
+ * @returns {Promise<string>} - The name of the playlist.
+ */
+async function getPlaylistName(token, playlistUri) {
+    // Extract the playlist ID from the URI
+    const playlistId = playlistUri.split(':').pop();
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}`;
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.name;
+    } catch (error) {
+        console.error('Error fetching playlist name:', error.response?.data || error.message);
+        throw new Error('Failed to fetch playlist name.');
+    }
+}
+
+/**
+ * Fetch the URI of the most recently added track in a playlist using the Spotify API.
+ * @param {string} token - The Spotify API access token.
+ * @param {string} playlistUri - The Spotify URI of the playlist (e.g., 'spotify:playlist:PLAYLIST_ID').
+ * @returns {Promise<string>} - The URI of the most recently added track in the playlist.
+ */
+async function getMostRecentTrackUri(token, playlistUri) {
+    // Extract the playlist ID from the URI
+    const playlistId = playlistUri.split(':').pop();
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+
+    try {
+        // Fetch the first batch of tracks to get the total count
+        const initialResponse = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                limit: 1,
+                offset: 0,
+            },
+        });
+
+        const totalTracks = initialResponse.data.total;
+
+        // Fetch the last track by setting the offset to totalTracks - 1
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                limit: 1,
+                offset: totalTracks - 1,
+            },
+        });
+
+        const lastTrack = response.data.items[0]?.track;
+        if (lastTrack) {
+            return lastTrack.uri;
+        } else {
+            throw new Error('No tracks found in the playlist.');
+        }
+    } catch (error) {
+        console.error('Error fetching the most recently added track URI:', error.response?.data || error.message);
+        throw new Error('Failed to fetch the most recently added track URI.');
+    }
+}
+
 
 
 
@@ -361,6 +434,8 @@ async function create_json_action_a_track_is_added_to_playlist(access_token, pla
     const nb_musics = await getTrackSize(access_token, playlist_uri);
     console.log('Nb musics: ', nb_musics);
     request_json.params["nb_musics"] = nb_musics;
+    request_json.params["subject"] = "AREA Spotify service";
+    request_json.params["message"] = "";
     console.log(request_json);
     return request_json;
 }
@@ -519,6 +594,12 @@ class Spotify extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["nb_musics"] = new_nb_tracks;
+                        const playlist_name = await getPlaylistName(access_token, playlistUri);
+                        const new_track_uri = await getMostRecentTrackUri(access_token, playlistUri);
+                        const track_details = await getTrackDetails(access_token, new_track_uri);
+                        const title = track_details.title;
+                        const author = track_details.author;
+                        params["message"] = "The track " + title + " of " + author + " has been added to the playlist " + playlist_name;
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
