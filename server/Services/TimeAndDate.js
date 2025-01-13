@@ -81,6 +81,21 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 return json;
             }
 
+            case 'Every thirty seconds': {
+                console.log(request_json);
+                //get actual seconds
+                const date = new Date();
+                const seconds = date.getSeconds();
+                console.log('Seconds:', seconds);
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "previous_seconds": seconds
+                    }
+                };
+                return json;
+            }
+
             //reactions
 
             default: {
@@ -197,6 +212,32 @@ class TimeAndDate extends AbstractService {
                         await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                     } else {
                         console.log('Same day');
+                    }
+                }
+
+                case 'Every thirty seconds': {
+                    console.log(task);
+                    //get actual seconds
+                    const date = new Date();
+                    const seconds = date.getSeconds();
+                    console.log('Seconds:', seconds);
+                    const previous_seconds = task.params["previous_seconds"];
+                    console.log('Previous seconds:', previous_seconds);
+                    if (Math.abs(seconds - previous_seconds) === 30) {
+                        console.log('Every thirty seconds reached');
+                        value = true;
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["previous_seconds"] = seconds;
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    } else {
+                        console.log('Every thirty seconds not reached');
                     }
                 }
 
