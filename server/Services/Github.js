@@ -288,6 +288,37 @@ async function getStarCountPublic(owner, repo) {
   }
 }
 
+/**
+ * Get the name of the last commit for a GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @returns {Promise<string>} - The name of the last commit.
+ */
+async function getLastCommitNamePrivate(owner, repo, token) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/commits`,
+      {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        params: {
+          per_page: 1, // Fetch only the latest commit
+        }
+      }
+    );
+
+    // Get the commit message from the first commit in the response
+    const lastCommitMessage = response.data[0].commit.message;
+    return lastCommitMessage;
+  } catch (error) {
+    console.error('Error fetching last commit:', error.message);
+    throw error;
+  }
+}
+
 
 
 
@@ -551,7 +582,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                         owner: owner,
                         repo_url: repo,
                         token: token,
-                        commit_count: commitCount
+                        commit_count: commitCount,
+                        subject: 'New private commit',
+                        message: ''
                     }
                 };
                 return json;
@@ -570,7 +603,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     params: {
                         owner: owner,
                         repo_url: repo,
-                        commit_count: commitCount
+                        commit_count: commitCount,
+                        subject: 'New public commit',
+                        message: ''
                     }
                 };
                 return json;
@@ -591,7 +626,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                         owner: owner,
                         repo_url: repo,
                         token: token,
-                        pull_request_titles: pullRequestTitles
+                        pull_request_titles: pullRequestTitles,
+                        subject: 'New private pull request',
+                        message: ''
                     }
                 };
                 return json;
@@ -610,7 +647,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     params: {
                         owner: owner,
                         repo_url: repo,
-                        pull_request_titles: pullRequestTitles
+                        pull_request_titles: pullRequestTitles,
+                        subject: 'New public pull request',
+                        message: ''
                     }
                 };
                 return json;
@@ -628,7 +667,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                   params: {
                       user: username,
                       token: token,
-                      follower_count: followerCount
+                      follower_count: followerCount,
+                      subject: 'New private follower',
+                      message: ''
                   }
               };
               return json;
@@ -644,7 +685,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     id: request_json.id,
                     params: {
                         user: username,
-                        follower_count: followerCount
+                        follower_count: followerCount,
+                        subject: 'New public follower',
+                        message: ''
                     }
                 };
                 return json;
@@ -665,7 +708,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                   owner: owner,
                   repo_url: repo,
                   token: token,
-                  star_count: starCount
+                  star_count: starCount,
+                  subject: 'New private star',
+                  message: ''
                 }
               };
               return json;
@@ -684,7 +729,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
               params: {
                 owner: owner,
                 repo_url: repo,
-                star_count: starCount
+                star_count: starCount,
+                subject: 'New private star',
+                message: ''
               }
             };
             return json;
@@ -736,6 +783,9 @@ class Github extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["commit_count"] = new_commit_count;
+                        const lastCommitMessage = await getLastCommitNamePrivate(owner, repo, token);
+                        console.log('lastCommitMessage:', lastCommitMessage);
+                        params["message"] = 'A new commit named \"' + lastCommitMessage + '\" has been made on the private repository \"' + owner + '/' + repo + '\"';
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
