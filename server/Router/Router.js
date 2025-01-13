@@ -292,5 +292,29 @@ module.exports = function() {
         });
     });
 
+    router.get("/getAction/:id", async (req, res) => {
+        console.log("GET ACTION BY ID");
+        try {
+            const id = req.params.id;
+            const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
+            return res.status(200).json({action: action});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
+
+    router.get("/getReaction/:id", async (req, res) => {
+        console.log("GET REACTION BY ID");
+        try {
+            const id = req.params.id;
+            const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [id]);
+            return res.status(200).json({reaction: reaction});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
+
     return router;
 };
