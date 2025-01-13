@@ -15,16 +15,17 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [selectedReaction, setSelectedReaction] = useState('');
   const [actions, setActions] = useState([]);
   const [reactions, setReactions] = useState([]);
-  const [actionDescription, setActionDescription] = useState(''); // New state variable for action text area
-  const [reactionDescription, setReactionDescription] = useState(''); // New state variable for reaction text area
+  const [actionDescription, setActionDescription] = useState('');
+  const [reactionDescription, setReactionDescription] = useState('');
+  const [actionsParams, setActionsParams] = useState([]);
+  const [reactionsParams, setReactionsParams] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
       fetchServices();
     }
   }, [isOpen]);
-
-  
 
   const fetchServices = async () => {
     try {
@@ -40,6 +41,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     try {
       console.log('Fetching actions for service:', serviceId);
       const response = await axios.get(`http://localhost:8080/getServiceActions/${serviceId}`);
+      console.log('Actions:', response.data);
       setActions(response.data);
     } catch (error) {
       console.error('Error fetching actions:', error);
@@ -56,30 +58,75 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     }
   };
 
-  const fetchActions = async (serviceId) => {
+  const getInputAction = async (actionId) => {
     try {
-      console.log('Fetching actions for service:', serviceId);
-      const response = await axios.get('http://localhost:8080/getActions');
-      const actions = response.data.filter(action => action.service_id === serviceId);
-      return
+      setSelectedAction(actionId);
+      setActionsParams([]); // Clear previous params
+      setActionDescription({}); // Clear previous descriptions
+      const response = await axios.get(`http://localhost:8080/getAction/${actionId}`);
+      const action = response.data.action[0].params.params;
+      action.forEach(params => {
+        console.log('actions params is :', params.name);
+        actionsParams.push(params.name);
+      });
+      const newParams = action.map(params => params.name);
+      setActionsParams(newParams);
+      console.log('Action is :', action);
     } catch (error) {
       console.error('Error fetching actions:', error);
     }
   };
 
-
-  const handleService1Change = (e) => {
-    const serviceId = e.target.value;
-    setSelectedService1(serviceId);
-    setSelectedAction('');
-    fetchServiceActions(serviceId);
+  const getInputReaction = async (reactionId) => {
+    try {
+      setSelectedReaction(reactionId);
+      setReactionsParams([]);
+      setReactionDescription({});
+      const response = await axios.get(`http://localhost:8080/getReaction/${reactionId}`);
+      const reaction = response.data.reaction[0].params.params;
+      const newParams = reaction.map(params => params.name);
+      setReactionsParams(newParams);
+      console.log('Reaction is :', reaction);
+    } catch (error) {
+      console.error('Error fetching reactions:', error);
+    }
   };
 
-  const handleService2Change = (e) => {
+  const handleService1Change = async (e) => {
     const serviceId = e.target.value;
+    const user_id = localStorage.getItem('userId');
+    setSelectedService1(serviceId);
+    setSelectedAction('');
+    const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
+    console.log("RESPONSE IS", response.data);
+
+    if (serviceId == 2) {
+      fetchServiceActions(serviceId);
+    } else if (response.data.login === true) {
+      fetchServiceActions(serviceId);
+    } else {
+      navigate(`/connectServices/${serviceId}`);
+      console.log('USER IS NOT LOGGED IN');
+    }
+  };
+
+  const handleService2Change = async (e) => {
+    const serviceId = e.target.value;
+    console.log("THE SERVICE ID IS", serviceId);
+    const user_id = localStorage.getItem('userId');
     setSelectedService2(serviceId);
     setSelectedReaction('');
-    fetchServiceReactions(serviceId);
+    const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
+    console.log("RESPONSE IS", response.data);
+
+    if (serviceId == 2) {
+      fetchServiceReactions(serviceId);
+    } else if (response.data.login === true) {
+      fetchServiceReactions(serviceId);
+    } else {
+      navigate(`/connectServices/${serviceId}`);
+      console.log("USER IS NOT LOGGED IN");
+    }
   };
 
   if (!isOpen) return null;
@@ -100,6 +147,14 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     } else {
       alert('Please select all options');
     }
+  };
+
+  const handleClose = () => {
+    setActionDescription({});
+    setReactionDescription({});
+    setActionsParams([]);
+    setReactionsParams([]);
+    onClose();
   };
 
   return (
@@ -127,7 +182,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             {selectedService1 && (
               <select
                 value={selectedAction}
-                onChange={(e) => setSelectedAction(e.target.value)}
+                onChange={(e) => getInputAction(e.target.value)}
               >
                 <option value="">Select Action</option>
                 {actions.map(action => (
@@ -135,12 +190,24 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
-            <textarea
+            {selectedAction && actionsParams.map((param, index) => (
+              <textarea
+                key={index}
+                className="description-textarea"
+                placeholder={`Enter ${param}`}
+                value={actionDescription[param] || ''}
+                onChange={(e) => {
+                  const newActionDescription = {...actionDescription};
+                  newActionDescription[param] = e.target.value;
+                  setActionDescription(newActionDescription);
+                }}
+            />))}
+            {/* <textarea
               className="description-textarea"
               placeholder="Enter the name of the playlist"
               value={actionDescription}
               onChange={(e) => setActionDescription(e.target.value)}
-            />
+            /> */}
           </div>
           <div className="modal-column">
             <h3>Do This</h3>
@@ -159,7 +226,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
             {selectedService2 && (
               <select
                 value={selectedReaction}
-                onChange={(e) =>setSelectedReaction(e.target.value)}
+                onChange={(e) =>getInputReaction(e.target.value)}
               >
                 <option value="">Select Reaction</option>
                 {reactions.map(reaction => (
@@ -167,12 +234,24 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 ))}
               </select>
             )}
+            {selectedReaction && reactionsParams.map((param, index) => (
             <textarea
+              key={index}
+              className="description-textarea"
+              placeholder={`Enter ${param}`}
+              value={reactionDescription[param] || ''}
+              onChange={(e) => {
+                const newReactionDescription = {...reactionDescription};
+                newReactionDescription[param] = e.target.value;
+                setReactionDescription(newReactionDescription);
+              }}
+            />))}
+            {/* <textarea
               className="description-textarea"
               placeholder="Enter the name of the song"
               value={reactionDescription}
               onChange={(e) => setReactionDescription(e.target.value)}
-            />
+            /> */}
           </div>
         </div>
         <button
@@ -208,20 +287,51 @@ function Dashboard() {
     navigate(`/details/${card.id}`, { state: { card } });
   };
 
-  const createActionsReactions = async (userId, actionId, reactionId, playlistId, songId) => {
+  const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
+    // Fetch action and reaction parameters dynamically
+    const [actionResponse, reactionResponse] = await Promise.all([
+      axios.get(`http://localhost:8080/getAction/${actionId}`),
+      axios.get(`http://localhost:8080/getReaction/${reactionId}`)
+    ]);
 
-    const action = {"id": actionId, "params": {"Track Uri": playlistId, "nb_music": 0}};
-    const reaction = {"id": reactionId, "params": {"Track Uri": songId}};
-    const JsonReponse = {"user_id": userId, action, reaction};
-    try {
-      const response = await axios.post('http://localhost:8080/CreateActionReaction', {
-        JsonReponse
-      });
-      console.log('Actions and reactions created successfully:', response.data);
-    } catch (error) {
-      console.error('Error fetching actions and reactions:', error);
-    }
+    // Extract parameters structure
+    const actionParams = actionResponse.data.action[0].params.params;
+    const reactionParams = reactionResponse.data.reaction[0].params.params;
+
+    // Create dynamic params objects
+    const actionParamsObject = actionParams.reduce((acc, param) => {
+      acc[param.name] = actionDescription[param.name];
+      return acc;
+    }, {});
+
+    const reactionParamsObject = reactionParams.reduce((acc, param) => {
+      acc[param.name] = reactionDescription[param.name];
+      return acc;
+    }, {});
+
+    // Build final JSON structure
+    const JsonReponse = {
+      "user_id": userId,
+      "action": {
+        "id": actionId,
+        "params": actionParamsObject
+      },
+      "reaction": {
+        "id": reactionId,
+        "params": reactionParamsObject
+      }
+    };
+
+    console.log("the JSON response is", JsonReponse);
+  
+    const response = await axios.post('http://localhost:8080/CreateActionReaction', {
+      JsonReponse
+    });
+    
+    console.log('Action/Reaction created:', response.data);
+    return response.data;
   };
+  
 
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
@@ -233,7 +343,6 @@ function Dashboard() {
       details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
     };
     setCards([...cards, newCard]);
-    navigate(`/connectServices/${newApplet.service1}`);
     createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
   };
 

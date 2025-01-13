@@ -79,7 +79,7 @@ VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "stri
 SELECT ROW_COUNT();
 
 INSERT INTO actions (service_id, name, params, description)
-VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
+VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Playlist Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
 SELECT ROW_COUNT();
 
 -- Insert the service 'Github'
