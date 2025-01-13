@@ -348,6 +348,76 @@ async function getLastCommitNamePublic(owner, repo) {
   }
 }
 
+/**
+ * Get the name (title) of the most recent open pull request for a private GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @param {string} token - The GitHub Personal Access Token.
+ * @returns {Promise<string>} - The name of the most recent open pull request.
+ */
+async function getMostRecentOpenPullRequest(owner, repo, token) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/pulls`,
+      {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        params: {
+          state: 'open', // Only fetch open pull requests
+          per_page: 1,   // Fetch only the most recent one
+          sort: 'updated', // Sort by the most recently updated
+          direction: 'desc' // In descending order (most recent first)
+        }
+      }
+    );
+
+    if (response.data.length > 0) {
+      return response.data[0].title; // Return the title of the most recent open pull request
+    } else {
+      return 'No open pull requests found.';
+    }
+  } catch (error) {
+    console.error('Error fetching open pull requests:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get the name (title) of the most recent open pull request for a public GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @returns {Promise<string>} - The name of the most recent open pull request.
+ */
+async function getMostRecentOpenPullRequestPublic(owner, repo) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/pulls`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        params: {
+          state: 'open', // Only fetch open pull requests
+          per_page: 1,   // Fetch only the most recent one
+          sort: 'updated', // Sort by the most recently updated
+          direction: 'desc' // In descending order (most recent first)
+        }
+      }
+    );
+
+    if (response.data.length > 0) {
+      return response.data[0].title; // Return the title of the most recent open pull request
+    } else {
+      return 'No open pull requests found.';
+    }
+  } catch (error) {
+    console.error('Error fetching open pull requests:', error.message);
+    throw error;
+  }
+}
+
 
 
 
@@ -870,6 +940,9 @@ class Github extends AbstractService {
                   let params = action.params;
                   console.log('params:', params);
                   params["pull_request_titles"] = pullRequestTitles;
+                  const lastPullRequestTitle = await getMostRecentOpenPullRequest(owner, repo, token);
+                  console.log('lastPullRequestTitle:', lastPullRequestTitle);
+                  params["message"] = 'A new pull request named \"' + lastPullRequestTitle + '\" has been made on the private repository \"' + owner + '/' + repo + '\"';
                   console.log('new params:', params);
                   action.params = params;
                   console.log('new action:', action);
@@ -896,6 +969,9 @@ class Github extends AbstractService {
                   let params = action.params;
                   console.log('params:', params);
                   params["pull_request_titles"] = pullRequestTitles;
+                  const lastPullRequestTitle = await getMostRecentOpenPullRequestPublic(owner, repo);
+                  console.log('lastPullRequestTitle:', lastPullRequestTitle);
+                  params["message"] = 'A new pull request named \"' + lastPullRequestTitle + '\" has been made on the public repository \"' + owner + '/' + repo + '\"';
                   console.log('new params:', params);
                   action.params = params;
                   console.log('new action:', action);
