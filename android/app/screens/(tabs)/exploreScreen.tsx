@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react'
 import Card from "../../../components/Card"
+import config from "../../../config"
 
 const actions = [
   {
@@ -13,9 +15,34 @@ const actions = [
 ]
 
 export default function ExploreTab() {
+  const [dataActions, setDataActions] = useState([]);
+
   const makeCardsAction = () => {
-    return actions.map((data, i) => <Card key={i} data={data}/>)
+    console.log(dataActions)
+    if (dataActions.length === 0) {
+      return <Text>No AREAs found</Text>
+    }
+    return dataActions.map((data, i) => <Card key={i} data={data}/>)
   }
+
+  useEffect(() => {
+    const getAREAs = async() => {
+        let newArray = [] as any
+        try {
+            const response = await fetch('http://' + config.IP + ':8080/getAREAs/')
+            const json = await response.json();
+            json.forEach((elt: any) => {
+                console.log(elt)
+                newArray.push({key: elt.id, value: elt.name})
+            });
+            setDataActions(newArray)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    getAREAs();
+}, [])
+
 
   return (
     <View style={styles.container}>

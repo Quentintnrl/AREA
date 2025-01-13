@@ -179,8 +179,8 @@ export default function CreateScreen() {
 
     const createAREA = async () => {
         try {
-            const action = {"id": selectedAction, "params": {paramActionValue}};
-            const reaction = {"id": selectedReaction, "params": {paramReactionValue}};
+            const action = {"id": selectedAction, params: paramActionValue};
+            const reaction = {"id": selectedReaction, params: paramReactionValue};
             //const JsonReponse = {"user_id": userId, action, reaction};
             let formData = JSON.stringify({JsonReponse: {
                 user_id: userId,
