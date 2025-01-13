@@ -94,8 +94,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         service2: selectedService2,
         action: selectedAction,
         reaction: selectedReaction,
-        actionDescription: actionDescription, // Include action description in new applet data
-        reactionDescription: reactionDescription // Include reaction description in new applet data
+        actionDescription: actionDescription,
+        reactionDescription: reactionDescription 
       });
       onClose();
     } else {
@@ -271,7 +271,7 @@ function Dashboard() {
             >
               Create
             </button>
-        <button className="logout-button" onClick={handleLogout}>
+        <button className="create-button" onClick={handleLogout}>
               Logout
             </button>
     </nav>

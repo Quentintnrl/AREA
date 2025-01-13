@@ -249,7 +249,13 @@ body {
   background: linear-gradient(45deg, #2263b3, #1fe0ac);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 34px;
+  font-size: -7rem;
   transition: all 0.3s ease;
+  gap: 24px;
+}
+
+.create-button:hover {
+  background: linear-gradient(45deg, #1fe0ac, #2263b3);
+  transform: scale(1.05);
 }
