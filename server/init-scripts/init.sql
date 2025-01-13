@@ -79,7 +79,7 @@ VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "stri
 SELECT ROW_COUNT();
 
 INSERT INTO actions (service_id, name, params, description)
-VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
+VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Playlist Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
 SELECT ROW_COUNT();
 
 -- Insert the service 'Github'
@@ -125,3 +125,23 @@ SELECT ROW_COUNT();
 INSERT INTO actions (service_id, name, params, description)
 VALUES (2, 'New public star', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a new star is add on a public repository');
 SELECT ROW_COUNT();
+
+-- Insert the service 'Github'
+INSERT INTO services (name) VALUES ('Time and Date');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (3, 'Date of the month', '{"params": [{"name": "Day of the month", "type": "number"}]}', 'On a specific day in every month');
+SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (3, 'Month of the year', '{"params": [{"name": "Month of the year", "type": "number"}]}', 'On a specific month every year');
+SELECT ROW_COUNT();
+
+-- Insert actions
+INSERT INTO actions (service_id, name, params, description)
+VALUES (3, 'Every day', '{"params": []}', 'Trigger one time every day');
+SELECT ROW_COUNT();
+
