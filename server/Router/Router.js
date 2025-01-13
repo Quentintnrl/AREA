@@ -289,16 +289,16 @@ module.exports = function() {
                 // console.log("Received body:", body);
                 const userId = JSON.parse(body).user_id;
                 const actionJson = await create_json(JSON.parse(body).action, userId, "action");
-                // const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
+                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);
-                // console.log("reactionJson: ", reactionJson);
+                console.log("reactionJson: ", reactionJson);
 
                 if (actionJson === undefined || reactionJson === undefined) {
                     throw new Error('Bad Json at the creation');
                 }
-                // await createActionReaction(userId, actionJson, reactionJson);
+                await createActionReaction(userId, actionJson, reactionJson);
 
                 // Send a response after handling the request
                 res.writeHead(200, { 'Content-Type': 'application/json' });
