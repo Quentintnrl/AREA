@@ -7,7 +7,7 @@ module.exports = function() {
     const express = require('express');
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
-    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions } = require('../getService.js');
+    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions, getAREAs } = require('../getService.js');
     let service_login_user_id = null;
     let service_login_service_id = null;
     const axios = require('axios');
@@ -199,7 +199,21 @@ module.exports = function() {
         }
     });
 
-
+    router.get("/getAREAs/", async (req, res) => {
+        try {
+            console.log("IN getAREAS")
+            getAREAs()
+            .then(areas => {
+                res.status(200).json(areas);
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message });
+            });
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
+    });
 
 
     //                                                                               POST ROUTES
