@@ -259,31 +259,25 @@ function Dashboard() {
 
   return (
     <div className="App">
-      <header className="header">
-        <div className="logo">IFTTT</div>
-        <button className="cta-button">Google Calendar automations</button>
-      </header>
-      <nav className="nav">
-        <ul>
-          <li>Explore</li>
-          <li>Solutions</li>
-          <li>My Applets</li>
-          <li>
-            <button
+      <header class="header">
+    <div class="logo">IFTTT</div>
+    <nav class="nav-links">
+        <a href="#">Explore</a>
+        <a href="#">Solutions</a>
+        <a href="#">My Applets</a>
+        <button
               className="create-button"
               onClick={() => setIsCreateModalOpen(true)}
             >
               Create
             </button>
-          </li>
-          <li>
-            <button className="pro-button">Try Pro free</button>
-          </li>
-          <li>
-            <button className="logout-button" onClick={handleLogout}>
+        <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>
-          </li>
+    </nav>
+</header>
+      <nav className="nav">
+        <ul>
         </ul>
       </nav>
 
