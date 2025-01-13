@@ -319,6 +319,35 @@ async function getLastCommitNamePrivate(owner, repo, token) {
   }
 }
 
+/**
+ * Get the name of the last commit for a public GitHub repository.
+ * @param {string} owner - The owner of the repository.
+ * @param {string} repo - The name of the repository.
+ * @returns {Promise<string>} - The name of the last commit.
+ */
+async function getLastCommitNamePublic(owner, repo) {
+  try {
+    const response = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/commits`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        params: {
+          per_page: 1, // Fetch only the latest commit
+        }
+      }
+    );
+
+    // Get the commit message from the first commit in the response
+    const lastCommitMessage = response.data[0].commit.message;
+    return lastCommitMessage;
+  } catch (error) {
+    console.error('Error fetching last commit:', error.message);
+    throw error;
+  }
+}
+
 
 
 
@@ -810,6 +839,9 @@ class Github extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["commit_count"] = new_commit_count;
+                        const lastCommitMessage = await getLastCommitNamePublic(owner, repo);
+                        console.log('lastCommitMessage:', lastCommitMessage);
+                        params["message"] = 'A new commit named \"' + lastCommitMessage + '\" has been made on the public repository \"' + owner + '/' + repo + '\"';
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
