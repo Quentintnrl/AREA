@@ -193,3 +193,30 @@ body {
   border-radius: 5px;
   margin-top: 20px;
 }
+
+.description-textarea {
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+  padding: 10px;
+  border: 1px solid #BBB4DA;
+  border-radius: 5px;
+  margin-top: 8px;
+  resize: vertical;
+}
+
+.description-textarea.hidden {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.modal-content {
+  /* Keep existing styles */
+  transition: all 0.3s ease-in-out;
+}
+
+.modal-overlay.closing {
+  opacity: 0;
+}
