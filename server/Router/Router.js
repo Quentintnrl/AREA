@@ -7,7 +7,7 @@ module.exports = function() {
     const express = require('express');
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
-    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions } = require('../getService.js');
+    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions, getAREAs } = require('../getService.js');
     let service_login_user_id = null;
     let service_login_service_id = null;
     const axios = require('axios');
@@ -199,7 +199,45 @@ module.exports = function() {
         }
     });
 
+    router.get("/getAREAs/", async (req, res) => {
+        try {
+            console.log("IN getAREAS")
+            getAREAs()
+            .then(areas => {
+                res.status(200).json(areas);
+            })
+            .catch(error => {
+                res.status(500).json({ error: error.message });
+            });
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
+    });
 
+  router.get("/getAction/:id", async (req, res) => {
+        console.log("GET ACTION BY ID");
+        try {
+            const id = req.params.id;
+            const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
+            return res.status(200).json({action: action});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
+
+    router.get("/getReaction/:id", async (req, res) => {
+        console.log("GET REACTION BY ID");
+        try {
+            const id = req.params.id;
+            const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [id]);
+            return res.status(200).json({reaction: reaction});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
 
 
     //                                                                               POST ROUTES
@@ -252,12 +290,6 @@ module.exports = function() {
         });
     });
 
-
-
-
-
-//                                                                               PUT ROUTES
-
     router.post("/CreateActionReaction", async (req, res) => {
         console.log("IN THE ACTION REACTION");
         let body = '';
@@ -269,9 +301,9 @@ module.exports = function() {
             // Now the body is fully collected, you can log it
             try {
                 // console.log("Received body:", body);
-                const userId = JSON.parse(body).JsonReponse.user_id;
-                const actionJson = await create_json(JSON.parse(body).JsonReponse.action, userId, "action");
-                const reactionJson = await create_json(JSON.parse(body).JsonReponse.reaction, userId, "reaction");
+                const userId = JSON.parse(body).user_id;
+                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);
@@ -292,29 +324,11 @@ module.exports = function() {
         });
     });
 
-    router.get("/getAction/:id", async (req, res) => {
-        console.log("GET ACTION BY ID");
-        try {
-            const id = req.params.id;
-            const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [id]);
-            return res.status(200).json({action: action});
-        } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: error }));
-        }
-    });
 
-    router.get("/getReaction/:id", async (req, res) => {
-        console.log("GET REACTION BY ID");
-        try {
-            const id = req.params.id;
-            const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [id]);
-            return res.status(200).json({reaction: reaction});
-        } catch (error) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: error }));
-        }
-    });
+
+
+
+//                                                                               PUT ROUTES
 
     return router;
 };
