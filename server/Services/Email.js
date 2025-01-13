@@ -100,13 +100,21 @@ class Email extends AbstractService {
 
                 case 'Send email': {
                     console.log(task);
+                    const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                    console.log('action_reaction:', action_reaction[0]);
+                    let action = action_reaction[0].action;
+                    console.log('action:', action);
+                    const subject = action.params["subject"];
+                    console.log('subject: ', subject);
+                    const text = action.params["message"];
+                    console.log('text: ', text);
                     const email = task.params["Email adress"];
                     console.log('email: ', email);
                     let mailOptions = {
                         from: EMAIL_ADRESS,
                         to: email,
-                        subject: "test",
-                        text: "test"
+                        subject: subject,
+                        text: text
                     };
                     this._transporter.sendMail(mailOptions, function(error, info){
                         if (error) {

@@ -89,6 +89,35 @@ async function doesTrackExist(userToken, trackId) {
     }
 }
 
+/**
+ * Fetch the author and title of a track using the Spotify API.
+ * @param {string} token - The Spotify API access token.
+ * @param {string} trackUri - The Spotify URI of the track (e.g., 'spotify:track:TRACK_ID').
+ * @returns {Promise<{author: string, title: string}>} - An object containing the track's author and title.
+ */
+async function getTrackDetails(token, trackUri) {
+    // Extract the track ID from the URI
+    const trackId = trackUri.split(':').pop();
+    const url = `https://api.spotify.com/v1/tracks/${trackId}`;
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const trackData = response.data;
+        const title = trackData.name;
+        const author = trackData.artists.map(artist => artist.name).join(', ');
+
+        return { author, title };
+    } catch (error) {
+        console.error('Error fetching track details:', error.response?.data || error.message);
+        throw new Error('Failed to fetch track details.');
+    }
+}
+
 
 
 
@@ -361,7 +390,16 @@ async function create_json_action_a_song_is_played(access_token, track_uri, requ
     if (!await doesTrackExist(access_token, track_uri)) {
         return undefined;
     }
-    return request_json;
+    console.log(request_json);
+    const json = {
+        id: request_json.id,
+        params: {
+            track_uri: track_uri,
+            subject: "AREA Spotify service",
+            message: ""
+        }
+    }
+    return json;
 }
 
 
@@ -491,11 +529,27 @@ class Spotify extends AbstractService {
 
                 case 'A track is played': {
                     console.log('Doing task: A track is played');
-                    const trackUri = task.params["Track Uri"];
+                    const trackUri = task.params["track_uri"];
                     console.log('Track Uri: ', trackUri);
                     const nb_tracks = task.params["nb_music"];
                     if (await isTrackCurrentlyPlaying(access_token, trackUri)) {
                         console.log('Track is played');
+                        const track_details = await getTrackDetails(access_token, trackUri);
+                        console.log('Track details:', track_details);
+                        const author = track_details.author;
+                        const title = track_details.title;
+                        console.log('Author:', author);
+                        console.log('Title:', title);
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["message"] = "The track " + title + " of " + author + " is played";
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                         value = true;
                     }
                     break;
