@@ -85,11 +85,23 @@ async function getServiceActions(serviceId)
     }
 }
 
+async function getAREAs()
+{
+    try {
+        const [areas] = await pool.execute('SELECT * FROM action_reaction');
+        return areas;
+    } catch (error) {
+        console.error('Error getting AREAs:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     getAllServices,
     getAllActions,
     getAllReactions,
     getServiceActions,
     getServiceReactions,
-    getaboutroutes
+    getaboutroutes,
+    getAREAs
 };
