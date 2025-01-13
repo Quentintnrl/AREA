@@ -829,7 +829,7 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 owner: owner,
                 repo_url: repo,
                 star_count: starCount,
-                subject: 'New private star',
+                subject: 'New public star',
                 message: ''
               }
             };
@@ -996,6 +996,7 @@ class Github extends AbstractService {
                     let params = action.params;
                     console.log('params:', params);
                     params["follower_count"] = new_follower_count;
+                    params["message"] = 'A new follower has followed the user \"' + username + '\"! The follower count is now ' + new_follower_count;
                     console.log('new params:', params);
                     action.params = params;
                     console.log('new action:', action);
@@ -1020,10 +1021,11 @@ class Github extends AbstractService {
                     let params = action.params;
                     console.log('params:', params);
                     params["follower_count"] = new_follower_count;
+                    params["message"] = 'A new follower has followed the user \"' + username + '\"! The follower count is now ' + new_follower_count;
                     console.log('new params:', params);
                     action.params = params;
                     console.log('new action:', action);
-                    await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    await pool.query('UPDATE action_reaction SET action =  ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
                 }
                 break;
               }
@@ -1046,6 +1048,7 @@ class Github extends AbstractService {
                     let params = action.params;
                     console.log('params:', params);
                     params["star_count"] = new_star_count;
+                    params["message"] = 'A new star has been added to the private repository \"' + owner + '/' + repo + '\"! The star count is now ' + new_star_count;
                     console.log('new params:', params);
                     action.params = params;
                     console.log('new action:', action);
@@ -1071,6 +1074,7 @@ class Github extends AbstractService {
                   let params = action.params;
                   console.log('params:', params);
                   params["star_count"] = new_star_count;
+                  params["message"] = 'A new star has been added to the public repository \"' + owner + '/' + repo + '\"! The star count is now ' + new_star_count;
                   console.log('new params:', params);
                   action.params = params;
                   console.log('new action:', action);
