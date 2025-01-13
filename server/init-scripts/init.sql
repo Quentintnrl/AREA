@@ -150,7 +150,7 @@ INSERT INTO services (name) VALUES ('Email');
 SELECT ROW_COUNT();  -- Check if 1 row was inserted
 
 -- Insert reactions
-INSERT INTO actions (service_id, name, params, description)
+INSERT INTO reactions (service_id, name, params, description)
 VALUES (4, 'Send email', '{"params": [{"name": "Email adress", "type": "string"}]}', 'Send an email when the action is trigger');
 SELECT ROW_COUNT();
 
