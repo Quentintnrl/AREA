@@ -49,8 +49,6 @@ jobs:
           sudo apt install nodejs
           npm install mysql
           sudo apt install mysql-server
-          cd server
-          npm install --save-dev jest
 
       # - name: Run tests
       #   run: |
