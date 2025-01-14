@@ -157,6 +157,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Day of the month not reached');
                     }
+                    break;
                 }
 
                 case 'Month of the year': {
@@ -188,6 +189,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Month of the year not reached');
                     }
+                    break;
                 }
 
                 case 'Every day': {
@@ -213,6 +215,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Same day');
                     }
+                    break;
                 }
 
                 case 'Every thirty seconds': {

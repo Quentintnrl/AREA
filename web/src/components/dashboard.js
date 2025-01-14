@@ -102,6 +102,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
     if (serviceId == 2) {
       fetchServiceActions(serviceId);
+    } else if (serviceId == 3) {
+      fetchServiceActions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceActions(serviceId);
     } else {
@@ -120,6 +122,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     console.log("RESPONSE IS", response.data);
 
     if (serviceId == 2) {
+      fetchServiceReactions(serviceId);
+    } else if (serviceId == 3) {
       fetchServiceReactions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceReactions(serviceId);
@@ -202,12 +206,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                   setActionDescription(newActionDescription);
                 }}
             />))}
-            {/* <textarea
-              className="description-textarea"
-              placeholder="Enter the name of the playlist"
-              value={actionDescription}
-              onChange={(e) => setActionDescription(e.target.value)}
-            /> */}
           </div>
           <div className="modal-column">
             <h3>Do This</h3>
@@ -246,12 +244,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 setReactionDescription(newReactionDescription);
               }}
             />))}
-            {/* <textarea
-              className="description-textarea"
-              placeholder="Enter the name of the song"
-              value={reactionDescription}
-              onChange={(e) => setReactionDescription(e.target.value)}
-            /> */}
           </div>
         </div>
         <button
@@ -288,17 +280,14 @@ function Dashboard() {
   };
 
   const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
-    // Fetch action and reaction parameters dynamically
     const [actionResponse, reactionResponse] = await Promise.all([
       axios.get(`http://localhost:8080/getAction/${actionId}`),
       axios.get(`http://localhost:8080/getReaction/${reactionId}`)
     ]);
 
-    // Extract parameters structure
     const actionParams = actionResponse.data.action[0].params.params;
     const reactionParams = reactionResponse.data.reaction[0].params.params;
 
-    // Create dynamic params objects
     const actionParamsObject = actionParams.reduce((acc, param) => {
       acc[param.name] = actionDescription[param.name];
       return acc;
@@ -309,7 +298,6 @@ function Dashboard() {
       return acc;
     }, {});
 
-    // Build final JSON structure
     const JsonReponse = {
       "user_id": userId,
       "action": {
@@ -323,15 +311,15 @@ function Dashboard() {
     };
 
     console.log("the JSON response is", JsonReponse);
-  
+
     const response = await axios.post('http://localhost:8080/CreateActionReaction', {
       JsonReponse
     });
-    
+
     console.log('Action/Reaction created:', response.data);
     return response.data;
   };
-  
+
 
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
