@@ -30,11 +30,29 @@ services:
       - /usr/src/app/node_modules  # Preserve the node_modules installed inside the container
     networks:
       - db_network
+      - web_network
     ports:
       - "8080:8080"
 
+  react-frontend:
+    image: react-frontend:latest
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/app
+    networks:
+      - web_network
+    environment:
+      - NODE_ENV=development
+    command: npm start
+
 networks:
   db_network:
+    driver: bridge
+  web_network:
     driver: bridge
 
 volumes:
