@@ -50,7 +50,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     id: request_json.id,
                     params: {
                         "Day of the month": day,
-                        "previous_month": -1
+                        "previous_month": -1,
+                        "subject": "Date of the month",
+                        "message": ""
                     }
                 };
                 return json;
@@ -64,7 +66,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     id: request_json.id,
                     params: {
                         "Month of the year": month - 1,
-                        "previous_year": -1
+                        "previous_year": -1,
+                        "subject": "Month of the year",
+                        "message": ""
                     }
                 };
                 return json;
@@ -75,7 +79,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 const json = {
                     id: request_json.id,
                     params: {
-                        "previous_day": -1
+                        "previous_day": -1,
+                        "subject": "Every day",
+                        "message": ""
                     }
                 };
                 return json;
@@ -90,7 +96,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 const json = {
                     id: request_json.id,
                     params: {
-                        "previous_seconds": seconds
+                        "previous_seconds": seconds,
+                        "subject": "Every thirty seconds",
+                        "message": ""
                     }
                 };
                 return json;
@@ -150,6 +158,10 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_month"] = current_month;
+                        const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                        const month_name = month_names[current_month];
+                        console.log('month_name:', month_name);
+                        params["message"] = "We are the " + current_day + "th of the month " + month_name + "!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -181,7 +193,11 @@ class TimeAndDate extends AbstractService {
                         let action = action_reaction[0].action;
                         let params = action.params;
                         console.log('params:', params);
+                        const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                        const month_name = month_names[current_month];
+                        console.log('month_name:', month_name);
                         params["previous_year"] = current_year;
+                        params["message"] = "We are in the month " + month_name + " of " + current_year + "!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -208,6 +224,7 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_day"] = current_day;
+                        params["message"] = "Hey there! It's a new day!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -235,6 +252,7 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_seconds"] = seconds;
+                        params["message"] = "Hey there! It's been thirty seconds since my last message!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -242,6 +260,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Every thirty seconds not reached');
                     }
+                    break;
                 }
 
                 //Reactions
