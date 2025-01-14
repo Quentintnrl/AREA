@@ -283,7 +283,6 @@ function Dashboard() {
 
     const actionParams = actionResponse.data.action[0].params.params;
     const reactionParams = reactionResponse.data.reaction[0].params.params;
-
     const actionParamsObject = actionParams.reduce((acc, param) => {
       acc[param.name] = actionDescription[param.name];
       return acc;
@@ -315,7 +314,6 @@ function Dashboard() {
     console.log('Action/Reaction created:', response.data);
     return response.data;
   };
-
 
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
