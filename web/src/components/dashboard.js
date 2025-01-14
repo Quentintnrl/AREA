@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
 import connectServices from './connectServices';
-
+import Confetti from 'react-confetti';
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
@@ -48,6 +48,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       console.error('Error fetching actions:', error);
     }
   };
+
 
   const fetchServiceReactions = async (serviceId) => {
     try {
@@ -266,29 +267,30 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   );
 };
 
+const TourGuide = ({ onClose }) => (
+  <div className="tour-guide-overlay">
+    <div className="tour-guide-content">
+      <h2>Welcome to Your Dashboard!</h2>
+      <p>Here are some tips to help you get started:</p>
+      <ol>
+        <li>Click on "Create" to create a new applet.</li>
+        <li>Select a service from the "When This" section.</li>
+        <li>Choose an action for that service and its parameters.</li>
+        <li>Choose a reaction for another service and configure it.</li>
+        <li>Once you're ready, click "Create Applet" to save it.</li>
+      </ol>
+      <button className="close-tour" onClick={onClose}>Got it!</button>
+    </div>
+    <div className="arrow"></div>
+  </div>
+);
+
 function Dashboard() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [cards, setCards] = useState(
-    Array(4)
-      .fill(0)
-      .map((_, i) => ({
-        id: i + 1,
-        color:
-          i % 5 === 0
-            ? '#DAD4DE'
-            : i % 5 === 1
-            ? '#BBB4DE'
-            : i % 5 === 2
-            ? '#7B9DD2'
-            : i % 5 === 3
-            ? '#70C7C6'
-            : '#F2B880',
-        title: `Card Title ${i + 1}`,
-        subtitle: `Subtitle for card ${i + 1}`,
-        details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
-      }))
-  );
+  const [cards, setCards] = useState([]);
+  const [showTour, setShowTour] = useState(true); // Show the tour guide
+  const [showConfetti, setShowConfetti] = useState(false); // State for confetti
 
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
@@ -316,7 +318,7 @@ function Dashboard() {
       color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`, // Use descriptions from new applet data
+      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`,
     };
     setCards([...cards, newCard]);
     navigate(`/connectServices/${newApplet.service1}`);
@@ -330,35 +332,41 @@ function Dashboard() {
   };
 
   const handleLogout = () => {
-    // Suppression des données utilisateur et redirection
     localStorage.removeItem('userId');
-    localStorage.removeItem('token'); // Si un token est utilisé
+    localStorage.removeItem('token');
     navigate('/login');
+  };
+
+  const closeTour = () => {
+    setShowTour(false);
+    setShowConfetti(true); // Display confetti after closing the tour
+    setTimeout(() => setShowConfetti(false), 3000); // Hide confetti after 3 seconds
   };
 
   return (
     <div className="App">
-      <header class="header">
-    <div class="logo">IFTTT</div>
-    <nav class="nav-links">
-        <a href="#">Explore</a>
-        <a href="#">Solutions</a>
-        <a href="#">My Applets</a>
-        <button
-              className="create-button"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              Create
-            </button>
-        <button className="create-button" onClick={handleLogout}>
-              Logout
-            </button>
-    </nav>
-</header>
-      <nav className="nav">
-        <ul>
-        </ul>
-      </nav>
+      <header className="header">
+        <div className="logo">IFTTT</div>
+        <nav className="nav-links">
+          <a href="#">Explore</a>
+          <a href="#">Solutions</a>
+          <a href="#">My Applets</a>
+          <button
+            className="create-button"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            Create
+          </button>
+          <button className="create-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </nav>
+      </header>
+
+      {showTour && <TourGuide onClose={closeTour} />}
+
+      {/* Show confetti when the tour guide is closed */}
+      {showConfetti && <Confetti />}
 
       <main className="main">
         <h1>Explore</h1>

@@ -20,6 +20,7 @@ function App() {
               <Link to="/signup">Sign Up</Link>
               <Link to="/details">Details</Link>
               <Link to="/dashboard">Dashboard</Link>
+              <Link to="/ConnectServices">ConnectServices</Link>
             </li>
           </ul>
         </nav>
