@@ -219,8 +219,8 @@ module.exports = function() {
         try {
             console.log("IN getAREA")
             const id = req.params.id;
-            const [action] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', [id]);
-            return res.status(200).json({action: action});
+            const [AREA] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', [id]);
+            return res.status(200).json({action: AREA});
         } catch (error) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: error.message }));
