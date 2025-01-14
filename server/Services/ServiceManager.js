@@ -6,6 +6,7 @@ const spotify_create_json = require('./Spotify').create_json;
 const github_create_json = require('./Github').create_json;
 const time_and_date_create_json = require('./TimeAndDate').create_json;
 const email_create_json = require('./Email').create_json;
+const weather_create_json = require('./Weather').create_json;
 const pool = require('../db').connection;
 const disconnect = require('../db').close;
 
@@ -39,6 +40,8 @@ async function create_json(request_json, user_id, action_or_reaction) {
                 return await time_and_date_create_json(request_json, target[0].name, user_id, service_id);
             case 'Email':
                 return await email_create_json(request_json, target[0].name, user_id, service_id);
+            case 'Weather':
+                return await weather_create_json(request_json, target[0].name, user_id, service_id);
             default:
                 throw new Error('Service not supported');
         }

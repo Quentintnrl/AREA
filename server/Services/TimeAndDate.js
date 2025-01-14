@@ -9,6 +9,27 @@ const querystring = require('querystring');
 
 //                                                                                  FUNCTIONS UTILS
 
+function isWeekPassed(dateStr) {
+    // Split the date string into components
+    const [year, day, month] = dateStr.split('-');
+
+    // Create a date object using the parsed values
+    const givenDate = new Date(year, month - 1, day); // JavaScript months are 0-indexed
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the difference in milliseconds
+    const diffInMs = currentDate - givenDate;
+
+    // Convert the difference to days
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+    // Check if 7 or more days have passed
+    console.log('diffInDays:', diffInDays);
+    return diffInDays >= 7;
+}
+
 
 
 
@@ -98,6 +119,31 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     params: {
                         "previous_seconds": seconds,
                         "subject": "Every thirty seconds",
+                        "message": ""
+                    }
+                };
+                return json;
+            }
+
+            case 'Every week': {
+                console.log(request_json);
+                const date = new Date();
+                const day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                const day_name = day_names[date.getDay()];
+                console.log('day_name:', day_name);
+                //get date like 2025-01-07
+                const day = date.getDate();
+                console.log('Day:', day);
+                const month = date.getMonth() + 1;
+                console.log('Month:', month);
+                const year = date.getFullYear();
+                console.log('Year:', year);
+                const date_end = year + '-' + day + '-' + month;
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "previous_date": date_end,
+                        "subject": "Every week",
                         "message": ""
                     }
                 };
@@ -262,6 +308,34 @@ class TimeAndDate extends AbstractService {
                     }
                     break;
                 }
+
+                case 'Every week': {
+                    console.log(task);
+                    const previous_date = task.params["previous_date"];
+                    console.log('previous_date:', previous_date);
+                    const date = new Date();
+                    const current_day = date.getDay();
+                    console.log('Current day:', current_day);
+                    if (isWeekPassed(previous_date)) {
+                        console.log('Every week reached');
+                        value = true;
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["message"] = "Hey there! It's a new week!";
+                        params["previous_date"] = date.getFullYear() + '-' + date.getDate() + '-' + (date.getMonth() + 1);
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    } else {
+                        console.log('Every week not reached');
+                    }
+                    break;
+                }
+
 
                 //Reactions
             }
