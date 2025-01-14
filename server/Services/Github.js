@@ -705,7 +705,7 @@ async function create_json(request_json, target_name, user_id, service_id) {
 
 
 
-//                                                                             Github clas
+//                                                                             Github class
 
 class Github extends AbstractService {
     constructor(id, name) {

@@ -100,9 +100,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2) {
-      fetchServiceActions(serviceId);
-    } else if (serviceId == 3) {
+    if (serviceId == 2 || serviceId == 3) {
       fetchServiceActions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceActions(serviceId);
@@ -121,9 +119,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2) {
-      fetchServiceReactions(serviceId);
-    } else if (serviceId == 3) {
+    if (serviceId == 2 || serviceId == 3) {
       fetchServiceReactions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceReactions(serviceId);
