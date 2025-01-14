@@ -252,7 +252,7 @@ async function getStarCountPrivate(owner, repo, token) {
       {
         headers: {
           'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json'
+          'Accept': 'application/vnd.github.v3+json',
         }
       }
     );
@@ -276,7 +276,8 @@ async function getStarCountPublic(owner, repo) {
       `https://api.github.com/repos/${owner}/${repo}`,
       {
         headers: {
-          'Accept': 'application/vnd.github.v3+json'
+          'Accept': 'application/vnd.github.v3+json',
+          // 'User-Agent': 'AREA'
         }
       }
     );
