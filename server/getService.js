@@ -95,17 +95,17 @@ async function getAREAs()
         } else {
             let Areas = [];
             Areas.push(dbAreas[0]);
-            for (let i = 0; i < dbAreas.length; i++) {
+            for (let i = 0; i < (dbAreas.length - 1); i++) {
                 let isDuplicate = false;
                 for (let j = 0; j < Areas.length; j++) {
-                    if (dbAreas[i].action_id === Areas[j].action_id &&
-                        dbAreas[i].reaction_id === Areas[j].reaction_id) {
+                    if (dbAreas[i + 1].action.id === Areas[j].action.id &&
+                        dbAreas[i + 1].reaction.id === Areas[j].reaction.id) {
                         isDuplicate = true;
                         break;
                     }
                 }
                 if (!isDuplicate) {
-                    Areas.push(dbAreas[i]);
+                    Areas.push(dbAreas[i + 1]);
                 }
             }
             return Areas;
