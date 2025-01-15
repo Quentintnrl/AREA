@@ -41,16 +41,16 @@ export default function CreateScreen() {
     }, [])
 
     const checkLogged = async (selectedService:any) => {
-        if (selectedService == 2 || selectedService == 3) // 2 = Github, 3 = Date&Time
-            return;
-        const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
-        const json = await checkIfLogged.json();
-        if (json.login != true) {
-            const serviceURLConnexion = await fetch('http://' + config.IP + ':8080/getServiceLoginURL/' + userId + '/' + selectedService)
-            const serviceURLConnexionjson = await serviceURLConnexion.json();
-            Linking.canOpenURL(serviceURLConnexionjson.url).then((supported) => {
-                supported && Linking.openURL(serviceURLConnexionjson.url);
-            })
+        if (selectedService == 1) {
+            const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
+            const json = await checkIfLogged.json();
+            if (json.login != true) {
+                const serviceURLConnexion = await fetch('http://' + config.IP + ':8080/getServiceLoginURL/' + userId + '/' + selectedService)
+                const serviceURLConnexionjson = await serviceURLConnexion.json();
+                Linking.canOpenURL(serviceURLConnexionjson.url).then((supported) => {
+                    supported && Linking.openURL(serviceURLConnexionjson.url);
+                })
+            }
         }
     }
 
@@ -197,6 +197,8 @@ export default function CreateScreen() {
             console.log(response)
             const json = await response.json();
             console.log('Actions and reactions created successfully:', json);
+            alert("AREA created successfully !")
+            navigation.navigate("exploreScreen" as never)
         } catch (error) {
             console.error('Error fetching actions and reactions:', error);
         }
