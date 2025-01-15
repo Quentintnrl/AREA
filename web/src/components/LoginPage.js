@@ -3,7 +3,7 @@ import "./SignUpPage.css"; // Utilisez le même fichier CSS que SignUpPage
 import { FaGoogle, FaApple, FaFacebookF } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Dashboard from "./dashboard";
+import { GoogleLogin } from '@react-oauth/google';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -32,12 +32,33 @@ const LoginPage = () => {
     }
   };
 
+  const handleLoginSuccess = async (response) => {
+    console.log('Google login successful');
+    const token = response.credential;  // Get the ID token from Google
+
+    console.log('Google ID Token:', token);
+    try {
+      // Send the token to the backend to verify
+      const res = await axios.post('http://localhost:8080/auth/google', { token: token });
+
+      // Handle the response, store the JWT token, etc.
+      console.log(res.data); // Example: { token: 'JWT-TOKEN-HERE' }
+      localStorage.setItem('authToken', res.data.token);  // Save the token in local storage
+    } catch (err) {
+      console.error('Authentication failed:', err);
+    }
+  };
+
+  const handleLoginFailure = (error) => {
+    console.error('Google login failed:', error);
+  };
+
   return (
     <div className="signup-container">
       <h1 className="signup-title">AREA</h1>
       <h2 className="signup-subtitle">Log in</h2>
       {error && <p style={{color: 'red', textAlign: 'center'}}>{error}</p>}
-      
+
       <form className="signup-form" onSubmit={handleSubmit}>
         <input
           type="email"
@@ -63,10 +84,10 @@ const LoginPage = () => {
       <p className="signup-divider">or</p>
 
       <div className="social-buttons">
-        <button className="signup-button google">
-          <FaGoogle className="mr-2" />
-          Continue with Google
-        </button>
+        <GoogleLogin
+          onSuccess={handleLoginSuccess}
+          onError={handleLoginFailure}
+        />
         <button className="signup-button apple">
           <FaApple className="mr-2" />
           Continue with Apple

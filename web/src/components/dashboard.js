@@ -100,13 +100,13 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3) {
-      fetchServiceActions(serviceId);
+    if (serviceId == 1) {
+      navigate(`/connectServices/${serviceId}`);
+      console.log('USER IS NOT LOGGED IN');
     } else if (response.data.login === true) {
       fetchServiceActions(serviceId);
     } else {
-      navigate(`/connectServices/${serviceId}`);
-      console.log('USER IS NOT LOGGED IN');
+      fetchServiceActions(serviceId);
     }
   };
 
@@ -119,13 +119,13 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3) {
-      fetchServiceReactions(serviceId);
+    if (serviceId == 1) {
+      navigate(`/connectServices/${serviceId}`);
+      console.log("USER IS NOT LOGGED IN");
     } else if (response.data.login === true) {
       fetchServiceReactions(serviceId);
     } else {
-      navigate(`/connectServices/${serviceId}`);
-      console.log("USER IS NOT LOGGED IN");
+      fetchServiceReactions(serviceId);
     }
   };
 
