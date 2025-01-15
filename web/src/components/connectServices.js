@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import './connectServices.css';
+import loginImage from './login.png'
 
 function ConnectServices() {
   const navigate = useNavigate();
@@ -95,9 +96,9 @@ function ConnectServices() {
       {/* Section gauche avec l'image */}
       <div className="left-section">
         <img 
-          src="login.png" 
+          src={loginImage} 
           alt="Personnage demandant la connexion" 
-          className="connect-image" 
+          className="connect-image"  
         />
         <h2>Connectez-vous pour utiliser {serviceName}</h2>
         <p>Profitez d'une expérience fluide et personnalisée en connectant vos services.</p>
