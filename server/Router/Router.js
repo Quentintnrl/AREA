@@ -215,7 +215,19 @@ module.exports = function() {
         }
     });
 
-  router.get("/getAction/:id", async (req, res) => {
+    router.get("/getAREA/:id", async (req, res) => {
+        try {
+            console.log("IN getAREA")
+            const id = req.params.id;
+            const [AREA] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', [id]);
+            return res.status(200).json({action: AREA});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: error.message }));
+        }
+    });
+
+    router.get("/getAction/:id", async (req, res) => {
         console.log("GET ACTION BY ID");
         try {
             const id = req.params.id;
@@ -239,6 +251,16 @@ module.exports = function() {
         }
     });
 
+    router.get("/getUserInfo/", async (req, res) => {
+        console.log("GET USER INFO BY ID");
+        try {
+            const [info] = await pool.query('SELECT username, email FROM users WHERE id = ?', [store.get("id")]);
+            return res.status(200).json({info: info});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
 
     //                                                                               POST ROUTES
 
@@ -300,10 +322,17 @@ module.exports = function() {
         req.on('end', async () => { // Mark this function as async
             // Now the body is fully collected, you can log it
             try {
+
+                //front and mobile request read
+                const userId = JSON.parse(body).JsonReponse.user_id;
+                const actionJson = await create_json(JSON.parse(body).JsonReponse.action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).JsonReponse.reaction, userId, "reaction");
                 // console.log("Received body:", body);
-                const userId = JSON.parse(body).user_id;
-                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
-                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
+
+                //postman request read
+                // const userId = JSON.parse(body).user_id;
+                // const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                // const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);

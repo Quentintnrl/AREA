@@ -9,6 +9,27 @@ const querystring = require('querystring');
 
 //                                                                                  FUNCTIONS UTILS
 
+function isWeekPassed(dateStr) {
+    // Split the date string into components
+    const [year, day, month] = dateStr.split('-');
+
+    // Create a date object using the parsed values
+    const givenDate = new Date(year, month - 1, day); // JavaScript months are 0-indexed
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the difference in milliseconds
+    const diffInMs = currentDate - givenDate;
+
+    // Convert the difference to days
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+    // Check if 7 or more days have passed
+    console.log('diffInDays:', diffInDays);
+    return diffInDays >= 7;
+}
+
 
 
 
@@ -50,7 +71,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     id: request_json.id,
                     params: {
                         "Day of the month": day,
-                        "previous_month": -1
+                        "previous_month": -1,
+                        "subject": "Date of the month",
+                        "message": ""
                     }
                 };
                 return json;
@@ -64,7 +87,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     id: request_json.id,
                     params: {
                         "Month of the year": month - 1,
-                        "previous_year": -1
+                        "previous_year": -1,
+                        "subject": "Month of the year",
+                        "message": ""
                     }
                 };
                 return json;
@@ -75,7 +100,9 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 const json = {
                     id: request_json.id,
                     params: {
-                        "previous_day": -1
+                        "previous_day": -1,
+                        "subject": "Every day",
+                        "message": ""
                     }
                 };
                 return json;
@@ -90,7 +117,34 @@ async function create_json(request_json, target_name, user_id, service_id) {
                 const json = {
                     id: request_json.id,
                     params: {
-                        "previous_seconds": seconds
+                        "previous_seconds": seconds,
+                        "subject": "Every thirty seconds",
+                        "message": ""
+                    }
+                };
+                return json;
+            }
+
+            case 'Every week': {
+                console.log(request_json);
+                const date = new Date();
+                const day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                const day_name = day_names[date.getDay()];
+                console.log('day_name:', day_name);
+                //get date like 2025-01-07
+                const day = date.getDate();
+                console.log('Day:', day);
+                const month = date.getMonth() + 1;
+                console.log('Month:', month);
+                const year = date.getFullYear();
+                console.log('Year:', year);
+                const date_end = year + '-' + day + '-' + month;
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "previous_date": date_end,
+                        "subject": "Every week",
+                        "message": ""
                     }
                 };
                 return json;
@@ -150,6 +204,10 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_month"] = current_month;
+                        const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                        const month_name = month_names[current_month];
+                        console.log('month_name:', month_name);
+                        params["message"] = "We are the " + current_day + "th of the month " + month_name + "!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -157,6 +215,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Day of the month not reached');
                     }
+                    break;
                 }
 
                 case 'Month of the year': {
@@ -180,7 +239,11 @@ class TimeAndDate extends AbstractService {
                         let action = action_reaction[0].action;
                         let params = action.params;
                         console.log('params:', params);
+                        const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                        const month_name = month_names[current_month];
+                        console.log('month_name:', month_name);
                         params["previous_year"] = current_year;
+                        params["message"] = "We are in the month " + month_name + " of " + current_year + "!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -188,6 +251,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Month of the year not reached');
                     }
+                    break;
                 }
 
                 case 'Every day': {
@@ -206,6 +270,7 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_day"] = current_day;
+                        params["message"] = "Hey there! It's a new day!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -213,6 +278,7 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Same day');
                     }
+                    break;
                 }
 
                 case 'Every thirty seconds': {
@@ -232,6 +298,7 @@ class TimeAndDate extends AbstractService {
                         let params = action.params;
                         console.log('params:', params);
                         params["previous_seconds"] = seconds;
+                        params["message"] = "Hey there! It's been thirty seconds since my last message!";
                         console.log('new params:', params);
                         action.params = params;
                         console.log('new action:', action);
@@ -239,7 +306,36 @@ class TimeAndDate extends AbstractService {
                     } else {
                         console.log('Every thirty seconds not reached');
                     }
+                    break;
                 }
+
+                case 'Every week': {
+                    console.log(task);
+                    const previous_date = task.params["previous_date"];
+                    console.log('previous_date:', previous_date);
+                    const date = new Date();
+                    const current_day = date.getDay();
+                    console.log('Current day:', current_day);
+                    if (isWeekPassed(previous_date)) {
+                        console.log('Every week reached');
+                        value = true;
+                        const [action_reaction] = await pool.query('SELECT * FROM action_reaction WHERE id = ?', action_reaction_id);
+                        console.log('action_reaction:', action_reaction[0]);
+                        let action = action_reaction[0].action;
+                        let params = action.params;
+                        console.log('params:', params);
+                        params["message"] = "Hey there! It's a new week!";
+                        params["previous_date"] = date.getFullYear() + '-' + date.getDate() + '-' + (date.getMonth() + 1);
+                        console.log('new params:', params);
+                        action.params = params;
+                        console.log('new action:', action);
+                        await pool.query('UPDATE action_reaction SET action = ? WHERE id = ?', [JSON.stringify(action), action_reaction_id]);
+                    } else {
+                        console.log('Every week not reached');
+                    }
+                    break;
+                }
+
 
                 //Reactions
             }

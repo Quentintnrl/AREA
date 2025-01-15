@@ -4,7 +4,6 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
 import connectServices from './connectServices';
-import TourGuide from './tourguide';
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
@@ -21,6 +20,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [actionsParams, setActionsParams] = useState([]);
   const [reactionsParams, setReactionsParams] = useState([]);
   const navigate = useNavigate();
+    const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,6 +59,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       console.error('Error fetching reactions:', error);
     }
   };
+
 
   const getInputAction = async (actionId) => {
     try {
@@ -102,7 +103,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2) {
+    if (serviceId == 2 || serviceId == 3) {
       fetchServiceActions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceActions(serviceId);
@@ -121,7 +122,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2) {
+    if (serviceId == 2 || serviceId == 3) {
       fetchServiceReactions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceReactions(serviceId);
@@ -159,6 +160,35 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     onClose();
   };
 
+
+
+const PopularServices = () => {
+  const [selectedService, setSelectedService] = useState(null);
+  const [actions, setActions] = useState([]);
+  const [reactions, setReactions] = useState([]);
+
+  const services = [
+      { id: "spotify", name: "Spotify" },
+      { id: "instagram", name: "Instagram" },
+      { id: "gmail", name: "Gmail" },
+      { id: "weather", name: "Weather" }
+  ];
+  
+  const fetchServiceData = async (serviceId) => {
+    try {
+        // Fetch actions
+        const actionsResponse = await axios.get(`/getServiceActions/${serviceId}`);
+        setActions(actionsResponse.data);
+
+        // Fetch reactions
+        const reactionsResponse = await axios.get(`/getServiceReactions/${serviceId}`);
+        setReactions(reactionsResponse.data);
+
+        setSelectedService(serviceId);
+    } catch (error) {
+        console.error("Error fetching service data:", error.message);
+    }
+};
   return (
     
     <div className="modal-overlay">
@@ -205,12 +235,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                   setActionDescription(newActionDescription);
                 }}
             />))}
-            {/* <textarea
-              className="description-textarea"
-              placeholder="Enter the name of the playlist"
-              value={actionDescription}
-              onChange={(e) => setActionDescription(e.target.value)}
-            /> */}
           </div>
           <div className="modal-column">
             <h3>Do This</h3>
@@ -249,12 +273,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
                 setReactionDescription(newReactionDescription);
               }}
             />))}
-            {/* <textarea
-              className="description-textarea"
-              placeholder="Enter the name of the song"
-              value={reactionDescription}
-              onChange={(e) => setReactionDescription(e.target.value)}
-            /> */}
           </div>
         </div>
         <button
@@ -277,6 +295,46 @@ const Dashboard = () => {
 
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
+  };
+
+  const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
+    const [actionResponse, reactionResponse] = await Promise.all([
+      axios.get(`http://localhost:8080/getAction/${actionId}`),
+      axios.get(`http://localhost:8080/getReaction/${reactionId}`)
+    ]);
+
+    const actionParams = actionResponse.data.action[0].params.params;
+    const reactionParams = reactionResponse.data.reaction[0].params.params;
+    const actionParamsObject = actionParams.reduce((acc, param) => {
+      acc[param.name] = actionDescription[param.name];
+      return acc;
+    }, {});
+
+    const reactionParamsObject = reactionParams.reduce((acc, param) => {
+      acc[param.name] = reactionDescription[param.name];
+      return acc;
+    }, {});
+
+    const JsonReponse = {
+      "user_id": userId,
+      "action": {
+        "id": actionId,
+        "params": actionParamsObject
+      },
+      "reaction": {
+        "id": reactionId,
+        "params": reactionParamsObject
+      }
+    };
+
+    console.log("the JSON response is", JsonReponse);
+
+    const response = await axios.post('http://localhost:8080/CreateActionReaction', {
+      JsonReponse
+    });
+
+    console.log('Action/Reaction created:', response.data);
+    return response.data;
   };
 
   const handleCreateApplet = (newApplet) => {

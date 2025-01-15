@@ -1,4 +1,5 @@
 const { get } = require('http');
+const db = require('./db');
 
 const pool = require('./db').connection;
 
@@ -88,8 +89,27 @@ async function getServiceActions(serviceId)
 async function getAREAs()
 {
     try {
-        const [areas] = await pool.execute('SELECT * FROM action_reaction');
-        return areas;
+        const [dbAreas] = await pool.execute('SELECT * FROM action_reaction');
+        if (dbAreas.length === 0) {
+            return [];
+        } else {
+            let Areas = [];
+            Areas.push(dbAreas[0]);
+            for (let i = 0; i < dbAreas.length; i++) {
+                let isDuplicate = false;
+                for (let j = 0; j < Areas.length; j++) {
+                    if (dbAreas[i].action_id === Areas[j].action_id &&
+                        dbAreas[i].reaction_id === Areas[j].reaction_id) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                if (!isDuplicate) {
+                    Areas.push(dbAreas[i]);
+                }
+            }
+            return Areas;
+        }
     } catch (error) {
         console.error('Error getting AREAs:', error);
         throw error;

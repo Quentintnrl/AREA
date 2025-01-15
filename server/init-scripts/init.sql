@@ -79,7 +79,7 @@ VALUES (1, 'A track is played', '{"params": [{"name": "Track Uri", "type": "stri
 SELECT ROW_COUNT();
 
 INSERT INTO actions (service_id, name, params, description)
-VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Playlist Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
+VALUES (1, 'A track is added to a playlist', '{"params": [{"name": "Track Uri", "type": "string"}]}', 'When a track is added to a playlist on Spotify');
 SELECT ROW_COUNT();
 
 -- Insert the service 'Github'
@@ -126,7 +126,7 @@ INSERT INTO actions (service_id, name, params, description)
 VALUES (2, 'New public star', '{"params": [{"name": "Repo Url", "type": "string"}, {"name": "Owner", "type": "string"}]}', 'When a new star is add on a public repository');
 SELECT ROW_COUNT();
 
--- Insert the service 'Github'
+-- Insert the service 'Time and Date'
 INSERT INTO services (name) VALUES ('Time and Date');
 SELECT ROW_COUNT();  -- Check if 1 row was inserted
 
@@ -143,5 +143,32 @@ SELECT ROW_COUNT();
 -- Insert actions
 INSERT INTO actions (service_id, name, params, description)
 VALUES (3, 'Every day', '{"params": []}', 'Trigger one time every day');
+SELECT ROW_COUNT();
+
+-- Insert the service 'Email'
+INSERT INTO services (name) VALUES ('Email');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
+
+-- Insert reactions
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (4, 'Send email', '{"params": [{"name": "Email adress", "type": "string"}]}', 'Send an email when the action is trigger');
+SELECT ROW_COUNT();
+
+-- Insert the service 'Weather'
+INSERT INTO services (name) VALUES ('Weather');
+SELECT ROW_COUNT();  -- Check if 1 row was inserted
+
+-- Insert reactions
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (5, 'Today temperature', '{"params": [{"name": "Email adress", "type": "string"}, {"name": "City", "type": "string"}]}', 'Send an email with the temperature of the day in the city of your choice');
+SELECT ROW_COUNT();
+
+-- Insert reactions
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (5, 'Weekly temperature', '{"params": [{"name": "Email adress", "type": "string"}, {"name": "City", "type": "string"}]}', 'Send an email with the temperature of the week in the city of your choice');
+SELECT ROW_COUNT();
+
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (5, 'Daily meteo', '{"params": [{"name": "Email adress", "type": "string"}, {"name": "City", "type": "string"}]}', 'Send an email with the daily meteo in the city of your choice');
 SELECT ROW_COUNT();
 
