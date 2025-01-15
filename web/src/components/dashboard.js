@@ -6,6 +6,7 @@ import './dashboard.css';
 import connectServices from './connectServices';
 import TourGuide from './tourguide';
 import PopularServices from './PopularServices';
+import AreaDisplay from './areadisplay';
 
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
@@ -30,8 +31,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       fetchServices();
     }
   }, [isOpen]);
-
-
 
   const fetchServices = async () => {
     try {
@@ -110,7 +109,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3) {
+    if (serviceId == 2 || serviceId == 3  || serviceId == 4  || serviceId == 5) {
       fetchServiceActions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceActions(serviceId);
@@ -129,7 +128,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3) {
+    if (serviceId == 2 || serviceId == 3  || serviceId == 4  || serviceId == 5) {
       fetchServiceReactions(serviceId);
     } else if (response.data.login === true) {
       fetchServiceReactions(serviceId);
@@ -141,6 +140,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 
   if (!isOpen) return null;
 
+  
   const handleCreateApplet = () => {
     // Validate selections
     console.log("the selected action is " + action);
@@ -150,8 +150,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         service2: selectedService2,
         action: selectedAction,
         reaction: selectedReaction,
-        actionDescription: actionDescription,
-        reactionDescription: reactionDescription 
+        actionDescription: actionDescription, // Include action description in new applet data
+        reactionDescription: reactionDescription // Include reaction description in new applet data
       });
       onClose();
     } else {
@@ -167,24 +167,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     onClose();
   };
 
-  
-  const fetchServiceData = async (serviceId) => {
-    try {
-        // Fetch actions
-        const actionsResponse = await axios.get(`/getServiceActions/${serviceId}`);
-        setActions(actionsResponse.data);
-
-        // Fetch reactions
-        const reactionsResponse = await axios.get(`/getServiceReactions/${serviceId}`);
-        setReactions(reactionsResponse.data);
-
-        setSelectedService(serviceId);
-    } catch (error) {
-        console.error("Error fetching service data:", error.message);
-    }
-};
   return (
-    
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="modal-close" onClick={onClose}>
@@ -283,10 +266,23 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [cards, setCards] = useState([]);
   const [showTour, setShowTour] = useState(true); // Activer le tour au début
   const [currentStep, setCurrentStep] = useState(0); // Gérer l'étape actuelle
 
+  const [cards, setCards] = useState(
+    Array(4).fill(0).map((_, i) => ({
+      id: i + 1,
+      color:
+        i % 5 === 0 ? '#DAD4DE' :
+        i % 5 === 1 ? '#BBB4DE' :
+        i % 5 === 2 ? '#7B9DD2' :
+        i % 5 === 3 ? '#70C7C6' :
+        '#F2B880',
+      title: `Card Title ${i + 1}`,
+      subtitle: `Subtitle for card ${i + 1}`,
+      details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
+    }))
+  );
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
   };
@@ -335,19 +331,43 @@ const Dashboard = () => {
     console.log('Action/Reaction created:', response.data);
     return response.data;
   };
-
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
+    
+    if (!newApplet.service1 || !newApplet.service2 || !newApplet.action || !newApplet.reaction) {
+      alert('Veuillez compléter toutes les options avant de créer un Applet.');
+      return;
+    }
+  
+    const handleCreateApplet = (newApplet) => {
+      const user_id = localStorage.getItem('userId');
+      const newCard = {
+        id: cards.length + 1,
+        color: '#F4F0E3',
+        title: `${newApplet.service1} to ${newApplet.service2}`,
+        subtitle: `${newApplet.action} → ${newApplet.reaction}`,
+        details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
+      };
+      setCards([...cards, newCard]);
+      createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
+    };
+  
     const newCard = {
       id: cards.length + 1,
       color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`,
+      details: `Action: ${JSON.stringify(newApplet.actionDescription)}\nReaction: ${JSON.stringify(newApplet.reactionDescription)}`,
     };
-    setCards([...cards, newCard]);
-    navigate(`/connectServices/${newApplet.service1}`);
+  
+    // Ajouter la nouvelle carte et mettre à jour l'état
+    setCards((prevCards) => [...prevCards, newCard]);
+  
+    // Affichez les données des cartes pour le débogage
+    console.log('Nouvelle carte créée :', newCard);
+    console.log('Cartes actuelles :', [...cards, newCard]);
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -357,9 +377,9 @@ const Dashboard = () => {
 
   const handleNextStep = () => {
     if (currentStep < 3) {
-      setCurrentStep(currentStep + 1); // Passer à l'étape suivante
+      setCurrentStep(currentStep + 1);
     } else {
-      setShowTour(false); // Terminer le tour
+      setShowTour(false);
     }
   };
 
@@ -394,25 +414,6 @@ const Dashboard = () => {
       )}
 
       <main className="main">
-       
-        {/* Applets créés */}
-        <section className="created-applets">
-          <h2>My Applets</h2>
-          <div className="card-container">
-            {cards.map((card) => (
-              <div
-                className="card"
-                style={{ backgroundColor: card.color }}
-                key={card.id}
-                onClick={() => handleCardClick(card)}
-              >
-                <h2>{card.title}</h2>
-                <p>{card.subtitle}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <div className="filters">
           <button>All</button>
           <button>Applets</button>
@@ -451,7 +452,26 @@ const Dashboard = () => {
     console.log(`Selected service: ${serviceId}`);
   
 }} />
+
+ <div className="area-display-section">
+        <AreaDisplay />
+      </div>
 </section>
+
+
+<div className="card-container">
+          {cards.map((card) => (
+            <div
+              className="card"
+              style={{ backgroundColor: card.color }}
+              key={card.id}
+              onClick={() => handleCardClick(card)}
+            >
+              <h2>{card.title}</h2>
+              <p>{card.subtitle}</p>
+            </div>
+          ))}
+        </div>
       </main>
 
       {/* Modal pour la création d'un Applet */}
@@ -461,6 +481,7 @@ const Dashboard = () => {
         onCreateApplet={handleCreateApplet}
       />
     </div>
+    
   );
 };
 
