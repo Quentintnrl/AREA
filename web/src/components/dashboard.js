@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
 import connectServices from './connectServices';
-
+import TourGuide from './tourguide';
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
@@ -48,6 +48,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       console.error('Error fetching actions:', error);
     }
   };
+
 
   const fetchServiceReactions = async (serviceId) => {
     try {
@@ -159,6 +160,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   };
 
   return (
+    
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="modal-close" onClick={onClose}>
@@ -266,29 +268,15 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   );
 };
 
-function Dashboard() {
+const Dashboard = () => {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
- const [cards, setCards] = useState([]);
-
+  const [cards, setCards] = useState([]);
+  const [showTour, setShowTour] = useState(true); // Activer le tour au début
+  const [currentStep, setCurrentStep] = useState(0); // Gérer l'étape actuelle
 
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
-  };
-
-  const createActionsReactions = async (userId, actionId, reactionId, playlistId, songId) => {
-    const action = { id: actionId, params: { 'Track Uri': playlistId, nb_music: 0 } };
-    const reaction = { id: reactionId, params: { 'Track Uri': songId } };
-    const JsonReponse = { user_id: userId, action, reaction };
-
-    try {
-      const response = await axios.post('http://localhost:8080/CreateActionReaction', {
-        JsonReponse,
-      });
-      console.log('Actions and reactions created successfully:', response.data);
-    } catch (error) {
-      console.error('Error fetching actions and reactions:', error);
-    }
   };
 
   const handleCreateApplet = (newApplet) => {
@@ -298,52 +286,76 @@ function Dashboard() {
       color: '#F4F0E3',
       title: `${newApplet.service1} to ${newApplet.service2}`,
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`, // Use descriptions from new applet data
+      details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}`,
     };
     setCards([...cards, newCard]);
     navigate(`/connectServices/${newApplet.service1}`);
-    createActionsReactions(
-      user_id,
-      newApplet.action,
-      newApplet.reaction,
-      newApplet.actionDescription,
-      newApplet.reactionDescription
-    );
   };
 
   const handleLogout = () => {
-    // Suppression des données utilisateur et redirection
     localStorage.removeItem('userId');
-    localStorage.removeItem('token'); // Si un token est utilisé
+    localStorage.removeItem('token');
     navigate('/login');
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1); // Passer à l'étape suivante
+    } else {
+      setShowTour(false); // Terminer le tour
+    }
+  };
+
+  const closeTour = () => {
+    setShowTour(false); // Fermer le tour
   };
 
   return (
     <div className="App">
-      <header class="header">
-    <div class="logo">IFTTT</div>
-    <nav class="nav-links">
-        <a href="#">Explore</a>
-        <a href="#">Solutions</a>
-        <a href="#">My Applets</a>
-        <button
-              className="create-button"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              Create
-            </button>
-        <button className="create-button" onClick={handleLogout}>
-              Logout
-            </button>
-    </nav>
-</header>
-      <nav className="nav">
-        <ul>
-        </ul>
-      </nav>
+      <header className="header">
+        <div className="logo">IFTTT</div>
+        <nav className="nav-links">
+          <a href="#">Explore</a>
+          <a href="#">Solutions</a>
+          <a href="#">My Applets</a>
+          <button className="create-button" onClick={() => setIsCreateModalOpen(true)}>
+            Create
+          </button>
+          <button className="create-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </nav>
+      </header>
+
+      {/* Afficher le guide si actif */}
+      {showTour && (
+        <TourGuide
+          onClose={closeTour}
+          currentStep={currentStep}
+          onNextStep={handleNextStep}
+        />
+      )}
 
       <main className="main">
-        <h1>Explore</h1>
+       
+        {/* Applets créés */}
+        <section className="created-applets">
+          <h2>My Applets</h2>
+          <div className="card-container">
+            {cards.map((card) => (
+              <div
+                className="card"
+                style={{ backgroundColor: card.color }}
+                key={card.id}
+                onClick={() => handleCardClick(card)}
+              >
+                <h2>{card.title}</h2>
+                <p>{card.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="filters">
           <button>All</button>
           <button>Applets</button>
@@ -355,22 +367,49 @@ function Dashboard() {
           type="text"
           placeholder="Search Applets or services"
         />
+         <h1>Explore</h1>
 
-        <div className="card-container">
-          {cards.map((card) => (
-            <div
-              className="card"
-              style={{ backgroundColor: card.color }}
-              key={card.id}
-              onClick={() => handleCardClick(card)}
-            >
-              <h2>{card.title}</h2>
-              <p>{card.subtitle}</p>
-            </div>
-          ))}
-        </div>
+{/* Nouvelle section "Discover Automation" */}
+<section className="discover-automation">
+  <h2>Discover Automation</h2>
+  <p>Connect your favorite services and automate your digital life</p>
+  <div className="card-container">
+    {/* Mettre ici les applets mis en avant */}
+    <div className="highlight-card spotify">
+      <h3>Save Spotify songs to playlist</h3>
+      <p>Automatically save liked songs to a specific playlist</p>
+    </div>
+    <div className="highlight-card twitter">
+      <h3>Twitter to Instagram</h3>
+      <p>Share your tweets as Instagram posts</p>
+    </div>
+    <div className="highlight-card weather">
+      <h3>Weather notifications</h3>
+      <p>Get daily weather updates via email</p>
+    </div>
+  </div>
+</section>
+<section className="popular-services">
+<h2>Popular Services</h2>
+<div className="popular-services-grid">
+<div className="service-card">
+<span>Spotify</span>
+</div>
+<div className="service-card">
+<span>Instagram</span>
+</div>
+<div className="service-card">
+<span>Gmail</span>
+</div>
+<div className="service-card">
+<span>Weather</span>
+</div>
+</div>
+</section>
+
       </main>
 
+      {/* Modal pour la création d'un Applet */}
       <CreateAppletModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -378,6 +417,6 @@ function Dashboard() {
       />
     </div>
   );
-}
+};
 
 export default Dashboard;

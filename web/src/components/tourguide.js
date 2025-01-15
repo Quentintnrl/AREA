@@ -1,4 +1,3 @@
-
 import "./tourguide.css";
 import React, { useEffect, useState } from 'react';
 
@@ -6,90 +5,87 @@ const TourGuide = ({ onClose, currentStep, onNextStep }) => {
   const steps = [
     {
       instruction: 'Click on "Create" to create a new applet and open the modale.',
-      target: '.create-button', // L'élément cible
+      target: ".create-button",
     },
     {
       instruction: 'Choose a service from the "When This" section.',
-      target: '.modal-content', // L'élément cible
+      target: ".modal-column select",
     },
     {
-      instruction: 'Search for Applets or Services.',
-      target: '.search-bar', // L'élément cible
+      instruction: "Search for Applets or Services.",
+      target: ".search-bar",
     },
     {
-      instruction: 'Click on a this for more option .',
-      target: '.filters button', // L'élément cible
+      instruction: "Click on this for more options.",
+      target: ".filters button",
     },
   ];
 
+  // Ensure currentStep is within bounds
+  const validStep = steps[currentStep] || {};
+  const instruction = validStep.instruction || 'No instruction available for this step.';
+
   const [arrowPosition, setArrowPosition] = useState({ top: 0, left: 0 });
+  const [showBadge, setShowBadge] = useState(false); // New state to show the badge
 
   useEffect(() => {
-    const step = steps[currentStep];
-    let observer;
-  
-    const checkTargetElement = () => {
-      const targetElement = document.querySelector(step.target);
+    if (validStep.target) {
+      const targetElement = document.querySelector(validStep.target);
+
       if (targetElement) {
         const rect = targetElement.getBoundingClientRect();
         setArrowPosition({
           top: rect.top + window.scrollY + rect.height / 2,
-          left: rect.left + window.scrollX + rect.width / 2, // Centrer horizontalement
+          left: rect.left + window.scrollX + rect.width / 2,
         });
-        if (observer) observer.disconnect(); // Arrêter l'observation si trouvé
+      } else {
+        console.warn(`Target element not found: ${validStep.target}`);
       }
-    };
-  
-    // Vérifier immédiatement
-    checkTargetElement();
-  
-    // Configurer un MutationObserver pour surveiller les changements dans le DOM
-    observer = new MutationObserver(checkTargetElement);
-    observer.observe(document.body, { childList: true, subtree: true });
-  
-    return () => {
-      if (observer) observer.disconnect(); // Nettoyer l'observateur
-    };
-  }, [currentStep, steps]);
-  
-  useEffect(() => {
-    const step = steps[currentStep];
-    const targetElement = document.querySelector(step.target);
-
-    if (targetElement) {
-      const rect = targetElement.getBoundingClientRect();
-      setArrowPosition({
-        top: rect.top + window.scrollY + rect.height / 2,
-        left: rect.left + window.scrollX + rect.width / 2, // Centrer horizontalement
-      });
-    } else {
-      console.warn(`Target element not found: ${step.target}`);
     }
-  }, [currentStep, steps]);
+  }, [currentStep, validStep]);
 
-  const step = steps[currentStep];
+  const handleGotItClick = () => {
+    setShowBadge(true); // Show the badge
+  };
 
   return (
-    <div className="tour-guide-overlay">
-      <div className="tour-guide-content">
-        <h2>Welcome to Your Dashboard!</h2>
-        <p>{step.instruction}</p>
-        <button className="close-tour" onClick={onClose}>
-          Got it!
-        </button>
-        <button className="next-step" onClick={onNextStep}>
-          Next
-        </button>
-      </div>
-      {/* Ajouter la flèche à la bonne position */}
-      <div
-        className="tour-guide-arrow"
-        style={{
-          top: `${arrowPosition.top}px`,
-          left: `${arrowPosition.left}px`,
-        }}
-      ></div>
-    </div>
+    <>
+      {showBadge ? (
+        <div className="badge-overlay">
+          <div className="badge-content">
+            <div className="confetti"></div> {/* Confetti section */}
+            <h2>🎉 Tour Terminé ! 🎉</h2>
+            <p>Vous avez terminé le guide et êtes prêt à explorer !</p>
+            <button onClick={onClose} className="close-tour">
+              Continuer
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="tour-guide-overlay">
+          <div className="tour-guide-content">
+            <h2>Welcome to Your Dashboard!</h2>
+            <p>{instruction}</p> {/* Ensure instruction is available */}
+            <button className="close-tour" onClick={onClose}>
+              Close
+            </button>
+            <button className="next-step" onClick={onNextStep}>
+              Next
+            </button>
+            <button className="got-it" onClick={handleGotItClick}>
+              Got it!
+            </button>
+          </div>
+          <div
+            className="tour-guide-arrow"
+            style={{
+              top: `${arrowPosition.top}px`,
+              left: `${arrowPosition.left}px`,
+            }}
+          ></div>
+        </div>
+      )}
+    </>
   );
 };
 
