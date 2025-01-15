@@ -1,53 +1,69 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: $MYSQL_DATABASE
-      MYSQL_USER: $MYSQL_USER
-      MYSQL_PASSWORD: $MYSQL_USER_PASSWORD
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./server/init-scripts:/docker-entrypoint-initdb.d  # Path to init scripts relative to the docker-compose.yml
-    networks:
-      - db_network
+  # db:
+  #   image: mysql:8.0
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+  #     MYSQL_DATABASE: $MYSQL_DATABASE
+  #     MYSQL_USER: $MYSQL_USER
+  #     MYSQL_PASSWORD: $MYSQL_USER_PASSWORD
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #     - ./server/init-scripts:/docker-entrypoint-initdb.d  # Path to init scripts relative to the docker-compose.yml
+  #   networks:
+  #     - db_network
 
-  server:
-    build:
-      context: ./server  # Build the Docker image from the current directory (server/)
-    environment:
-      DB_HOST: db
-      DB_USER: $MYSQL_USER
-      DB_PASSWORD: $MYSQL_USER_PASSWORD
-      DB_NAME: $MYSQL_DATABASE
-    depends_on:
-      - db
-    command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "./start_server.sh"]
-    volumes:
-      - ./server:/usr/src/app  # Mount the current directory
-      - /usr/src/app/node_modules  # Preserve the node_modules installed inside the container
-    networks:
-      - db_network
-      - web_network
-    ports:
-      - "8080:8080"
+  # server:
+  #   build:
+  #     context: ./server  # Build the Docker image from the current directory (server/)
+  #   environment:
+  #     DB_HOST: db
+  #     DB_USER: $MYSQL_USER
+  #     DB_PASSWORD: $MYSQL_USER_PASSWORD
+  #     DB_NAME: $MYSQL_DATABASE
+  #   depends_on:
+  #     - db
+  #   command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "./start_server.sh"]
+  #   volumes:
+  #     - ./server:/usr/src/app  # Mount the current directory
+  #     - /usr/src/app/node_modules  # Preserve the node_modules installed inside the container
+  #   networks:
+  #     - db_network
+  #     - web_network
+  #   ports:
+  #     - "8080:8080"
 
-  react-frontend:
-    image: react-frontend:latest
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./web:/app
-    networks:
-      - web_network
+  # react-frontend:
+  #   image: react-frontend:latest
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./web:/app
+  #   networks:
+  #     - web_network
+  #   environment:
+  #     - NODE_ENV=development
+  #   command: npm start
+
+  react-native-app:
+    image: reactnativecommunity/react-native-android:latest
+    container_name: react-native-app
     environment:
-      - NODE_ENV=development
-    command: npm start
+      - ANDROID_HOME=/opt/android-sdk-linux
+      - PATH=/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/cmdline-tools/latest/bin:$PATH
+    volumes:
+      - ./android:/app
+    working_dir: /app
+    command: >
+      bash -c "yarn install && yarn add react-native@0.76.6 && npx react-native run-android"
+    ports:
+      - "8081:8081"
+    stdin_open: true
+    tty: true
 
 networks:
   db_network:
