@@ -339,7 +339,9 @@ module.exports = function() {
                 console.log("reactionJson: ", reactionJson);
 
                 if (actionJson === undefined || reactionJson === undefined) {
-                    throw new Error('Bad Json at the creation');
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: "Cannot create the Action-reaction -> Bad parameters" }));
+                    return;
                 }
                 await createActionReaction(userId, actionJson, reactionJson);
 
