@@ -7,7 +7,7 @@ module.exports = function() {
     const express = require('express');
     const router = express.Router();
     const get_login_url  = require('../Services/Login_url.js').getLoginLink;
-    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions, getAREAs } = require('../getService.js');
+    const { getServiceReactions, getServiceActions, getAllServices, getAllActions, getAllReactions, getAREAs, getaboutroutes } = require('../getService.js');
     let service_login_user_id = null;
     let service_login_service_id = null;
     const axios = require('axios');
@@ -172,7 +172,7 @@ module.exports = function() {
         const ipv4 = ip.startsWith('::ffff:') ? ip.substr(7) : ip;
 
         res.set('Content-Type', 'application/json');
-        getAllServices.getaboutroutes(ipv4)
+        getaboutroutes(ipv4)
         .then(services => {
             res.status(200).json(services);
         })
