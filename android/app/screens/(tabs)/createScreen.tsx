@@ -107,7 +107,7 @@ export default function CreateScreen() {
                     newArray.push({key: elt.id, value: elt.name})
                 });
                 setDataActions(newArray)
-                //setSelectedAction("")
+                setSelectedAction("")
                 await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
@@ -126,7 +126,7 @@ export default function CreateScreen() {
                     newArray.push({key: elt.id, value: elt.name})
                 });
                 setDataReactions(newArray)
-                //setSelectedReaction("")
+                setSelectedReaction("")
                 await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
@@ -193,12 +193,17 @@ export default function CreateScreen() {
                     body: formData,
                     method: 'post'
                 });
-            console.log("after request")
-            console.log(response)
-            const json = await response.json();
-            console.log('Actions and reactions created successfully:', json);
-            alert("AREA created successfully !")
-            navigation.navigate("exploreScreen" as never)
+            if (response.status == 200) {
+                alert("AREA created successfully !")
+                setSelectedService1("")
+                setSelectedService2("")
+                setSelectedAction("")
+                setSelectedReaction("")
+                navigation.navigate("exploreScreen" as never)
+            } else {
+                const json = await response.json();
+                alert(json.message)
+            }
         } catch (error) {
             console.error('Error fetching actions and reactions:', error);
         }
@@ -251,11 +256,11 @@ export default function CreateScreen() {
                             <SelectList
                                 setSelected={(val: any) => setSelectedReaction(val)}
                                 data={dataReactions}
-                                onSelect={() => checkParamReaction(selectedService2)}
+                                onSelect={() => checkParamReaction(selectedReaction)}
                                 save="key"
                                 placeholder='Select Reaction'
                             />
-                            {selectedAction &&
+                            {selectedReaction &&
                                 <View>
                                     {displayInputsReactions()}
                                 </View>
