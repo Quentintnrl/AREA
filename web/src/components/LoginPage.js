@@ -42,8 +42,11 @@ const LoginPage = () => {
       const res = await axios.post('http://localhost:8080/auth/google', { token: token });
 
       // Handle the response, store the JWT token, etc.
-      console.log(res.data); // Example: { token: 'JWT-TOKEN-HERE' }
-      localStorage.setItem('authToken', res.data.token);  // Save the token in local storage
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userId', res.data.user[0].id);
+      localStorage.setItem('userName', res.data.user[0].username); // Save the token in local storage
+      console.log('User ID:', localStorage.getItem('userId'));
+      navigate('/dashboard');
     } catch (err) {
       console.error('Authentication failed:', err);
     }
