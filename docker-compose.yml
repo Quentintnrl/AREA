@@ -34,21 +34,6 @@ services:
   #   ports:
   #     - "8080:8080"
 
-  # react-frontend:
-  #   image: react-frontend:latest
-  #   build:
-  #     context: ./web
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./web:/app
-  #   networks:
-  #     - web_network
-  #   environment:
-  #     - NODE_ENV=development
-  #   command: npm start
-
   react-native-app:
     build:
       context: ./android
@@ -58,9 +43,27 @@ services:
     working_dir: /mobile_app
     command: bash -c "./get_mobile_app.sh && ls && mv ./client.apk /mobile_app_data && ls /mobile_app_data"
     ports:
-      - "8081:8081"
+      - "3000:3000"
     stdin_open: true
     tty: true
+
+  react-frontend:
+    image: react-frontend:latest
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    depends_on:
+      - react-native-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./web:/app
+      - mobile_app_volume:/mobile_app_data
+    networks:
+      - web_network
+    environment:
+      - NODE_ENV=development
+    command: npm start
 
 networks:
   db_network:
