@@ -19,7 +19,7 @@
     }
   }
   .tour-guide-content {
-    position: relative;
+    position: absolute;
     padding: 20px 24px; /* Espacement plus généreux */
     background: linear-gradient(135deg, #ffffff, #f9f9f9); /* Dégradé subtil */
     border: 1px solid #e0e0e0; /* Couleur de bordure adoucie */

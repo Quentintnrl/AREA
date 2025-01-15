@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
-
-
+import './connectServices.css';
 
 function ConnectServices() {
   const navigate = useNavigate();
@@ -11,7 +10,6 @@ function ConnectServices() {
   const [serviceName, setServiceName] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [animationProgress, setAnimationProgress] = useState(0);
-
 
   const checkLoginStatus = async () => {
     try {
@@ -57,8 +55,6 @@ function ConnectServices() {
       }, 1000);
   
       return url;
-      // window.open(url, '_blank');
-      // return url;
     } catch (error) {
       console.error('Login failed', error.response?.data);
     }
@@ -86,42 +82,45 @@ function ConnectServices() {
 
   fetchServices();
 
-    return (
-      <div>
-        <h1>Connect Services</h1>
-        <h1>{ serviceName}</h1>
-        <div
-        className={`toggle-button ${isConnected ? "connected" : ""}`}
-        onClick={loginspotify}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-        background: `linear-gradient(to right, green ${animationProgress}%, #555 ${animationProgress}%)`,
-        }}
-        >
-        <div className={`toggle-circle ${isConnected ? "active" : ""}`}></div>
-        </div>
-        {isConnected && (
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{
-              marginTop: '20px',
-              padding: '10px 20px',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Back to Dashboard
-          </button>
-        )}
-      </div>
-      
-    );
+  return (
+    <div className="connect-services-container">
+      {/* Bouton Dashboard */}
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="dashboard-button"
+      >
+        Retour au Dashboard
+      </button>
 
+      {/* Section gauche avec l'image */}
+      <div className="left-section">
+        <img 
+          src="login.png" 
+          alt="Personnage demandant la connexion" 
+          className="connect-image" 
+        />
+        <h2>Connectez-vous pour utiliser {serviceName}</h2>
+        <p>Profitez d'une expérience fluide et personnalisée en connectant vos services.</p>
+      </div>
+
+      {/* Section droite avec le bouton toggle */}
+      <div className="right-section">
+        <h1>Connect Services</h1>
+        <h2>{serviceName}</h2>
+        <div
+          className={`toggle-button ${isConnected ? "connected" : ""}`}
+          onClick={loginspotify}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: `linear-gradient(to right, green ${animationProgress}%, #555 ${animationProgress}%)`,
+          }}
+        >
+          <div className={`toggle-circle ${isConnected ? "active" : ""}`}></div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default ConnectServices;

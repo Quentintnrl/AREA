@@ -4,6 +4,9 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import './dashboard.css';
 import connectServices from './connectServices';
+import TourGuide from './tourguide';
+import PopularServices from './PopularServices';
+
 
 const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
   const [services, setServices] = useState([]);
@@ -27,6 +30,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       fetchServices();
     }
   }, [isOpen]);
+
+
 
   const fetchServices = async () => {
     try {
@@ -79,6 +84,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
       console.error('Error fetching actions:', error);
     }
   };
+
+
 
   const getInputReaction = async (reactionId) => {
     try {
@@ -160,19 +167,6 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     onClose();
   };
 
-
-
-const PopularServices = () => {
-  const [selectedService, setSelectedService] = useState(null);
-  const [actions, setActions] = useState([]);
-  const [reactions, setReactions] = useState([]);
-
-  const services = [
-      { id: "spotify", name: "Spotify" },
-      { id: "instagram", name: "Instagram" },
-      { id: "gmail", name: "Gmail" },
-      { id: "weather", name: "Weather" }
-  ];
   
   const fetchServiceData = async (serviceId) => {
     try {
@@ -296,6 +290,11 @@ const Dashboard = () => {
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
   };
+
+
+  const handleServiceSelect = (serviceId) => {
+    console.log(`Selected service: ${serviceId}`);
+};
 
   const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
     const [actionResponse, reactionResponse] = await Promise.all([
@@ -448,23 +447,11 @@ const Dashboard = () => {
   </div>
 </section>
 <section className="popular-services">
-<h2>Popular Services</h2>
-<div className="popular-services-grid">
-<div className="service-card">
-<span>Spotify</span>
-</div>
-<div className="service-card">
-<span>Instagram</span>
-</div>
-<div className="service-card">
-<span>Gmail</span>
-</div>
-<div className="service-card">
-<span>Weather</span>
-</div>
-</div>
+<PopularServices onServiceSelect={(serviceId) => {
+    console.log(`Selected service: ${serviceId}`);
+  
+}} />
 </section>
-
       </main>
 
       {/* Modal pour la création d'un Applet */}
