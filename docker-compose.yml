@@ -50,16 +50,13 @@ services:
   #   command: npm start
 
   react-native-app:
-    image: reactnativecommunity/react-native-android:latest
-    container_name: react-native-app
-    environment:
-      - ANDROID_HOME=/opt/android-sdk-linux
-      - PATH=/opt/android-sdk-linux/platform-tools:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/cmdline-tools/latest/bin:$PATH
+    build:
+      context: ./android
     volumes:
-      - ./android:/app
-    working_dir: /app
-    command: >
-      bash -c "yarn install && yarn add react-native@0.76.6 && npx react-native run-android"
+      - ./android:/mobile_app
+      - mobile_app_volume:/mobile_app_data
+    working_dir: /mobile_app
+    command: bash -c "./get_mobile_app.sh && ls && mv ./client.apk /mobile_app_data && ls /mobile_app_data"
     ports:
       - "8081:8081"
     stdin_open: true
@@ -73,3 +70,4 @@ networks:
 
 volumes:
   mysql_data:
+  mobile_app_volume:
