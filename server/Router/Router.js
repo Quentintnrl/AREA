@@ -101,7 +101,7 @@ module.exports = function() {
 
     });
 
-    router.get('/spotify_callback', async (req, res) => {
+    router.get('/spotifyCallback', async (req, res) => {
         console.log('Spotify callback');
         const code = req.query.code || null;
 
@@ -339,7 +339,9 @@ module.exports = function() {
                 console.log("reactionJson: ", reactionJson);
 
                 if (actionJson === undefined || reactionJson === undefined) {
-                    throw new Error('Bad Json at the creation');
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: "Cannot create the Action-reaction -> Bad parameters" }));
+                    return;
                 }
                 await createActionReaction(userId, actionJson, reactionJson);
 
