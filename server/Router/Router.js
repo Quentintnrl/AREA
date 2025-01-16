@@ -1,6 +1,9 @@
 const { createGzip } = require('zlib');
 const store = require("store");
 const pool = require('../db').connection;
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+
 
 module.exports = function() {
     const { login, register } = require('../login.js');
@@ -26,6 +29,63 @@ module.exports = function() {
 
 
 //                                                                               GET ROUTES
+
+    router.post("/auth/google", async (req, res) => {
+        console.log('Received Google login request');
+    
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => {
+            // console.log("the body is ", body);
+            const { token } = JSON.parse(body)
+            
+            if (!token) {
+                return res.status(400).json({ message: 'Token is required' });
+            }
+            // console.log(token);
+
+            try {
+                // Verify the Google token
+                const googleResponse = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
+                const googleUser = googleResponse.data;
+
+                // Check if user exists in the database
+                let [user] = await pool.query('SELECT * FROM users WHERE email = ?', [googleUser.email]);
+
+                console.log("user: ", googleUser);
+
+                if (user.length === 0) {
+                    console.log("in the user creation",);
+                    const registerResult = await register(googleUser.email, googleUser.name, googleUser.sub);
+                    store.set('id', registerResult.Id);
+                    res.status(201).json({
+                        token: registerResult.token,
+                        userName: registerResult.userName,
+                        Id: registerResult.Id
+                    });
+                    return;
+                }
+
+                // Create JWT token
+                const jwtToken = jwt.sign(
+                    { userId: user.id, email: user.email },
+                    'your-secret-key', // Secret for signing the JWT
+                    { expiresIn: '1h' }
+                );
+
+                // Send back the JWT token to the client
+                console.log('Generated JWT token:', jwtToken);
+                console.log('User:', user);
+                res.status(200).json({ token: jwtToken, user });
+            } catch (err) {
+                console.error('Error verifying Google token:', err);
+                res.status(500).json({ message: 'Token verification failed' });
+            }
+        });
+    });
 
     router.get("/getServices", (req, res) => {
         console.log("getServices");
@@ -339,7 +399,9 @@ module.exports = function() {
                 console.log("reactionJson: ", reactionJson);
 
                 if (actionJson === undefined || reactionJson === undefined) {
-                    throw new Error('Bad Json at the creation');
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: "Cannot create the Action-reaction -> Bad parameters" }));
+                    return;
                 }
                 await createActionReaction(userId, actionJson, reactionJson);
 
