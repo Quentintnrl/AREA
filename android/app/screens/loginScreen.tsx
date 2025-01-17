@@ -29,18 +29,21 @@ export default function LoginScreen() {
     const handleGoogleLogin = async () => {
         try {
             const response = await GoogleLogin()
-            const idToken = response.data;
+            const idToken = response.data?.idToken;
             console.log("id token : ", idToken)
             if (idToken) {
-                //call back end
                 let formData = JSON.stringify({
                     token: idToken,
                 })
-                const response = await fetch('http://' +  config.IP + ':8080/auth/google', { body: formData });
-                const json = await response.json();
-
-                localStorage.setItem('userId', json.data.user[0].id);
-                console.log("BACKEND")
+                const responseAuth = await fetch('http://' +  config.IP + ':8080/auth/google/',
+                    {
+                        body: formData,
+                        method: 'post'
+                    });
+                const json = await responseAuth.json();
+                console.log("USER DATA : ", json)
+                SessionStorage.setItem('@id', json.user[0].id);
+                navigation.navigate("App" as never)
             }
         } catch (error) {
             console.log(error)
