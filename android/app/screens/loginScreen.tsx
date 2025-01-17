@@ -1,14 +1,51 @@
-import {View, Text, TextInput, TouchableOpacity} from 'react-native'
+import {View, Text, TextInput, TouchableOpacity, Image} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import config from "../../config"
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import SessionStorage from 'react-native-session-storage';
+const googleImg = require('../../assets/images/google.png');
+
+GoogleSignin.configure({
+    webClientId: "1009845226599-9fhep16q5uq81eeqblftqn4o5slhv7j7.apps.googleusercontent.com",
+    offlineAccess: true,
+    scopes: ['profile', 'email'],
+})
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
+
+
+    const GoogleLogin = async() => {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        console.log(userInfo)
+        return userInfo
+    }
+
+    const handleGoogleLogin = async () => {
+        try {
+            const response = await GoogleLogin()
+            const idToken = response.data;
+            console.log("id token : ", idToken)
+            if (idToken) {
+                //call back end
+                let formData = JSON.stringify({
+                    token: idToken,
+                })
+                const response = await fetch('http://' +  config.IP + ':8080/auth/google', { body: formData });
+                const json = await response.json();
+
+                localStorage.setItem('userId', json.data.user[0].id);
+                console.log("BACKEND")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     const login = async () => {
         try {
@@ -89,7 +126,10 @@ export default function LoginScreen() {
                         Login
                     </Text>
                 </TouchableOpacity>
-                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <TouchableOpacity onPress={handleGoogleLogin}>
+                    <Image source={googleImg} style={{width: 25, height: 25, position: 'absolute', left: 135}}/>
+                </TouchableOpacity>
+                <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 40}}>
                     <Text>New on the app?</Text>
                     <TouchableOpacity onPress={() => {navigation.navigate("Register" as never)}}>
                         <Text style={{color: '#7B9DD2', fontWeight: 700}}> Register</Text>
