@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_USER_PASSWORD
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./server/init-scripts:/docker-entrypoint-initdb.d  # Path to init scripts relative to the docker-compose.yml
+    networks:
+      - db_network
+
+  server:
+    build:
+      context: ./server  # Build the Docker image from the current directory (server/)
+    environment:
+      DB_HOST: db
+      DB_USER: $MYSQL_USER
+      DB_PASSWORD: $MYSQL_USER_PASSWORD
+      DB_NAME: $MYSQL_DATABASE
+    depends_on:
+      - db
+    command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "./start_server.sh"]
+    volumes:
+      - ./server:/usr/src/app  # Mount the current directory
+      - /usr/src/app/node_modules  # Preserve the node_modules installed inside the container
+    networks:
+      - db_network
+      - web_network
+    ports:
+      - "8080:8080"
+
+  react-native-app:
+    build:
+      context: ./android
+    volumes:
+      - ./android:/mobile_app
+      - mobile_app_volume:/mobile_app_data
+    working_dir: /mobile_app
+    command: bash -c "./get_mobile_app.sh && ls && mv ./client.apk /mobile_app_data && ls /mobile_app_data"
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+
+  react-frontend:
+    image: react-frontend:latest
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    depends_on:
+      - react-native-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./web:/app
+      - mobile_app_volume:/mobile_app_data
+    networks:
+      - web_network
+    environment:
+      - NODE_ENV=development
+    command: npm start
+
+networks:
+  db_network:
+    driver: bridge
+  web_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  mobile_app_volume:
