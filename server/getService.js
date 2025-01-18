@@ -40,7 +40,7 @@ async function getAllReactions()
 async function getaboutroutes(ip)
 {
     try {
-        var about = {"client":{"host": ip}, "server":{"current_time":"", "service":[]}};
+        var about = {"client":{"host": ip}, "server":{"current_time": Date.now(), "services":[]}};
         console.log("the adress is: " + ip);
         const [services] = await pool.execute('SELECT * FROM services');
         for (i = 0; i < services.length; i++) {
