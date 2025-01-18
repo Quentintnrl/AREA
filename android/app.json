@@ -12,11 +12,11 @@
       "supportsTablet": true
     },
     "android": {
-      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.lxnbt.AREA"
     },
     "web": {
       "bundler": "metro",
@@ -44,8 +44,16 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactServerComponents": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "3d0a4bd6-171a-4f16-b017-847cbe2a3178"
+      }
+    },
+    "owner": "lxnbt"
   }
 }
