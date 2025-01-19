@@ -150,8 +150,8 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         service2: selectedService2,
         action: selectedAction,
         reaction: selectedReaction,
-        actionDescription: actionDescription, // Include action description in new applet data
-        reactionDescription: reactionDescription // Include reaction description in new applet data
+        actionDescription: actionDescription,
+        reactionDescription: reactionDescription 
       });
       onClose();
     } else {
@@ -266,40 +266,80 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [showTour, setShowTour] = useState(true); // Activer le tour au début
-  const [currentStep, setCurrentStep] = useState(0); // Gérer l'étape actuelle
+  const [showTour, setShowTour] = useState(false); // Activer/désactiver le guide
+  const [currentStep, setCurrentStep] = useState(0); // Étape actuelle du guide
 
   const [cards, setCards] = useState(
-    Array(4).fill(0).map((_, i) => ({
-      id: i + 1,
-      color:
-        i % 5 === 0 ? '#DAD4DE' :
-        i % 5 === 1 ? '#BBB4DE' :
-        i % 5 === 2 ? '#7B9DD2' :
-        i % 5 === 3 ? '#70C7C6' :
-        '#F2B880',
-      title: `Card Title ${i + 1}`,
-      subtitle: `Subtitle for card ${i + 1}`,
-      details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
-    }))
+    Array(4)
+      .fill(0)
+      .map((_, i) => ({
+        id: i + 1,
+        color:
+          i % 5 === 0
+            ? '#DAD4DE'
+            : i % 5 === 1
+            ? '#BBB4DE'
+            : i % 5 === 2
+            ? '#7B9DD2'
+            : i % 5 === 3
+            ? '#70C7C6'
+            : '#F2B880',
+        title: `Card Title ${i + 1}`,
+        subtitle: `Subtitle for card ${i + 1}`,
+        details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
+      }))
   );
+
+  
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
+    if (!hasSeenTour) {
+      setShowTour(true); // Afficher le guide si non vu
+    }
+  }, []);
+
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
   };
 
+  const handleCreateApplet = (newApplet) => {
+    const user_id = localStorage.getItem('userId');
 
-  const handleServiceSelect = (serviceId) => {
-    console.log(`Selected service: ${serviceId}`);
-};
+    if (!newApplet.service1 || !newApplet.service2 || !newApplet.action || !newApplet.reaction) {
+      alert('Veuillez compléter toutes les options avant de créer un Applet.');
+      return;
+    }
+
+    const newCard = {
+      id: cards.length + 1,
+      color: '#F4F0E3',
+      title: `${newApplet.service1} to ${newApplet.service2}`,
+      subtitle: `${newApplet.action} → ${newApplet.reaction}`,
+      details: `Action: ${JSON.stringify(newApplet.actionDescription)}\nReaction: ${JSON.stringify(newApplet.reactionDescription)}`,
+    };
+
+    setCards((prevCards) => [...prevCards, newCard]);
+    console.log('Nouvelle carte créée :', newCard);
+
+    // Appeler la méthode pour créer les actions et réactions
+    createActionsReactions(
+      user_id,
+      newApplet.action,
+      newApplet.reaction,
+      newApplet.actionDescription,
+      newApplet.reactionDescription
+    );
+  };
 
   const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
     const [actionResponse, reactionResponse] = await Promise.all([
       axios.get(`http://localhost:8080/getAction/${actionId}`),
-      axios.get(`http://localhost:8080/getReaction/${reactionId}`)
+      axios.get(`http://localhost:8080/getReaction/${reactionId}`),
     ]);
 
     const actionParams = actionResponse.data.action[0].params.params;
     const reactionParams = reactionResponse.data.reaction[0].params.params;
+
     const actionParamsObject = actionParams.reduce((acc, param) => {
       acc[param.name] = actionDescription[param.name];
       return acc;
@@ -311,63 +351,24 @@ const Dashboard = () => {
     }, {});
 
     const JsonReponse = {
-      "user_id": userId,
-      "action": {
-        "id": actionId,
-        "params": actionParamsObject
+      user_id: userId,
+      action: {
+        id: actionId,
+        params: actionParamsObject,
       },
-      "reaction": {
-        "id": reactionId,
-        "params": reactionParamsObject
-      }
+      reaction: {
+        id: reactionId,
+        params: reactionParamsObject,
+      },
     };
 
-    console.log("the JSON response is", JsonReponse);
-
     const response = await axios.post('http://localhost:8080/CreateActionReaction', {
-      JsonReponse
+      JsonReponse,
     });
 
     console.log('Action/Reaction created:', response.data);
     return response.data;
   };
-  const handleCreateApplet = (newApplet) => {
-    const user_id = localStorage.getItem('userId');
-    
-    if (!newApplet.service1 || !newApplet.service2 || !newApplet.action || !newApplet.reaction) {
-      alert('Veuillez compléter toutes les options avant de créer un Applet.');
-      return;
-    }
-  
-    const handleCreateApplet = (newApplet) => {
-      const user_id = localStorage.getItem('userId');
-      const newCard = {
-        id: cards.length + 1,
-        color: '#F4F0E3',
-        title: `${newApplet.service1} to ${newApplet.service2}`,
-        subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-        details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
-      };
-      setCards([...cards, newCard]);
-      createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
-    };
-  
-    const newCard = {
-      id: cards.length + 1,
-      color: '#F4F0E3',
-      title: `${newApplet.service1} to ${newApplet.service2}`,
-      subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${JSON.stringify(newApplet.actionDescription)}\nReaction: ${JSON.stringify(newApplet.reactionDescription)}`,
-    };
-  
-    // Ajouter la nouvelle carte et mettre à jour l'état
-    setCards((prevCards) => [...prevCards, newCard]);
-  
-    // Affichez les données des cartes pour le débogage
-    console.log('Nouvelle carte créée :', newCard);
-    console.log('Cartes actuelles :', [...cards, newCard]);
-  };
-  
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -380,11 +381,13 @@ const Dashboard = () => {
       setCurrentStep(currentStep + 1);
     } else {
       setShowTour(false);
+      localStorage.setItem('hasSeenTour', 'true'); // Enregistrer que le guide a été vu
     }
   };
 
   const closeTour = () => {
-    setShowTour(false); // Fermer le tour
+    setShowTour(false);
+    localStorage.setItem('hasSeenTour', 'true'); // Enregistrer que le guide a été vu
   };
 
   return (
@@ -425,41 +428,41 @@ const Dashboard = () => {
           type="text"
           placeholder="Search Applets or services"
         />
-         <h1>Explore</h1>
+        <h1>Explore</h1>
 
-{/* Nouvelle section "Discover Automation" */}
-<section className="discover-automation">
-  <h2>Discover Automation</h2>
-  <p>Connect your favorite services and automate your digital life</p>
-  <div className="card-container">
-    {/* Mettre ici les applets mis en avant */}
-    <div className="highlight-card spotify">
-      <h3>Save Spotify songs to playlist</h3>
-      <p>Automatically save liked songs to a specific playlist</p>
-    </div>
-    <div className="highlight-card twitter">
-      <h3>Twitter to Instagram</h3>
-      <p>Share your tweets as Instagram posts</p>
-    </div>
-    <div className="highlight-card weather">
-      <h3>Weather notifications</h3>
-      <p>Get daily weather updates via email</p>
-    </div>
-  </div>
-</section>
-<section className="popular-services">
-<PopularServices onServiceSelect={(serviceId) => {
-    console.log(`Selected service: ${serviceId}`);
-  
-}} />
+        {/* Nouvelle section "Discover Automation" */}
+        <section className="discover-automation">
+          <h2>Discover Automation</h2>
+          <p>Connect your favorite services and automate your digital life</p>
+          <div className="card-container">
+            <div className="highlight-card spotify">
+              <h3>Save Spotify songs to playlist</h3>
+              <p>Automatically save liked songs to a specific playlist</p>
+            </div>
+            <div className="highlight-card twitter">
+              <h3>Twitter to Instagram</h3>
+              <p>Share your tweets as Instagram posts</p>
+            </div>
+            <div className="highlight-card weather">
+              <h3>Weather notifications</h3>
+              <p>Get daily weather updates via email</p>
+            </div>
+          </div>
+        </section>
 
- <div className="area-display-section">
-        <AreaDisplay />
-      </div>
-</section>
+        <section className="popular-services">
+          <PopularServices
+            onServiceSelect={(serviceId) => {
+              console.log(`Selected service: ${serviceId}`);
+            }}
+          />
 
+          <div className="area-display-section">
+            <AreaDisplay />
+          </div>
+        </section>
 
-<div className="card-container">
+        <div className="card-container">
           {cards.map((card) => (
             <div
               className="card"
@@ -481,7 +484,6 @@ const Dashboard = () => {
         onCreateApplet={handleCreateApplet}
       />
     </div>
-    
   );
 };
 
