@@ -130,43 +130,52 @@ class ServiceManager {
     }
 
     async checkAction(user_id, params, action_id, action_reaction_id) {
-        if (typeof user_id !== 'number') {
-            console.error('Invalid action id');
-            return false;
-        }
-        if (typeof actionParams === 'object' && actionParams !== null) {
-            console.error('Invalid action params');
-            return false;
-        }
-        console.log('action_reaction_id:', action_reaction_id);
-        console.log(action_id);
-        const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [action_id]);
-        console.log('action:', action[0]);
-        for (const service of this.servicesList) {
-            if (action[0].service_id === service.id) {
-                const task = new Task(user_id, action[0].name, params);
-                console.log('task:', task);
-                return await service.do_task(task, action_reaction_id);
+        try {
+            if (typeof user_id !== 'number') {
+                console.error('Invalid action id');
+                return false;
             }
+            if (typeof actionParams === 'object' && actionParams !== null) {
+                console.error('Invalid action params');
+                return false;
+            }
+            console.log('action_reaction_id:', action_reaction_id);
+            console.log(action_id);
+            const [action] = await pool.query('SELECT * FROM actions WHERE id = ?', [action_id]);
+            console.log('action:', action[0]);
+            for (const service of this.servicesList) {
+                if (action[0].service_id === service.id) {
+                    const task = new Task(user_id, action[0].name, params);
+                    console.log('task:', task);
+                    return await service.do_task(task, action_reaction_id);
+                }
+            }
+            return false;
+        } catch {
+            console.error('Error checking action:', error);
+            return false;
         }
-        return false;
     }
 
     async executeReaction(user_id, params, reaction_id, action_reaction_id) {
-        if (typeof user_id !== 'number') {
-            console.error('Invalid action id');
-            return false;
-        }
-        if (typeof actionParams === 'object' && actionParams !== null) {
-            console.error('Invalid action params');
-            return false;
-        }
-        const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [reaction_id]);
-        for (const service of this.servicesList) {
-            if (reaction[0].service_id === service.id) {
-                const task = new Task(user_id, reaction[0].name, params);
-                service.do_task(task, action_reaction_id);
+        try {
+            if (typeof user_id !== 'number') {
+                console.error('Invalid action id');
+                return false;
             }
+            if (typeof actionParams === 'object' && actionParams !== null) {
+                console.error('Invalid action params');
+                return false;
+            }
+            const [reaction] = await pool.query('SELECT * FROM reactions WHERE id = ?', [reaction_id]);
+            for (const service of this.servicesList) {
+                if (reaction[0].service_id === service.id) {
+                    const task = new Task(user_id, reaction[0].name, params);
+                    service.do_task(task, action_reaction_id);
+                }
+            }
+        } catch {
+            console.error('Error executing reaction:', error);
         }
     }
 }
