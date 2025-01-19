@@ -147,7 +147,7 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
         action: selectedAction,
         reaction: selectedReaction,
         actionDescription: actionDescription,
-        reactionDescription: reactionDescription 
+        reactionDescription: reactionDescription
       });
       onClose();
     } else {
@@ -160,13 +160,19 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     setReactionDescription({});
     setActionsParams([]);
     setReactionsParams([]);
+    setSelectedService1('');
+    setSelectedService2('');
+    setSelectedAction('');
+    setSelectedReaction('');
+    setActions([]);
+    setReactions([]);
     onClose();
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>
+        <button className="modal-close" onClick={handleClose}>
           <X size={24} />
         </button>
         <h2>Create New Applet</h2>
@@ -268,42 +274,77 @@ const Dashboard = () => {
 
   const getExistedAreas = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/getAREAs');
-      const areas = response.data;
-      let local_Areas = [];
+          const response = await axios.get('http://localhost:8080/getAREAs');
+          const areas = response.data;
 
-      const promises = response.data.map(async (elt) => {
-        const action = await fetch('http://localhost:8080/getAction/' + elt.action.id);
-        const jsonAction = await action.json();
-        const reaction = await fetch('http://localhost:8080/getReaction/' + elt.reaction.id);
-        const jsonReaction = await reaction.json();
-        console.log("THE ACTION AREA ARE: ", jsonAction);
-        return { key: elt.id, nameAction: jsonAction.action[0].name, nameReaction: jsonReaction.reaction[0].name };
-      });
-      const newArray = await Promise.all(promises);
+          const promises = areas.map(async (area) => {
+            const [actionRes, reactionRes] = await Promise.all([
+              axios.get(`http://localhost:8080/getAction/${area.action.id}`),
+              axios.get(`http://localhost:8080/getReaction/${area.reaction.id}`)
+            ]);
+            return {
+              id: area.id,
+              actionId: actionRes.data.action[0].id,     // Include full action object
+              reactionId: reactionRes.data.reaction[0].id,
+              nameAction: actionRes.data.action[0].name,
+              nameReaction: reactionRes.data.reaction[0].name,
+              actionDescription: actionRes.data.action[0].description,
+              reactionDescription: reactionRes.data.reaction[0].description
+            };
+          });
 
-      // Mettre à jour l'état Areas avec les données récupérées
-      setAreas(newArray);
-      console.log("THE AREAS ARE LLLLLLLLLLLLL: ", newArray);
+          const processedAreas = await Promise.all(promises);
+          setAreas(processedAreas);
+          // Update cards with the new data
+          setCards(processedAreas.map((area, i) => ({
+            id: area.id,
+            actionId: area.actionId,
+            reactionId: area.reactionId,
+            color:
+              i % 5 === 0 ? '#DAD4DE' :
+              i % 5 === 1 ? '#BBB4DE' :
+              i % 5 === 2 ? '#7B9DD2' :
+              i % 5 === 3 ? '#70C7C6' :
+              '#F2B880',
+            title: `When ${area.nameAction} then ${area.nameReaction}`,
+            subtitle: area.actionDescription,
+            details: area.reactionDescription,
+            actionName: area.nameAction,
+            reactionName: area.nameReaction,
+            actionDescription: area.actionDescription,
+            reactionDescription: area.reactionDescription,
+          })));
+          console.log("THE AREAS ARE LLLLLLLLLLLLL: ", processedAreas);
 
-    } catch (error) {
-      console.error('Error fetching areas:', error);
-    }
-  };
+        } catch (error) {
+          console.error('Error fetching areas:', error);
+        }
+
+  }
 
   useEffect(() => {
     getExistedAreas();
+    setShowTour(true); // Afficher le guide à chaque connexion
+
+    const pollInterval = setInterval(() => {
+      getExistedAreas();
+    }, 10000); // Poll every 10 seconds
+    return () => clearInterval(pollInterval); // Cleanup on unmount
   }, []);
 
-  useEffect(() => {
-    setShowTour(true); // Afficher le guide à chaque connexion
-  }, []);  
+  const handleCreateApplet = (newApplet) => {
+    const user_id = localStorage.getItem('userId');
+    createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription)
+    .then(() => {
+      getExistedAreas(); // Refresh areas after creation
+    });
+  };
 
   const [cards, setCards] = useState(
     Areas.fill(0).map((_, i) => ({
       id: i + 1,
       color:
-        i % 5 === 0 ? '#DAD4DE' :
+      i % 5 === 0 ? '#DAD4DE' :
         i % 5 === 1 ? '#BBB4DE' :
         i % 5 === 2 ? '#7B9DD2' :
         i % 5 === 3 ? '#70C7C6' :
@@ -314,15 +355,8 @@ const Dashboard = () => {
     }))
   );
 
-
   const handleCardClick = (card) => {
-    navigate(`/details/${card.id}`, { state: { card } });
-  };
-
-
-  const handleServiceSelect = (serviceId) => {
-    console.log(`Selected service: ${serviceId}`);
-};
+    navigate(`/details/${card.title}`, { state: { card } });  };
 
   const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
     const [actionResponse, reactionResponse] = await Promise.all([
@@ -363,11 +397,6 @@ const Dashboard = () => {
     return response.data;
   };
 
-  const handleCreateApplet = (newApplet) => {
-    const user_id = localStorage.getItem('userId');
-    createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
@@ -388,6 +417,7 @@ const Dashboard = () => {
     localStorage.setItem('hasSeenTour', 'true'); // Enregistrer que le guide a été vu
   };
 
+  console.log("Current Areas:", Areas);
   return (
     <div className="App dashboard-page">
       <header className="header">
@@ -411,7 +441,7 @@ const Dashboard = () => {
           onClose={closeTour}
           currentStep={currentStep}
           onNextStep={handleNextStep}
-        />
+          />
       )}
 
       <main className="main">
@@ -453,48 +483,20 @@ const Dashboard = () => {
           console.log(`Selected service: ${serviceId}`);
 
       }} />
-      <div className="area-display-section">
-        {Areas.map((area, index) => (
+      <div className="card-container">
+        {cards.map((card) => (
           <div
-            key={index}
-            className="area-card"
-            style={{
-              backgroundColor:
-                index % 5 === 0 ? '#DAD4DE' :
-                index % 5 === 1 ? '#BBB4DE' :
-                index % 5 === 2 ? '#7B9DD2' :
-                index % 5 === 3 ? '#70C7C6' :
-                '#F2B880'
-            }}
+            className="card"
+            style={{ backgroundColor: card.color }}
+            key={card.id}
+            onClick={() => handleCardClick(card)}
           >
-            <h3>{area.action} → {area.reaction}</h3>
-            {/* <p>Service: {area.service_name}</p>
-            <div className="area-details">
-              <p>Action Parameters: {JSON.stringify(area.action_params)}</p>
-              <p>Reaction Parameters: {JSON.stringify(area.reaction_params)}</p>
-            </div> */}
-            <h3> when the action</h3>
-            <p>{area.action}</p>
-            <h3>Do</h3>
-            <p>{area.reaction}</p>
+            <h2>{card.title}</h2>
           </div>
         ))}
       </div>
       </section>
-      <div className="card-container">
-                {cards.map((card) => (
-                  <div
-                    className="card"
-                    style={{ backgroundColor: card.color }}
-                    key={card.id}
-                    onClick={() => handleCardClick(card)}
-                  >
-                    <h2>{card.title}</h2>
-                    <p>{card.subtitle}</p>
-                  </div>
-                ))}
-              </div>
-            </main>
+      </main>
       {/* Modal pour la création d'un Applet */}
       <CreateAppletModal
         isOpen={isCreateModalOpen}
