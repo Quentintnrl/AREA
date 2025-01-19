@@ -388,7 +388,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="App">
+    <div className="App dashboard-page">
       <header className="header">
         <div className="logo">IFTTT</div>
         <nav className="nav-links">
