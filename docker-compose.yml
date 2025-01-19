@@ -62,7 +62,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=8081
-    command: bash -c "cp -r /mobile_app_data/* /app/public/ && npm start"
+    command: bash -c "npm i && cp -r /mobile_app_data/* /app/public/ && npm start"
 
 networks:
   db_network:
