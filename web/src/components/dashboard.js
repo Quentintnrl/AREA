@@ -498,21 +498,6 @@ const Dashboard = () => {
                 ))}
               </div>
             </main>
-        <div className="card-container">
-          {cards.map((card) => (
-            <div
-              className="card"
-              style={{ backgroundColor: card.color }}
-              key={card.id}
-              onClick={() => handleCardClick(card)}
-            >
-              <h2>{card.title}</h2>
-              <p>{card.subtitle}</p>
-            </div>
-          ))}
-        </div>
-      </main>
-
       {/* Modal pour la création d'un Applet */}
       <CreateAppletModal
         isOpen={isCreateModalOpen}
