@@ -22,7 +22,17 @@ export default function Card({data} : {data:any}) {
                             fontWeight: 700,
                             color: 'white',
                         }}>
-                        {data.name}
+                        Action : {data.nameAction}
+                    </Text>
+                    <Text
+                        style={{
+                            textAlign: 'left',
+                            fontSize: 25,
+                            fontWeight: 700,
+                            color: 'white',
+                            marginTop: 20,
+                        }}>
+                        Reaction : {data.nameReaction}
                     </Text>
                 </TouchableOpacity>
             </View>

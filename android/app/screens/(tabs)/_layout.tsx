@@ -14,13 +14,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: "blue"
       }}>
       <Tabs.Screen
-        name="appletsScreen"
-        options={{
-          title: 'My applets',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="rectangle.dock" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="exploreScreen"
         options={{
           title: 'Explore',

@@ -41,16 +41,16 @@ export default function CreateScreen() {
     }, [])
 
     const checkLogged = async (selectedService:any) => {
-        if (selectedService == 2 || selectedService == 3) // 2 = Github, 3 = Date&Time
-            return;
-        const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
-        const json = await checkIfLogged.json();
-        if (json.login != true) {
-            const serviceURLConnexion = await fetch('http://' + config.IP + ':8080/getServiceLoginURL/' + userId + '/' + selectedService)
-            const serviceURLConnexionjson = await serviceURLConnexion.json();
-            Linking.canOpenURL(serviceURLConnexionjson.url).then((supported) => {
-                supported && Linking.openURL(serviceURLConnexionjson.url);
-            })
+        if (selectedService == 1) {
+            const checkIfLogged = await fetch('http://' + config.IP + ':8080/isUserLogin/' + selectedService + '/' + userId)
+            const json = await checkIfLogged.json();
+            if (json.login != true) {
+                const serviceURLConnexion = await fetch('http://' + config.IP + ':8080/getServiceLoginURL/' + userId + '/' + selectedService)
+                const serviceURLConnexionjson = await serviceURLConnexion.json();
+                Linking.canOpenURL(serviceURLConnexionjson.url).then((supported) => {
+                    supported && Linking.openURL(serviceURLConnexionjson.url);
+                })
+            }
         }
     }
 
@@ -107,7 +107,7 @@ export default function CreateScreen() {
                     newArray.push({key: elt.id, value: elt.name})
                 });
                 setDataActions(newArray)
-                //setSelectedAction("")
+                setSelectedAction("")
                 await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
@@ -126,7 +126,7 @@ export default function CreateScreen() {
                     newArray.push({key: elt.id, value: elt.name})
                 });
                 setDataReactions(newArray)
-                //setSelectedReaction("")
+                setSelectedReaction("")
                 await checkLogged(selectedService)
             } catch (error) {
                 console.log(error)
@@ -193,10 +193,17 @@ export default function CreateScreen() {
                     body: formData,
                     method: 'post'
                 });
-            console.log("after request")
-            console.log(response)
-            const json = await response.json();
-            console.log('Actions and reactions created successfully:', json);
+            if (response.status == 200) {
+                alert("AREA created successfully !")
+                setSelectedService1("")
+                setSelectedService2("")
+                setSelectedAction("")
+                setSelectedReaction("")
+                navigation.navigate("exploreScreen" as never)
+            } else {
+                const json = await response.json();
+                alert(json.message)
+            }
         } catch (error) {
             console.error('Error fetching actions and reactions:', error);
         }
@@ -249,11 +256,11 @@ export default function CreateScreen() {
                             <SelectList
                                 setSelected={(val: any) => setSelectedReaction(val)}
                                 data={dataReactions}
-                                onSelect={() => checkParamReaction(selectedService2)}
+                                onSelect={() => checkParamReaction(selectedReaction)}
                                 save="key"
                                 placeholder='Select Reaction'
                             />
-                            {selectedAction &&
+                            {selectedReaction &&
                                 <View>
                                     {displayInputsReactions()}
                                 </View>
