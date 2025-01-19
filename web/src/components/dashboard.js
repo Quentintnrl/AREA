@@ -109,13 +109,11 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3  || serviceId == 4  || serviceId == 5) {
-      fetchServiceActions(serviceId);
-    } else if (response.data.login === true) {
-      fetchServiceActions(serviceId);
-    } else {
+    if (response.data.login === false && serviceId == 1) {
       navigate(`/connectServices/${serviceId}`);
       console.log('USER IS NOT LOGGED IN');
+    } else {
+      fetchServiceActions(serviceId);
     }
   };
 
@@ -128,13 +126,11 @@ const CreateAppletModal = ({ isOpen, onClose, onCreateApplet }) => {
     const response = await axios.get(`http://localhost:8080/isUserLogin/${serviceId}/${user_id}`);
     console.log("RESPONSE IS", response.data);
 
-    if (serviceId == 2 || serviceId == 3  || serviceId == 4  || serviceId == 5) {
-      fetchServiceReactions(serviceId);
-    } else if (response.data.login === true) {
-      fetchServiceReactions(serviceId);
-    } else {
+    if (response.data.login === false && serviceId == 1) {
       navigate(`/connectServices/${serviceId}`);
       console.log("USER IS NOT LOGGED IN");
+    }  else {
+      fetchServiceReactions(serviceId);
     }
   };
 
@@ -273,15 +269,37 @@ const Dashboard = () => {
   const getExistedAreas = async () => {
     try {
       const response = await axios.get('http://localhost:8080/getAREAs');
-      setAreas(response.data);
-      console.log("THE AREAS ARE: ", response.data);
+      const areas = response.data;
+      let local_Areas = [];
+
+      const promises = response.data.map(async (elt) => {
+        const action = await fetch('http://localhost:8080/getAction/' + elt.action.id);
+        const jsonAction = await action.json();
+        const reaction = await fetch('http://localhost:8080/getReaction/' + elt.reaction.id);
+        const jsonReaction = await reaction.json();
+        console.log("THE ACTION AREA ARE: ", jsonAction);
+        return { key: elt.id, nameAction: jsonAction.action[0].name, nameReaction: jsonReaction.reaction[0].name };
+      });
+      const newArray = await Promise.all(promises);
+
+      // Mettre à jour l'état Areas avec les données récupérées
+      setAreas(newArray);
+      console.log("THE AREAS ARE LLLLLLLLLLLLL: ", newArray);
+
     } catch (error) {
       console.error('Error fetching areas:', error);
     }
   };
 
   useEffect(() => {
-    getExistedAreas()
+    getExistedAreas();
+  }, []);
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
+    if (!hasSeenTour) {
+      setShowTour(true); // Afficher le guide si non vu
+    }
   }, []);
 
   const [cards, setCards] = useState(
@@ -293,19 +311,12 @@ const Dashboard = () => {
         i % 5 === 2 ? '#7B9DD2' :
         i % 5 === 3 ? '#70C7C6' :
         '#F2B880',
-      title: `Card Title ${i + 1}`,
+      title: `When the action is done the reaction is done Card Title ${i + 1}`,
       subtitle: `Subtitle for card ${i + 1}`,
       details: `Detailed description for card ${i + 1}. This is an example of interactive content.`,
     }))
   );
 
-  
-  useEffect(() => {
-    const hasSeenTour = localStorage.getItem('hasSeenTour');
-    if (!hasSeenTour) {
-      setShowTour(true); // Afficher le guide si non vu
-    }
-  }, []);
 
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
@@ -357,41 +368,8 @@ const Dashboard = () => {
 
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
-
-    if (!newApplet.service1 || !newApplet.service2 || !newApplet.action || !newApplet.reaction) {
-      alert('Veuillez compléter toutes les options avant de créer un Applet.');
-      return;
-    }
-
-    const handleCreateApplet = (newApplet) => {
-      const user_id = localStorage.getItem('userId');
-      const newCard = {
-        id: cards.length + 1,
-        color: '#F4F0E3',
-        title: `${newApplet.service1} to ${newApplet.service2}`,
-        subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-        details: `Action: ${newApplet.actionDescription}\nReaction: ${newApplet.reactionDescription}` // Use descriptions from new applet data
-      };
-      setCards([...cards, newCard]);
-      createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
-    };
-
-    const newCard = {
-      id: cards.length + 1,
-      color: '#F4F0E3',
-      title: `${newApplet.service1} to ${newApplet.service2}`,
-      subtitle: `${newApplet.action} → ${newApplet.reaction}`,
-      details: `Action: ${JSON.stringify(newApplet.actionDescription)}\nReaction: ${JSON.stringify(newApplet.reactionDescription)}`,
-    };
-
-    // Ajouter la nouvelle carte et mettre à jour l'état
-    setCards((prevCards) => [...prevCards, newCard]);
-
-    // Affichez les données des cartes pour le débogage
-    console.log('Nouvelle carte créée :', newCard);
-    console.log('Cartes actuelles :', [...cards, newCard]);
+    createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
   };
-
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -478,12 +456,34 @@ const Dashboard = () => {
           console.log(`Selected service: ${serviceId}`);
 
       }} />
-
-               <div className="area-display-section">
-                  <AreaDisplay />
-                </div>
-              </section>
-
+      <div className="area-display-section">
+        {Areas.map((area, index) => (
+          <div
+            key={index}
+            className="area-card"
+            style={{
+              backgroundColor:
+                index % 5 === 0 ? '#DAD4DE' :
+                index % 5 === 1 ? '#BBB4DE' :
+                index % 5 === 2 ? '#7B9DD2' :
+                index % 5 === 3 ? '#70C7C6' :
+                '#F2B880'
+            }}
+          >
+            <h3>{area.action} → {area.reaction}</h3>
+            {/* <p>Service: {area.service_name}</p>
+            <div className="area-details">
+              <p>Action Parameters: {JSON.stringify(area.action_params)}</p>
+              <p>Reaction Parameters: {JSON.stringify(area.reaction_params)}</p>
+            </div> */}
+            <h3> when the action</h3>
+            <p>{area.action}</p>
+            <h3>Do</h3>
+            <p>{area.reaction}</p>
+          </div>
+        ))}
+      </div>
+      </section>
       <div className="card-container">
                 {cards.map((card) => (
                   <div
@@ -505,7 +505,6 @@ const Dashboard = () => {
         onCreateApplet={handleCreateApplet}
       />
     </div>
-    
   );
 };
 
