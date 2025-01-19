@@ -4,97 +4,135 @@
 ** File description:
 ** login.page
 */
-
-body {
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #F4F0E3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
   height: 100vh;
+  font-family: 'Arial', sans-serif;
 }
 
 .signup-container {
-  text-align: center;
-  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f0f2f5;
 }
 
 .signup-title {
-  font-size: 2em;
-  font-weight: bold;
+  font-size: 2.5rem;
   margin-bottom: 10px;
-  color: #7B9DD2;
+  color: #333;
 }
 
 .signup-subtitle {
-  font-size: 1.5em;
+  font-size: 1.5rem;
   margin-bottom: 20px;
-  color: #70C7C6;
+  color: #666;
 }
 
 .signup-form {
-  margin-bottom: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .signup-input {
-  width: 90%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #70C7C6;
-  border-radius: 5px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
 .signup-button {
   width: 100%;
-  padding: 10px;
-  margin: 5px 0;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
-  font-size: 1em;
+  border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
-}
-
-.signup-button.primary {
-  background-color: #7B9DD2;;
-  color: white;
-}
-
-.signup-divider {
-  margin: 10px 0;
-  color: #70C7C6;
-}
-
-.social-buttons .signup-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
+}
+
+.signup-button.primary {
+  background-color: #007bff;
+  color: white;
 }
 
 .signup-button.google {
-  background-color: #7B9DD2;;
-  color: white;
-  border: 1px solid #ccc;
+  background-color: white;
+  color: #757575;
+  border: 1px solid #ddd;
 }
 
 .signup-button.apple {
-  background-color: #7B9DD2;
+  background-color: black;
   color: white;
 }
 
 .signup-button.facebook {
-  background-color: #7B9DD2;
+  background-color: #3b5998;
   color: white;
 }
 
+.signup-divider {
+  margin: 20px 0;
+  text-align: center;
+  color: #666;
+  position: relative;
+}
+
+.signup-divider::before,
+.signup-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.signup-divider::before {
+  left: 0;
+}
+
+.signup-divider::after {
+  right: 0;
+}
+
+.social-buttons {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .signup-footer {
-  font-size: 0.9em;
-  color: #888;
+  margin-top: 20px;
+  text-align: center;
+  color: #666;
 }
 
 .signup-footer a {
-  color: black;
+  color: #007bff;
   text-decoration: none;
-  font-weight: bold;
+}
+
+/* Ajout pour les icônes */
+.mr-2 {
+  margin-right: 8px;
 }
