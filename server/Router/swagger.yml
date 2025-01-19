@@ -77,6 +77,17 @@ paths:
         400:
           description: Parameters are invalid
 
+  /getUserInfo:
+    get:
+      summary: Get login user informations
+      tags: [User]
+
+      responses:
+        200:
+          description: Return informations about user
+        400:
+          description: error in SQL request
+
   /getServices:
     get:
       summary: Get list of available services
@@ -123,25 +134,83 @@ paths:
                 properties:
                   test:
                     type: string
-                    description: IL FAUT REMPLIR
 
-  /getServiceLoginURL:
+  /getServiceActions/:serviceId:
+    get:
+      summary: Get actions of one service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of availables actions of one service
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                  service_id:
+                    type: integer
+                  name:
+                    type: string
+                  params:
+                    type: string
+                  description:
+                    type: string
+        500:
+          description: error from server
+
+  /getServiceReactions/:serviceId:
+    get:
+      summary: Get reactions of one service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of availables reactions of one service
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                  service_id:
+                    type: integer
+                  name:
+                    type: string
+                  params:
+                    type: string
+                  description:
+                    type: string
+        500:
+          description: error from server
+
+  /isUserLogin/:serviceId/:id:
+    get:
+      summary: Know if a specific user is login to a specific service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: True if user is login, else false
+        500:
+          description: error from server
+
+  /about.json:
+    get:
+      summary: Get all informations about available services, actions, reactions...
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return all informations
+        500:
+          description: error from server
+
+  /getServiceLoginURL/:userId/:serviceId:
     get:
       summary: Get the url of a specific service
       tags: [Services/Actions/Reactions]
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                userId:
-                  type: string
-                  description: The userId of the user making the request
-                serviceId:
-                  type: string
-                  description: The serviceId requested
 
       responses:
         200:
@@ -156,9 +225,55 @@ paths:
         400:
           description: Service not supported (wrong id)
 
-  /getServiceLoginURL:
+  /getAREAs:
     get:
-      summary: Get the url of a specific service
+      summary: Get all AREAs
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return all AREAs
+        400:
+          description: error in SQL request
+        500:
+          description: error from server
+
+  /getAREA/:id:
+    get:
+      summary: Get one specific AREA
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the AREA
+        400:
+          description: error in SQL request
+
+  /getAction/:id:
+    get:
+      summary: Get one specific action
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the action
+        400:
+          description: error in SQL request
+
+  /getReaction/:id:
+    get:
+      summary: Get one specific reaction
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the reaction
+        400:
+          description: error in SQL request
+
+  /CreateActionReaction:
+    post:
+      summary: Create AREA
       tags: [Services/Actions/Reactions]
 
       requestBody:
@@ -167,18 +282,12 @@ paths:
           application/json:
             schema:
               properties:
-                userId:
-                  type: string
-                  description: The userId of the user making the request
-                serviceId:
-                  type: string
-                  description: The serviceId requested
-
-      responses:
-        200:
-          description: User logged in to the service
-        500:
-          description: Authentication failed
+                  userId:
+                    type: integer
+                  action:
+                    type: string
+                  reaction:
+                    type: string
 
 components:
   schemas:
