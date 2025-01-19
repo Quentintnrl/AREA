@@ -296,11 +296,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('hasSeenTour');
-    if (!hasSeenTour) {
-      setShowTour(true); // Afficher le guide si non vu
-    }
-  }, []);
+    setShowTour(true); // Afficher le guide à chaque connexion
+  }, []);  
 
   const [cards, setCards] = useState(
     Areas.fill(0).map((_, i) => ({
