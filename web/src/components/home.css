@@ -1,0 +1,227 @@
+/*
+** EPITECH PROJECT, 2024
+** AREA
+** File description:
+** home
+*/
+/* Global styles */
+/* Style global pour la page */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  height: 100%;
+  width: 100%;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Section Héros */
+.hero-section {
+  background: linear-gradient(135deg, #2263b3, #1fe0ac);
+  color: white;
+  padding: 40px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.hero-section .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.navbar .logo img {
+  width: 100px;
+}
+
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links li {
+  display: inline-block;
+}
+
+.nav-links .nav-btn,
+.nav-links .btn-get-started {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-links .nav-btn {
+  background: white;
+  color: #2263b3;
+}
+
+.nav-links .btn-get-started {
+  background: #1fe0ac;
+  color: white;
+}
+
+.nav-links .btn-get-started:hover {
+  background: #17b689;
+}
+
+.hero-content {
+  text-align: left;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.hero-content .btn-start-today {
+  background: white;
+  color: #2263b3;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.hero-content .btn-start-today:hover {
+  background: #e2ebf5;
+}
+
+/* Section des Applets */
+.applets-section {
+  padding: 40px 20px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.applets-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.applets-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.applet-card {
+  flex: 1 1 calc(25% - 20px);
+  min-width: 250px;
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.applet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.applet-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* Section des services */
+.services-section {
+  padding: 40px 20px;
+  text-align: left;
+  background-color: #e2ebf5;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.services-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.services-container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.service-icon {
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  font-size: 16px;
+}
+
+.service-icon:hover {
+  transform: translateY(-5px);
+}
+
+/* Section IFTTT */
+.new-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ifttt-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ifttt-section img {
+  width: 80px;
+}
+
+.explore-button-container .explore-button {
+  background-color: #1fe0ac;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.explore-button-container .explore-button:hover {
+  background-color: #17b689;
+}

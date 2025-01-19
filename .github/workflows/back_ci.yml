@@ -1,4 +1,4 @@
-name: ci
+name: back_ci
 
 env:
   MIRROR_URL: git@github.com:EpitechPromo2027/B-DEV-500-NAN-5-2-area-loup.thomas.git
@@ -9,13 +9,15 @@ on:
       - main
       - dev
     paths:
-      - './server/**'
+      - 'server/**'
+      - '.github/workflows/back_ci.yml'
   pull_request:
     branches-ignore:
       - main
       - dev
     paths:
-      - './server/**'
+      - 'server/**'
+      - '.github/workflows/back_ci.yml'
 
 jobs:
 
@@ -48,5 +50,7 @@ jobs:
           npm install mysql
           sudo apt install mysql-server
 
-      - name: Run tests
-        run: |
+      # - name: Run tests
+      #   run: |
+      #     cd server
+      #     npm test

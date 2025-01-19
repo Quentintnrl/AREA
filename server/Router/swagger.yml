@@ -1,0 +1,326 @@
+openapi: 3.0.0
+info:
+    title: "AREA API documentation"
+    description: "This AREA API application made with Express and documented with Swagger"
+    version: 0.1
+
+tags:
+  - name: User
+    description: Connection or creation of user
+  - name: Services/Actions/Reactions
+    description: Services and Actions requests
+
+paths:
+  /register:
+    post:
+      summary: Create a new user
+      tags: [User]
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        201:
+          description: The created user with token.
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+                    description: The token of the user session (duration 1h)
+                  userName:
+                    type: string
+                    description: The username of the user
+                  Id:
+                    type: integer
+                    description: The id of the user
+        400:
+          description: Parameters are already used
+
+  /login:
+    post:
+      summary: Log in with an existing account
+      tags: [User]
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                userName:
+                  type: string
+                  description: The username of the user
+                password:
+                  type: string
+                  description: The password of the user
+      responses:
+        201:
+          description: The login user with token.
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+                    description: The token of the user session (duration 1h)
+                  userName:
+                    type: string
+                    description: The username of the user
+                  Id:
+                    type: integer
+                    description: The id of the user
+        400:
+          description: Parameters are invalid
+
+  /getUserInfo:
+    get:
+      summary: Get login user informations
+      tags: [User]
+
+      responses:
+        200:
+          description: Return informations about user
+        400:
+          description: error in SQL request
+
+  /getServices:
+    get:
+      summary: Get list of available services
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of available services.
+          content:
+            application/json:
+              schema:
+                properties:
+                  test:
+                    type: string
+                    description: IL FAUT REMPLIR
+
+  /getActions:
+    get:
+      summary: Get list of available actions
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of available actions.
+          content:
+            application/json:
+              schema:
+                properties:
+                  test:
+                    type: string
+                    description: IL FAUT REMPLIR
+
+  /getReactions:
+    get:
+      summary: Get list of available reactions
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of available reactions.
+          content:
+            application/json:
+              schema:
+                properties:
+                  test:
+                    type: string
+
+  /getServiceActions/:serviceId:
+    get:
+      summary: Get actions of one service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of availables actions of one service
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                  service_id:
+                    type: integer
+                  name:
+                    type: string
+                  params:
+                    type: string
+                  description:
+                    type: string
+        500:
+          description: error from server
+
+  /getServiceReactions/:serviceId:
+    get:
+      summary: Get reactions of one service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The list of availables reactions of one service
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                  service_id:
+                    type: integer
+                  name:
+                    type: string
+                  params:
+                    type: string
+                  description:
+                    type: string
+        500:
+          description: error from server
+
+  /isUserLogin/:serviceId/:id:
+    get:
+      summary: Know if a specific user is login to a specific service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: True if user is login, else false
+        500:
+          description: error from server
+
+  /about.json:
+    get:
+      summary: Get all informations about available services, actions, reactions...
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return all informations
+        500:
+          description: error from server
+
+  /getServiceLoginURL/:userId/:serviceId:
+    get:
+      summary: Get the url of a specific service
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: The url of the service.
+          content:
+            application/json:
+              schema:
+                properties:
+                  url:
+                    type: string
+                    description: The url of a specific service
+        400:
+          description: Service not supported (wrong id)
+
+  /getAREAs:
+    get:
+      summary: Get all AREAs
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return all AREAs
+        400:
+          description: error in SQL request
+        500:
+          description: error from server
+
+  /getAREA/:id:
+    get:
+      summary: Get one specific AREA
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the AREA
+        400:
+          description: error in SQL request
+
+  /getAction/:id:
+    get:
+      summary: Get one specific action
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the action
+        400:
+          description: error in SQL request
+
+  /getReaction/:id:
+    get:
+      summary: Get one specific reaction
+      tags: [Services/Actions/Reactions]
+
+      responses:
+        200:
+          description: Return the reaction
+        400:
+          description: error in SQL request
+
+  /CreateActionReaction:
+    post:
+      summary: Create AREA
+      tags: [Services/Actions/Reactions]
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                  userId:
+                    type: integer
+                  action:
+                    type: string
+                  reaction:
+                    type: string
+
+components:
+  schemas:
+    user:
+      type: object
+      required:
+        - email
+        - client_password
+      properties:
+        userName:
+          type: string
+          description: The username of the user
+        userEmail:
+          type: string
+          description: The email of the user
+        password:
+          type: string
+          description: The password of the user
+
+    services:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the service
+
+    actions:
+      type: object
+      properties:
+        service_id:
+          type: integer
+          description: The service id of the action linked
+        name:
+          type: string
+          description: The name of the service
+
