@@ -268,9 +268,24 @@ const Dashboard = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showTour, setShowTour] = useState(true); // Activer le tour au début
   const [currentStep, setCurrentStep] = useState(0); // Gérer l'étape actuelle
+  const [Areas, setAreas] = useState([]);
+
+  const getExistedAreas = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/getAREAs');
+      setAreas(response.data);
+      console.log("THE AREAS ARE: ", response.data);
+    } catch (error) {
+      console.error('Error fetching areas:', error);
+    }
+  };
+
+  useEffect(() => {
+    getExistedAreas()
+  }, []);
 
   const [cards, setCards] = useState(
-    Array(4).fill(0).map((_, i) => ({
+    Areas.fill(0).map((_, i) => ({
       id: i + 1,
       color:
         i % 5 === 0 ? '#DAD4DE' :
@@ -286,11 +301,6 @@ const Dashboard = () => {
   const handleCardClick = (card) => {
     navigate(`/details/${card.id}`, { state: { card } });
   };
-
-
-  const handleServiceSelect = (serviceId) => {
-    console.log(`Selected service: ${serviceId}`);
-};
 
   const createActionsReactions = async (userId, actionId, reactionId, actionDescription, reactionDescription) => {
     const [actionResponse, reactionResponse] = await Promise.all([
@@ -331,14 +341,15 @@ const Dashboard = () => {
     console.log('Action/Reaction created:', response.data);
     return response.data;
   };
+
   const handleCreateApplet = (newApplet) => {
     const user_id = localStorage.getItem('userId');
-    
+
     if (!newApplet.service1 || !newApplet.service2 || !newApplet.action || !newApplet.reaction) {
       alert('Veuillez compléter toutes les options avant de créer un Applet.');
       return;
     }
-  
+
     const handleCreateApplet = (newApplet) => {
       const user_id = localStorage.getItem('userId');
       const newCard = {
@@ -351,7 +362,7 @@ const Dashboard = () => {
       setCards([...cards, newCard]);
       createActionsReactions(user_id, newApplet.action, newApplet.reaction, newApplet.actionDescription, newApplet.reactionDescription);
     };
-  
+
     const newCard = {
       id: cards.length + 1,
       color: '#F4F0E3',
@@ -359,20 +370,20 @@ const Dashboard = () => {
       subtitle: `${newApplet.action} → ${newApplet.reaction}`,
       details: `Action: ${JSON.stringify(newApplet.actionDescription)}\nReaction: ${JSON.stringify(newApplet.reactionDescription)}`,
     };
-  
+
     // Ajouter la nouvelle carte et mettre à jour l'état
     setCards((prevCards) => [...prevCards, newCard]);
-  
+
     // Affichez les données des cartes pour le débogage
     console.log('Nouvelle carte créée :', newCard);
     console.log('Cartes actuelles :', [...cards, newCard]);
   };
-  
+
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/');
   };
 
   const handleNextStep = () => {
@@ -427,61 +438,60 @@ const Dashboard = () => {
         />
          <h1>Explore</h1>
 
-{/* Nouvelle section "Discover Automation" */}
-<section className="discover-automation">
-  <h2>Discover Automation</h2>
-  <p>Connect your favorite services and automate your digital life</p>
-  <div className="card-container">
-    {/* Mettre ici les applets mis en avant */}
-    <div className="highlight-card spotify">
-      <h3>Save Spotify songs to playlist</h3>
-      <p>Automatically save liked songs to a specific playlist</p>
-    </div>
-    <div className="highlight-card twitter">
-      <h3>Twitter to Instagram</h3>
-      <p>Share your tweets as Instagram posts</p>
-    </div>
-    <div className="highlight-card weather">
-      <h3>Weather notifications</h3>
-      <p>Get daily weather updates via email</p>
-    </div>
-  </div>
-</section>
-<section className="popular-services">
-<PopularServices onServiceSelect={(serviceId) => {
-    console.log(`Selected service: ${serviceId}`);
-  
-}} />
-
- <div className="area-display-section">
-        <AreaDisplay />
-      </div>
-</section>
-
-
-<div className="card-container">
-          {cards.map((card) => (
-            <div
-              className="card"
-              style={{ backgroundColor: card.color }}
-              key={card.id}
-              onClick={() => handleCardClick(card)}
-            >
-              <h2>{card.title}</h2>
-              <p>{card.subtitle}</p>
-            </div>
-          ))}
+      {/* Nouvelle section "Discover Automation" */}
+      <section className="discover-automation">
+        <h2>Discover Automation</h2>
+        <p>Connect your favorite services and automate your digital life</p>
+        <div className="card-container">
+          {/* Mettre ici les applets mis en avant */}
+          <div className="highlight-card spotify">
+            <h3>Save Spotify songs to playlist</h3>
+            <p>Automatically save liked songs to a specific playlist</p>
+          </div>
+          <div className="highlight-card twitter">
+            <h3>Twitter to Instagram</h3>
+            <p>Share your tweets as Instagram posts</p>
+          </div>
+          <div className="highlight-card weather">
+            <h3>Weather notifications</h3>
+            <p>Get daily weather updates via email</p>
+          </div>
         </div>
-      </main>
+      </section>
+      <section className="popular-services">
+      <PopularServices onServiceSelect={(serviceId) => {
+          console.log(`Selected service: ${serviceId}`);
 
-      {/* Modal pour la création d'un Applet */}
-      <CreateAppletModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateApplet={handleCreateApplet}
-      />
-    </div>
-    
+      }} />
+
+      <div className="area-display-section">
+              <AreaDisplay />
+            </div>
+      </section>
+
+
+      <div className="card-container">
+                {cards.map((card) => (
+                  <div
+                    className="card"
+                    style={{ backgroundColor: card.color }}
+                    key={card.id}
+                    onClick={() => handleCardClick(card)}
+                  >
+                    <h2>{card.title}</h2>
+                    <p>{card.subtitle}</p>
+                  </div>
+                ))}
+              </div>
+            </main>
+
+            {/* Modal pour la création d'un Applet */}
+            <CreateAppletModal
+              isOpen={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onCreateApplet={handleCreateApplet}
+            />
+          </div>
   );
 };
 
