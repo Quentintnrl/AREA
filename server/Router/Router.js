@@ -420,9 +420,23 @@ module.exports = function() {
         });
     });
 
+    router.delete("/deleteAREA/:userId/:id", async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            const actionId = req.params.actionId;
+            const reactionId = req.params.reactionId;
+            const id = req.params.id;
+            const response = await pool.query('DELETE FROM action_reaction WHERE user_id = ? AND id = ?', [userId, id]);
+            // const response = await pool.query('DELETE FROM action_reaction WHERE user_id = ? AND action_id = ? AND reaction_id = ?', [userId, actionId, reactionId]);
 
-
-
+            console.log("Response from the database:", response);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: "Action-reaction deleted successfully" }));
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: "Cannot delete the Action-reaction" }));
+        }
+    });
 
 //                                                                               PUT ROUTES
 
