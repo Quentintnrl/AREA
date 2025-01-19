@@ -36,9 +36,9 @@ docker-compose up
 ## 🌐 Application Access
 - Web Client: `http://localhost:8081`
 - Application Server: `http://localhost:8080`
-- Mobile Client: `npm i && npx expo start --tunnel`
+- Mobile Client: get the apk with `http://localhost:8081/client.apk`
 ## 📡 API Endpoints
-Detailed API documentation available in `docs/API.md`
+Detailed API documentation available [API Documentation](http://localhost:8080/api-docs/) -> when server is running
 ## 🤝 Contributing
 ### Development Workflow
 1. **Never push directly to `main`**
@@ -75,7 +75,8 @@ git commit -m "📝 update API documentation"
 ### Roles
 - Backend Developers: [@Quentintnrl](https://github.com/Quentintnrl), [@eregine](https://github.com/eregine)
 - Frontend Developers: [@ziaa15](https://github.com/ziaa15), [@lxnbt](https://github.com/lxnbt)
-- DevOps & Documentation: All team members
+- DevOps : [@Quentintnrl](https://github.com/Quentintnrl)
+- Documentation: All team members
 ### Communication Channels
 - Project Management: [Notion Organisation](https://lowly-desert-eb1.notion.site/AREA-1433927a231c800a8ed0e917efa11492?pvs=4)
 - Team Communication: Microsoft Teams
@@ -87,8 +88,8 @@ git commit -m "📝 update API documentation"
 - Robust and scalable architecture
 ## 📚 Documentation
 - [API Documentation](http://localhost:8080/api-docs/) -> when server is running
-- [Technical Guide](docs/TECHNICAL.md)
-- [User Manual](https://www.notion.so/User-Documentation-1583927a231c80a7a1f2c18d8c354b67?pvs=4)
-- [Comparative Guide](https://www.notion.so/comparative-dev-1583927a231c8087bbcfec7991181036?pvs=4)
+- [Technical Guide](https://www.notion.so/Developer-Documentation-180962a4e5bb8072ae41f45e2877c70f)
+- [User Manual](https://www.notion.so/User-Documentation-180962a4e5bb803b8245e75ff4d9d722)
+- [Comparative Guide](https://www.notion.so/Comparative-Documentation-180962a4e5bb8084b5bffd50dee9d0cf?pvs=23)
 ## 🤔 Support
 For questions or issues, please open a GitHub issue.
