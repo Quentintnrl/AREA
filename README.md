@@ -88,8 +88,8 @@ git commit -m "📝 update API documentation"
 - Robust and scalable architecture
 ## 📚 Documentation
 - [API Documentation](http://localhost:8080/api-docs/) -> when server is running
-- [Technical Guide](https://www.notion.so/Developer-Documentation-180962a4e5bb8072ae41f45e2877c70f)
-- [User Manual](https://www.notion.so/User-Documentation-180962a4e5bb803b8245e75ff4d9d722)
-- [Comparative Guide](https://www.notion.so/Comparative-Documentation-180962a4e5bb8084b5bffd50dee9d0cf?pvs=23)
+- [Technical Guide](https://peridot-pick-df3.notion.site/Developer-Documentation-180962a4e5bb8072ae41f45e2877c70f)
+- [User Manual](https://peridot-pick-df3.notion.site/User-Documentation-180962a4e5bb803b8245e75ff4d9d722)
+- [Comparative Guide](https://peridot-pick-df3.notion.site/Comparative-Documentation-180962a4e5bb8084b5bffd50dee9d0cf)
 ## 🤔 Support
 For questions or issues, please open a GitHub issue.
