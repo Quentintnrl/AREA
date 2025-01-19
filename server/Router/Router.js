@@ -135,7 +135,7 @@ module.exports = function() {
             res.set('Content-Type', 'text/html');
             getServiceActions(serviceId)
             .then(services => {
-                res.json(services);
+                res.status(200).json(services);
             })
             .catch(error => {
                 res.status(500).json({ error: error.message });
@@ -154,7 +154,7 @@ module.exports = function() {
             res.set('Content-Type', 'text/html');
             getServiceReactions(serviceId)
             .then(services => {
-                res.json(services);
+                res.status(200).json(services);
             })
             .catch(error => {
                 res.status(500).json({ error: error.message });
@@ -256,7 +256,7 @@ module.exports = function() {
             service_login_service_id = serviceId;
             const url = await get_login_url(serviceId);
             console.log("THE URL IS= ", url);
-            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ url: url }));
         } catch (error) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
