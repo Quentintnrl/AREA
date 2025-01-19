@@ -61,10 +61,15 @@ module.exports = function() {
                     console.log("in the user creation",);
                     const registerResult = await register(googleUser.email, googleUser.name, googleUser.sub);
                     store.set('id', registerResult.Id);
+                    const json = [{
+                        id: registerResult.Id,
+                        username: registerResult.userName,
+                        email: registerResult.email
+                    }]
+                    console.log(json)
                     res.status(201).json({
                         token: registerResult.token,
-                        userName: registerResult.userName,
-                        Id: registerResult.Id
+                        user: json
                     });
                     return;
                 }
