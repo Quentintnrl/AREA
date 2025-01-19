@@ -1,0 +1,122 @@
+.popular-services {
+    margin: 2rem 0;
+    padding: 0 1rem;
+}
+
+.popular-services h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .services-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.service-card {
+    position: relative;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.service-name {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+}
+
+.service-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Prevent interaction when not visible */
+}
+
+.service-card:hover .service-details {
+    opacity: 1;
+    pointer-events: auto; /* Allow interaction when visible */
+}
+
+.service-details h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.service-details ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.service-details li {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    color: #666;
+}
+
+.highlight-card.spotify {
+    background: linear-gradient(90deg, #ff66cc, #ff9966);
+}
+
+.highlight-card.twitter {
+    background: linear-gradient(90deg, #1da1f2, #00aaff);
+}
+
+.highlight-card.weather {
+    background: linear-gradient(90deg, #4caf50, #81c784);
+}
+
+.popular-services {
+    margin: 20px 0;
+}
+
+/* Scrollbar styling */
+.service-details::-webkit-scrollbar {
+    width: 4px;
+}
+
+.service-details::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.service-details::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+}
+
+.service-details::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
