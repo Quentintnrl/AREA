@@ -1,0 +1,205 @@
+.tour-guide-arrow {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white; /* Couleur de fond */
+    border: 2px solid #0078d7; /* Bordure colorée */
+    transform: rotate(45deg); /* Orientation fléchée */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+    z-index: 1001;
+    animation: bounce 1s infinite ease-in-out; /* Animation pour attirer l'attention */
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(-5px) rotate(45deg); /* Mouvement vers le haut */
+    }
+    50% {
+      transform: translateY(0) rotate(45deg); /* Retour à la position normale */
+    }
+  }
+  .tour-guide-content {
+    position: absolute;
+    padding: 20px 24px; /* Espacement plus généreux */
+    background: linear-gradient(135deg, #ffffff, #f9f9f9); /* Dégradé subtil */
+    border: 1px solid #e0e0e0; /* Couleur de bordure adoucie */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Ombre plus prononcée pour une élévation */
+    border-radius: 12px; /* Coins arrondis plus modernes */
+    text-align: center;
+    z-index: 1001;
+    pointer-events: auto;
+    font-family: 'Roboto', sans-serif; /* Police moderne */
+    font-size: 16px;
+    color: #333; /* Texte avec une couleur douce */
+    animation: fadeIn 0.5s ease-in-out; /* Animation d'apparition douce */
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .tour-guide-content h2 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0078d7; /* Couleur d'accentuation */
+    margin-bottom: 16px;
+  }
+  
+  .tour-guide-content p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .tour-guide-content button {
+    background: #0078d7; /* Couleur d'accentuation pour les boutons */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+  }
+  
+  .tour-guide-content button:hover {
+    background: #005bb5; /* Changement de couleur au survol */
+  }
+  
+  .tour-guide-content button:active {
+    background: #004394; /* Couleur légèrement plus foncée au clic */
+  }
+  
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1001;
+  }
+  
+  .close-tour {
+    background-color: #0078d7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  .next-step {
+    background-color: #0078d7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  .badge-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002;
+  }
+  
+  .badge-content {
+    background: white;
+    padding: 32px;
+    text-align: center;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: popIn 0.5s ease-in-out;
+  }
+  
+  .badge-content h2 {
+    font-size: 28px;
+    color: #28a745;
+    margin-bottom: 16px;
+  }
+  
+  .badge-content p {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .badge-content .close-tour {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  
+  .badge-content .close-tour:hover {
+    background-color: #0056b3;
+  }
+  
+  .confetti {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    animation: confetti-fall 3s linear infinite;
+  }
+  
+  @keyframes popIn {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+  
