@@ -168,3 +168,7 @@ INSERT INTO reactions (service_id, name, params, description)
 VALUES (5, 'Weekly temperature', '{"params": [{"name": "Email adress", "type": "string"}, {"name": "City", "type": "string"}]}', 'Send an email with the temperature of the week in the city of your choice');
 SELECT ROW_COUNT();
 
+INSERT INTO reactions (service_id, name, params, description)
+VALUES (5, 'Daily meteo', '{"params": [{"name": "Email adress", "type": "string"}, {"name": "City", "type": "string"}]}', 'Send an email with the daily meteo in the city of your choice');
+SELECT ROW_COUNT();
+
