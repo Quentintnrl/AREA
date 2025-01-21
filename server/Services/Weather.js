@@ -4,6 +4,7 @@ const disconnect = require('../db').close;
 const axios = require('axios');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
+const { get } = require('store');
 
 
 // Email login
@@ -44,6 +45,34 @@ async function getTemperatureOfCity(city) {
       throw new Error('Could not fetch temperature data');
     }
 }
+
+/**
+ * Fetches the temperature for a given city on a specific past date using WeatherAPI.
+ * @param {string} city - The name of the city.
+ * @param {string} date - The date in the format 'YYYY-MM-DD'.
+ * @returns {Promise<string>} - The temperature on the specified date in Celsius.
+ */
+async function getHistoricalTemperature(city, date) {
+    if (!city || !date) {
+      throw new Error('City name and date are required');
+    }
+
+    try {
+      const response = await axios.get(baseUrl, {
+        params: {
+          key: apiKey,
+          q: city,
+          dt: date, // Specify the date for historical data
+        },
+      });
+
+      const temperature = response.data.current.feelslike_c;
+      return `${temperature} °C`;
+    } catch (error) {
+      console.error('Error fetching historical temperature:', error.message);
+      throw new Error('Could not fetch historical temperature data');
+    }
+  }
 
 
 
@@ -95,7 +124,22 @@ async function create_json(request_json, target_name, user_id, service_id) {
                     }
                 };
                 return json;
-                break;
+            }
+
+            case 'Weekly temperature': {
+                console.log(request_json);
+                const email = request_json.params["Email adress"];
+                console.log('email:', email);
+                const city = request_json.params["City"];
+                console.log('city:', city);
+                const json = {
+                    id: request_json.id,
+                    params: {
+                        "email_adress": email,
+                        "city": city
+                    }
+                };
+                return json;
             }
 
             default: {
@@ -182,6 +226,57 @@ class Weather extends AbstractService {
                         }
                     });
                     break;
+                }
+
+                case 'Weekly temperature': {
+                    console.log(task);
+                    const email = task.params["email_adress"];
+                    console.log('email:', email);
+                    const city = task.params["city"];
+                    console.log('city:', city);
+                    const date = new Date();
+                    console.log('Date:', date);
+                    //get date like 2025-01-07
+                    const day = date.getDate();
+                    console.log('Day:', day);
+                    const month = date.getMonth() + 1;
+                    console.log('Month:', month);
+                    const year = date.getFullYear();
+                    console.log('Year:', year);
+                    const date_end = year + '-' + day + '-' + month;
+                    console.log('date_end:', date_end);
+                    const temperature = await getHistoricalTemperature(city, date_end);
+                    console.log('Temperature:', temperature);
+                    //get day name
+                    const day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                    const day_name = day_names[date.getDay()];
+                    console.log('day_name:', day_name);
+                    //get month name
+                    const month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    const month_name = month_names[month - 1];
+                    console.log('month_name:', month_name);
+                    const subject = 'Weekly temperature';
+                    console.log('subject:', subject);
+                    const message = 'We are the ' + day_name + ' ' + day + 'th ' + month_name + ' ' + year + ' and the average temperature in ' + city + ' for the previous week was ' + temperature + ' !';
+                    console.log('message:', message);
+                    let mailOptions = {
+                        from: EMAIL_ADRESS,
+                        to: email,
+                        subject: subject,
+                        text: message,
+                    };
+                    this._transporter.sendMail(mailOptions, function(error, info){
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                        }
+                    });
+                    break;
+                }
+
+                default: {
+                    throw new Error('Task not supported');
                 }
             }
         } else {
