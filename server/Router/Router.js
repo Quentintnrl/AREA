@@ -239,6 +239,16 @@ module.exports = function() {
         }
     });
 
+    router.get("/getUserInfo/", async (req, res) => {
+        console.log("GET USER INFO BY ID");
+        try {
+            const [info] = await pool.query('SELECT username, email FROM users WHERE id = ?', [store.get("id")]);
+            return res.status(200).json({info: info});
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: error }));
+        }
+    });
 
     //                                                                               POST ROUTES
 
