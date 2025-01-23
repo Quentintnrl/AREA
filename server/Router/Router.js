@@ -322,10 +322,17 @@ module.exports = function() {
         req.on('end', async () => { // Mark this function as async
             // Now the body is fully collected, you can log it
             try {
+
+                //front and mobile request read
+                const userId = JSON.parse(body).JsonReponse.user_id;
+                const actionJson = await create_json(JSON.parse(body).JsonReponse.action, userId, "action");
+                const reactionJson = await create_json(JSON.parse(body).JsonReponse.reaction, userId, "reaction");
                 // console.log("Received body:", body);
-                const userId = JSON.parse(body).user_id;
-                const actionJson = await create_json(JSON.parse(body).action, userId, "action");
-                const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
+
+                //postman request read
+                // const userId = JSON.parse(body).user_id;
+                // const actionJson = await create_json(JSON.parse(body).action, userId, "action");
+                // const reactionJson = await create_json(JSON.parse(body).reaction, userId, "reaction");
 
                 console.log("userId: ", userId);
                 console.log("actionJson: ", actionJson);
